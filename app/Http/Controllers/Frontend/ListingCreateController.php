@@ -52,7 +52,7 @@ class ListingCreateController extends Controller
 
                 ListingPhoto::create([
                     'listing_id' => $listing->id,
-                    'failo_url' => basename($path),
+                    'failo_url' => $path,
                 ]);
             }
         }
@@ -107,7 +107,7 @@ class ListingCreateController extends Controller
 
                 ListingPhoto::create([
                     'listing_id' => $listing->id,
-                    'failo_url'  => asset('storage/' . $path),
+                   'failo_url'  => $path,
                 ]);
             }
         }
@@ -117,36 +117,24 @@ class ListingCreateController extends Controller
             ->with('success', 'Listing updated successfully!');
     }
 
-    public function deletePhoto(Listing $listing, ListingPhoto $photo)
-    {
-        if ($listing->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized');
-        }
+   public function deletePhoto(Listing $listing, ListingPhoto $photo)
+{
+    if ($listing->user_id !== auth()->id()) {
+        abort(403);
+    }
 
-        // Ensure photo belongs to listing
-        if ($photo->listing_id !== $listing->id) {
-            abort(404);
-        }
+    if ($photo->listing_id !== $listing->id) {
+        abort(404);
+    }
 
-        // Prevent deleting last photo
-        if ($listing->photos()->count() <= 1) {
-    return back()->with('error', 'A listing must have at least one photo.');
+    if ($listing->photos()->count() <= 1) {
+        return back()->with('error', 'A listing must have at least one photo.');
+    }
+
+    Storage::disk('public')->delete($photo->failo_url);
+    $photo->delete();
+
+    return back()->with('success', 'Photo deleted successfully.');
 }
 
-        // Delete from storage
-        if ($photo->failo_url) {
-            $prefix       = asset('storage') . '/';
-            $relativePath = str_starts_with($photo->failo_url, $prefix)
-                ? substr($photo->failo_url, strlen($prefix))
-                : null;
-
-            if ($relativePath) {
-                Storage::disk('public')->delete($relativePath);
-            }
-        }
-
-        $photo->delete();
-
-        return back()->with('success', 'Photo deleted successfully.');
-    }
 }
