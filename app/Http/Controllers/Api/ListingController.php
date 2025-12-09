@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Api\BaseController;
-use App\Http\Resources\ListingResource;
-use App\Models\Listing;
-use App\Services\ListingService;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\BaseController;
+use App\Http\Requests\StoreListingRequest;
+use App\Http\Requests\UpdateListingRequest;
+use App\Http\Resources\ListingResource;
+use App\Services\ListingService;
 
 class ListingController extends BaseController
 {
@@ -17,27 +18,18 @@ class ListingController extends BaseController
         $this->listingService = $listingService;
     }
 
-    /**
-     * List all listings OR favorites by IDs
-     * /api/listing
-     * /api/listing?ids=1,2,3
-     */
     public function index(Request $request)
     {
         if ($request->filled('ids')) {
-            $ids = array_map('intval', explode(',', $request->ids));
+            $ids = explode(',', $request->ids);
+            $listings = $this->listingService->getByIds($ids);
 
-            $listings = Listing::whereIn('id', $ids)
-                ->with(['photos', 'category', 'user'])
-                ->get();
-
-            return $this->sendResponse(
-                ListingResource::collection($listings),
-                'Favorite listings retrieved.'
-            );
+            return response()->json([
+                'data' => ListingResource::collection($listings),
+            ]);
         }
 
-        $listings = Listing::with(['photos', 'category', 'user'])->get();
+        $listings = $this->listingService->getAll();
 
         return $this->sendResponse(
             ListingResource::collection($listings),
@@ -45,30 +37,9 @@ class ListingController extends BaseController
         );
     }
 
-    /**
-     * Show single listing
-     */
-    public function show($id)
-    {
-        $listing = Listing::with(['photos', 'category', 'user'])->find($id);
-
-        if (!$listing) {
-            return $this->sendError('Listing not found.', 404);
-        }
-
-        return $this->sendResponse(
-            new ListingResource($listing),
-            'Listing retrieved.'
-        );
-    }
-
-    /**
-     * Listings owned by user
-     */
     public function mine(Request $request)
     {
-        $userId = $request->user()->id;
-
+        $userId = $request->user_id;
         $listings = $this->listingService->getMine($userId);
 
         return $this->sendResponse(
@@ -77,9 +48,28 @@ class ListingController extends BaseController
         );
     }
 
-    /**
-     * Search listings
-     */
+    public function show($id)
+    {
+        $listing = $this->listingService->getById($id);
+        if (!$listing) return $this->sendError('Listing not found.', 404);
+
+        return $this->sendResponse(
+            new ListingResource($listing),
+            'Listing found.'
+        );
+    }
+
+    public function store(StoreListingRequest $request)
+    {
+        $listing = $this->listingService->create($request->validated());
+
+        return $this->sendResponse(
+            new ListingResource($listing),
+            'Listing created.',
+            201
+        );
+    }
+
     public function search(Request $request)
     {
         $filters = $request->only([
@@ -88,7 +78,7 @@ class ListingController extends BaseController
             'tipas',
             'min_price',
             'max_price',
-            'sort',
+            'sort'
         ]);
 
         $results = $this->listingService->search($filters);
@@ -97,5 +87,32 @@ class ListingController extends BaseController
             ListingResource::collection($results),
             'Search results retrieved.'
         );
+    }
+
+    public function update(UpdateListingRequest $request, $id)
+    {
+        try {
+            $listing = $this->listingService->update($id, $request->validated());
+            if (!$listing) {
+                return $this->sendError('Listing not found', 404);
+            }
+
+            return $this->sendResponse(
+                new ListingResource($listing),
+                'Listing updated.'
+            );
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 400);
+        }
+    }
+
+    public function destroy($id)
+    {
+        $deleted = $this->listingService->delete($id);
+        if (!$deleted) {
+            return $this->sendError('Listing not found.', 404);
+        }
+
+        return $this->sendResponse(null, 'Listing deleted.');
     }
 }
