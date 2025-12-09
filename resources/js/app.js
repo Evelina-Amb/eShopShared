@@ -9,6 +9,7 @@ Alpine.store('favorites', {
     async load() {
         try {
             const res = await fetch('/api/favorites/ids', {
+                credentials: 'same-origin',
                 headers: {
                     'Accept': 'application/json',
                 },
@@ -40,27 +41,28 @@ Alpine.store('favorites', {
             return;
         }
 
+        const options = {
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrf,
+            },
+        };
+
         if (this.has(listingId)) {
-            // REMOVE favorite
             await fetch(`/api/favorite/${listingId}`, {
+                ...options,
                 method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': csrf,
-                    'Accept': 'application/json',
-                },
             });
         } else {
-            // ADD favorite
             await fetch('/api/favorite', {
+                ...options,
                 method: 'POST',
                 headers: {
+                    ...options.headers,
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf,
-                    'Accept': 'application/json',
                 },
-                body: JSON.stringify({
-                    listing_id: listingId,
-                }),
+                body: JSON.stringify({ listing_id: listingId }),
             });
         }
 
@@ -70,7 +72,6 @@ Alpine.store('favorites', {
 
 Alpine.start();
 
-// Load favorites once Alpine is ready
 document.addEventListener('alpine:init', () => {
     Alpine.store('favorites').load();
 });
