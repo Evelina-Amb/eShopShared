@@ -52,7 +52,7 @@ class ListingCreateController extends Controller
 
                 ListingPhoto::create([
                     'listing_id' => $listing->id,
-                    'failo_url'  => asset('storage/' . $path),
+                    'failo_url' => basename($path),
                 ]);
             }
         }
