@@ -4,19 +4,40 @@ import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 
 Alpine.store('favorites', {
-    list: JSON.parse(localStorage.getItem('favorites') || '[]'),
+    ids: [],
 
-    toggle(id) {
-        if (this.list.includes(id)) {
-            this.list = this.list.filter(x => x !== id);
-        } else {
-            this.list.push(id);
-        }
-        this.save();
+    async load() {
+        const res = await fetch('/api/favorites/ids', {
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (!res.ok) return;
+
+        this.ids = await res.json();
     },
 
-    save() {
-        localStorage.setItem('favorites', JSON.stringify(this.list));
+    has(id) {
+        return this.ids.includes(id);
+    },
+
+    async toggle(listingId) {
+        if (this.has(listingId)) {
+            await fetch(`/api/favorite/${listingId}`, {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+            });
+        } else {
+            await fetch('/api/favorite', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                },
+                body: JSON.stringify({ listing_id: listingId })
+            });
+        }
+
+        await this.load();
     }
 });
 
