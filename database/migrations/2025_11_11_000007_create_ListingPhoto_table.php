@@ -8,16 +8,17 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('listing_photos', function (Blueprint $table) {
-    $table->id();
-    $table->unsignedBigInteger('listing_id');
-    $table->string('failo_url');
-    $table->timestamps();
+            $table->id();
+            $table->unsignedBigInteger('listing_id');
+            $table->string('failo_url');
+            $table->timestamps();
 
-    $table->foreign('listing_id')
-          ->references('id')
-          ->on('listing')
-          ->cascadeOnDelete();
-});
+            $table->foreign('listing_id')
+                  ->references('id')
+                  ->on('listing') 
+                  ->cascadeOnDelete();
+        });
+    }
 
     public function down(): void
     {
