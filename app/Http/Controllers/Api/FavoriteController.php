@@ -32,16 +32,29 @@ class FavoriteController extends BaseController
         return $this->sendResponse(new FavoriteResource($favorite), 'Favorite found.');
     }
 
-    public function store(StoreFavoriteRequest $request)
+    public function store(Request $request)
 {
-    try {
-        $favorite = $this->favoriteService->create($request->validated());
-        return $this->sendResponse(new FavoriteResource($favorite), 'Favorite created.', 201);
+    $data = $request->validate([
+        'listing_id' => 'required|exists:listing,id',
+    ]);
 
-    } catch (\Exception $e) {
-        return $this->sendError($e->getMessage(), 400);
-    }
+    $favorite = Favorite::firstOrCreate([
+        'user_id' => auth()->id(),
+        'listing_id' => $data['listing_id'],
+    ]);
+
+    return response()->json($favorite, 201);
 }
+
+public function destroy($listingId)
+{
+    Favorite::where('user_id', auth()->id())
+        ->where('listing_id', $listingId)
+        ->delete();
+
+    return response()->noContent();
+}
+
 
     public function update(UpdateFavoriteRequest $request, $id)
     {
