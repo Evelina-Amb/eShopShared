@@ -10,13 +10,13 @@
 
 @if($item->photos->isNotEmpty())
     <img
-      src="{{ route('media.show', $item->photos->first()->failo_url) }}"
-      class="w-full h-48 object-cover"
+        src="{{ route('media.show', $item->photos->first()->failo_url) }}"
+        class="w-full h-48 object-cover"
     >
 @else
     <img
-      src="https://via.placeholder.com/300x200?text=No+Image"
-      class="w-full h-48 object-cover"
+        src="https://via.placeholder.com/300x200?text=No+Image"
+        class="w-full h-48 object-cover"
     >
 @endif
 
