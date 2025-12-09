@@ -8,7 +8,11 @@
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
                     <div class="relative">
 
-                        <img src="{{ $item->photos>first()?->failo_url ?? 'https://via.placeholder.com/300' }}" class="w-full h-48 object-cover">
+                        <img 
+    src="{{ optional($item->photos->first())->failo_url ?? 'https://via.placeholder.com/300' }}" 
+    class="w-full h-48 object-cover"
+>
+
                         <button
                             @click="Alpine.store('favorites').toggle({{ $item->id }})"
                             class="absolute top-2 right-2">
