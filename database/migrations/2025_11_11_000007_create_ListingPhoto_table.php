@@ -15,8 +15,8 @@ return new class extends Migration {
 
             $table->foreign('listing_id')
                   ->references('id')
-                  ->on('listing') 
-                  ->cascadeOnDelete();
+                  ->on('listing')
+                  ->onDelete('cascade');
         });
     }
 
