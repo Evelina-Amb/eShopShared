@@ -11,7 +11,7 @@ class ListingPhoto extends Model
 
     protected $fillable = ['listing_id', 'failo_url'];
 
-    public function Listing()
+    public function listing() 
     {
         return $this->belongsTo(Listing::class);
     }
