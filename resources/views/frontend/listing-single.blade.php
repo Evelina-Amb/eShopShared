@@ -406,7 +406,7 @@ input[type=number] {
     {{-- OTHER PRODUCTS --}}
     @if($similar->count() > 0)
         <div class="mt-14">
-            <h2 class="text-2xl font-bold mb-6">Other products from this seller</h2>f
+            <h2 class="text-2xl font-bold mb-6">Other products from this seller</h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 @foreach($similar as $s)
