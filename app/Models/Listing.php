@@ -28,9 +28,10 @@ class Listing extends Model
    }
 
     public function photos()
-    {
-        return $this->hasMany(ListingPhoto::class, 'listing_id', 'id');
-    }
+{
+    return $this->hasMany(ListingPhoto::class, 'listing_id');
+}
+
 
     public function Review()
     {
