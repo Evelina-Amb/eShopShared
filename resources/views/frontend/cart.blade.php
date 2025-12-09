@@ -89,7 +89,7 @@
         {{-- TOTAL SECTION --}}
         <div class="bg-white shadow rounded p-6 mt-6">
             @php
-                $total = $cartItems->sum(fn($i) => $i->Listing->kaina * $i->kiekis);
+                $total = $cartItems->sum(fn($i) => $i->listing->kaina * $i->kiekis);
             @endphp
 
             <div class="text-xl font-bold mb-4">
