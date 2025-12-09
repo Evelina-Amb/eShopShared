@@ -9,10 +9,8 @@ Alpine.store('favorites', {
     async load() {
         try {
             const res = await fetch('/api/favorites/ids', {
-                credentials: 'same-origin',
-                headers: {
-                    'Accept': 'application/json',
-                },
+                credentials: 'include', // ✅ IMPORTANT
+                headers: { Accept: 'application/json' },
             });
 
             if (!res.ok) {
@@ -36,16 +34,13 @@ Alpine.store('favorites', {
             .querySelector('meta[name="csrf-token"]')
             ?.getAttribute('content');
 
-        if (!csrf) {
-            console.error('CSRF token missing');
-            return;
-        }
+        if (!csrf) return;
 
         const options = {
-            credentials: 'same-origin',
+            credentials: 'include', 
             headers: {
-                'Accept': 'application/json',
                 'X-CSRF-TOKEN': csrf,
+                'Accept': 'application/json',
             },
         };
 
@@ -70,8 +65,8 @@ Alpine.store('favorites', {
     },
 });
 
-Alpine.start();
-
 document.addEventListener('alpine:init', () => {
     Alpine.store('favorites').load();
 });
+
+Alpine.start();
