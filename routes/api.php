@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\{
 };
 use App\Models\City;
 
+Route::name('api.')->group(function () {
 Route::get('/listings/mine', [ListingController::class, 'mine']);
 Route::delete('/cart/item', [CartController::class, 'clearItem']);
 Route::delete('/cart/clear', [CartController::class, 'clearAll']);
@@ -39,5 +40,5 @@ Route::apiResources([
     'users' => UserController::class,
     'listing'=> ListingController::class,
 ]);
-
+});
 
