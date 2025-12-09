@@ -84,7 +84,7 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
     {
         return Listing::where('is_hidden', false)
             ->whereIn('id', $ids)
-            ->with(['ListingPhoto', 'category', 'user'])
+            ->with(['photos', 'category', 'user'])
             ->get();
     }
 }
