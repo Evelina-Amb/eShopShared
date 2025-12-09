@@ -21,7 +21,7 @@ class MyListingsController extends Controller
     {
         $userId = auth()->id();
 
-        $listings = Listing::with('ListingPhoto')
+        $listings = Listing::with('photos')
             ->where('user_id', $userId)
             ->where('is_hidden', 0)
             ->orderBy('created_at', 'desc')
