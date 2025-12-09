@@ -10,7 +10,7 @@
 
 @if($item->photos->isNotEmpty())
     <img
-        src="{{ route('media.show', $item->photos->first()->failo_url) }}"
+        src="{{ asset('storage/' . $item->photos->first()->failo_url) }}"
         class="w-full h-48 object-cover"
     >
 @else
