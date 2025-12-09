@@ -29,9 +29,13 @@
                 <div class="bg-white shadow rounded overflow-hidden">
 
                     <!-- IMAGE -->
-                    <img 
-                        :src="item.listing_photo?.[0]?.failo_url || 'https://via.placeholder.com/300'"
-                        class="w-full h-48 object-cover"/>
+                    <img
+    :src="item.photos?.[0]
+        ? `/storage/${item.photos[0].failo_url}`
+        : 'https://via.placeholder.com/300'"
+    class="w-full h-48 object-cover"
+/>
+
 
                     <div class="p-4">
 
