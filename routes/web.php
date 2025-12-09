@@ -13,17 +13,23 @@ use App\Http\Controllers\Frontend\ReviewController;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 
-Route::get('/media/{path}', function ($path) {
-    $fullPath = "listing_photos/{$path}";
+Route::get('/media/{filename}', function ($filename) {
+    // Prevent directory traversal
+    $filename = basename($filename);
 
-    if (!Storage::disk('public')->exists($fullPath)) {
+    $path = "listing_photos/{$filename}";
+
+    if (!Storage::disk('public')->exists($path)) {
         abort(404);
     }
 
-    return Response::file(
-        Storage::disk('public')->path($fullPath)
+    return response()->file(
+        Storage::disk('public')->path($path),
+        [
+            'Cache-Control' => 'public, max-age=86400',
+        ]
     );
-})->where('path', '.*');
+})->name('media.show');
 
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
