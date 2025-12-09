@@ -8,7 +8,7 @@ use App\Http\Requests\StoreListingRequest;
 use App\Http\Requests\UpdateListingRequest;
 use App\Http\Resources\ListingResource;
 use App\Services\ListingService;
-use App\Models\Listing; 
+use App\Models\Listing; // ✅ FIX
 
 class ListingController extends BaseController
 {
@@ -19,33 +19,31 @@ class ListingController extends BaseController
         $this->listingService = $listingService;
     }
 
-    /**
-     * List all listings OR listings by IDs (favorites)
-     */
     public function index(Request $request)
     {
-        if ($request->has('ids')) {
-            $ids = array_filter(explode(',', $request->ids));
+        // ✅ FAVORITES BY IDS
+        if ($request->filled('ids')) {
+            $ids = explode(',', $request->ids);
 
             $listings = Listing::whereIn('id', $ids)
                 ->with(['photos', 'category', 'user'])
                 ->get();
 
-            return response()->json([
-                'data' => ListingResource::collection($listings),
-            ]);
+            return $this->sendResponse(
+                ListingResource::collection($listings),
+                'Favorites retrieved.'
+            );
         }
 
+        // ✅ NORMAL LISTINGS
         $listings = Listing::with(['photos', 'category', 'user'])->get();
 
-        return response()->json([
-            'data' => ListingResource::collection($listings),
-        ]);
+        return $this->sendResponse(
+            ListingResource::collection($listings),
+            'Listings retrieved.'
+        );
     }
 
-    /**
-     * Listings belonging to the authenticated user
-     */
     public function mine(Request $request)
     {
         $userId = $request->user_id;
@@ -57,13 +55,9 @@ class ListingController extends BaseController
         );
     }
 
-    /**
-     * Show single listing
-     */
     public function show($id)
     {
         $listing = $this->listingService->getById($id);
-
         if (!$listing) {
             return $this->sendError('Listing not found.', 404);
         }
@@ -74,9 +68,6 @@ class ListingController extends BaseController
         );
     }
 
-    /**
-     * Create listing
-     */
     public function store(StoreListingRequest $request)
     {
         $listing = $this->listingService->create($request->validated());
@@ -88,18 +79,10 @@ class ListingController extends BaseController
         );
     }
 
-    /**
-     * Search listings
-     */
     public function search(Request $request)
     {
         $filters = $request->only([
-            'q',
-            'category_id',
-            'tipas',
-            'min_price',
-            'max_price',
-            'sort'
+            'q', 'category_id', 'tipas', 'min_price', 'max_price', 'sort'
         ]);
 
         $results = $this->listingService->search($filters);
@@ -110,30 +93,20 @@ class ListingController extends BaseController
         );
     }
 
-    /**
-     * Update listing
-     */
     public function update(UpdateListingRequest $request, $id)
     {
-        try {
-            $listing = $this->listingService->update($id, $request->validated());
+        $listing = $this->listingService->update($id, $request->validated());
 
-            if (!$listing) {
-                return $this->sendError('Listing not found.', 404);
-            }
-
-            return $this->sendResponse(
-                new ListingResource($listing),
-                'Listing updated.'
-            );
-        } catch (\Exception $e) {
-            return $this->sendError($e->getMessage(), 400);
+        if (!$listing) {
+            return $this->sendError('Listing not found.', 404);
         }
+
+        return $this->sendResponse(
+            new ListingResource($listing),
+            'Listing updated.'
+        );
     }
 
-    /**
-     * Delete listing
-     */
     public function destroy($id)
     {
         $deleted = $this->listingService->delete($id);
