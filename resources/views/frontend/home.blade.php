@@ -15,7 +15,7 @@
     >
 @else
     <img
-        src="https://via.placeholder.com/300x200?text=No+Image"
+        src="https://via.placeholder.com/300"
         class="w-full h-48 object-cover"
     >
 @endif
