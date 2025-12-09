@@ -25,20 +25,15 @@ Route::name('api.')->group(function () {
             ->get(['id', 'pavadinimas']);
     });
 
-    Route::middleware('auth:sanctum')->group(function () {
+  Route::middleware('auth:sanctum')->group(function () {
 
-        Route::get('/favorites/ids', function () {
-            return auth()->user()
-                ->favorites()
-                ->pluck('listing_id');
-        });
-
-        Route::delete('/favorite/by-listing/{listingId}', function ($listingId) {
-            return \App\Models\Favorite::where('user_id', auth()->id())
-                ->where('listing_id', $listingId)
-                ->delete();
-        });
+    Route::get('/favorites/ids', function () {
+        return auth()->user()->favorites()->pluck('listing_id');
     });
+
+    Route::delete('/favorite/{listingId}', [FavoriteController::class, 'destroy']);
+    Route::post('/favorite', [FavoriteController::class, 'store']);
+});
 
     Route::apiResources([
         'country' => CountryController::class,
@@ -48,7 +43,6 @@ Route::name('api.')->group(function () {
         'listingPhoto' => ListingPhotoController::class,
         'review' => ReviewController::class,
         'cart' => CartController::class,
-        'favorite' => FavoriteController::class,
         'order' => OrderController::class,
         'orderItem' => OrderItemController::class,
         'users' => UserController::class,
