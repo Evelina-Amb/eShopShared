@@ -22,7 +22,10 @@
 
                     const json = await res.json();
 
-                    this.listings = json.data ?? [];
+                    this.listings = Array.isArray(json)
+                        ? json
+                        : (json.data ?? []);
+
                 } catch (e) {
                     console.error('Failed loading favorites', e);
                     this.listings = [];
@@ -34,6 +37,7 @@
         x-init="load()"
         class="container mx-auto px-4 mt-10"
     >
+
 
         <h1 class="text-3xl font-bold mb-6">My Favorites</h1>
 
