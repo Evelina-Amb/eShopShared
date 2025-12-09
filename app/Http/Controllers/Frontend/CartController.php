@@ -63,7 +63,7 @@ class CartController extends Controller
     public function increase(Cart $cart)
     {
         $this->authorizeCart($cart);
-        $listing = $cart->Listing;
+        $listing = $cart->listing;
 
         if ($cart->kiekis + 1 > $listing->kiekis) {
             return back()->with('error', "Only {$listing->kiekis} units available.");
@@ -105,7 +105,7 @@ class CartController extends Controller
     {
         $userId = auth()->id();
 
-        $cartItems = Cart::with('Listing')->where('user_id', $userId)->get();
+        $cartItems = Cart::with('listing')->where('user_id', $userId)->get();
 
         if ($cartItems->isEmpty()) {
             return back()->with('error', 'Your cart is empty.');
@@ -114,8 +114,8 @@ class CartController extends Controller
         // Calculate total
         $total = 0;
         foreach ($cartItems as $item) {
-            if ($item->Listing) {
-                $total += $item->Listing->kaina * $item->kiekis;
+            if ($item->listing) {
+                $total += $item->listing->kaina * $item->kiekis;
             }
         }
 
@@ -130,7 +130,7 @@ class CartController extends Controller
         // Process each cart item
         foreach ($cartItems as $item) {
 
-            $listing = $item->Listing;
+            $listing = $item->listing;
 
             $listing->kiekis -= $item->kiekis;
 
