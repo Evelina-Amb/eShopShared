@@ -37,7 +37,7 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
                 'user',
                 'category',
                 'photos',
-                'user.Address.City',
+                'user.address.city',
                 'review.user'
             ]);
 
