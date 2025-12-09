@@ -138,7 +138,9 @@
         @foreach($listing->photos as $photo)
             <div class="relative border rounded overflow-hidden">
 
-                <img src="{{ $photo->failo_url }}" class="w-full h-48 object-cover">
+                <img 
+    src="{{ asset('storage/' . $photo->failo_url) }}" 
+    class="w-full h-48 object-cover">
 
                 {{-- DELETE BUTTON --}}
                 <form 
