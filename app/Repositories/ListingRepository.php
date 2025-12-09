@@ -17,7 +17,7 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
     {
         return Listing::where('is_hidden', false)
             ->where('statusas', '!=', 'parduotas')
-            ->with(['user', 'category', 'ListingPhoto'])
+            ->with(['user', 'category', 'photos'])
             ->get();
     }
 
@@ -25,7 +25,7 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
     {
         return Listing::where('user_id', $userId)
             ->where('is_hidden', false)
-            ->with(['category', 'ListingPhoto'])
+            ->with(['category', 'photos'])
             ->get();
     }
 
@@ -36,7 +36,7 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
             ->with([
                 'user',
                 'category',
-                'ListingPhoto',
+                'photos',
                 'user.Address.City',
                 'review.user'
             ]);
