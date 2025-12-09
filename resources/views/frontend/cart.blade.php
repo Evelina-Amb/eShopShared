@@ -51,13 +51,13 @@
 
                 <a href="{{ route('listing.single', $item->listing_id) }}"
                    class="font-semibold text-blue-600 hover:underline">
-                    {{ $item->Listing->pavadinimas }}
+                    {{ $item->listing->pavadinimas }}
                 </a>
             </div>
 
             {{-- PRICE --}}
             <div class="col-span-2 text-right font-semibold">
-                {{ number_format($item->Listing->kaina, 2) }} €
+               {{ number_format($item->listing->kaina, 2) }} €
             </div>
 
             {{-- QUANTITY --}}
