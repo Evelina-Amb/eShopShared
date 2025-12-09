@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Country;
+use App\Models\City;
 
-class CountrySeeder extends Seeder
+class CitySeeder extends Seeder
 {
     public function run(): void
     {
