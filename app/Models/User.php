@@ -58,10 +58,11 @@ class User extends Authenticatable
         return $this->hasMany(Cart::class);
     }
 
-    public function Favorite()
-    {
-        return $this->hasMany(Favorite::class);
-    }
+   public function favorites()
+{
+    return $this->hasMany(\App\Models\Favorite::class);
+}
+
 
     public function Order()
     {
