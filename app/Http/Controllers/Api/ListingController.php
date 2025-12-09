@@ -19,26 +19,21 @@ class ListingController extends BaseController
     }
 
     public function index(Request $request)
-    {
-        // Favorites
-        if ($request->has('ids')) {
-            $ids = explode(',', $request->ids);
-            $listings = $this->listingService->getByIds($ids);
+{
+    if ($request->has('ids')) {
+        $ids = explode(',', $request->ids);
 
-            return $this->sendResponse(
-                ListingResource::collection($listings),
-                'Favorites retrieved.'
-            );
-        }
+        $listings = Listing::whereIn('id', $ids)
+            ->with(['photos', 'category', 'user'])
+            ->get();
 
-        // Default: all listings
-        $listings = $this->listingService->getAll();
-
-        return $this->sendResponse(
-            ListingResource::collection($listings),
-            'Listings retrieved.'
-        );
+        return ListingResource::collection($listings);
     }
+
+    return ListingResource::collection(
+        Listing::with(['photos'])->get()
+    );
+}
 
     public function mine(Request $request)
     {
