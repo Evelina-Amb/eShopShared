@@ -8,9 +8,9 @@
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
                     <div class="relative">
 
-                        <img 
-    src="{{ optional($item->photos->first())->failo_url ?? 'https://via.placeholder.com/300' }}" 
-    class="w-full h-48 object-cover"
+                        <img
+  src="{{ route('media.show', $item->ListingPhoto->first()?->failo_url) }}"
+  class="w-full h-48 object-cover"
 >
 
                         <button
