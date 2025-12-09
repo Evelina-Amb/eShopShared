@@ -1,49 +1,39 @@
 <x-app-layout>
     <div
         x-data="{
-            favorites: [],
             listings: [],
+            loading: true,
 
-            async init() {
-                const res = await fetch('/api/favorites/ids', {
-                    credentials: 'same-origin'
-                });
+            async load() {
+                await Alpine.store('favorites').load();
 
-                this.favorites = await res.json();
-
-                // sync with Alpine store (used by hearts everywhere)
-                Alpine.store('favorites').list = this.favorites;
-
-                this.loadFavorites();
-            },
-
-            async loadFavorites() {
-                if (this.favorites.length === 0) {
-                    this.listings = [];
+                const ids = Alpine.store('favorites').ids;
+                if (ids.length === 0) {
+                    this.loading = false;
                     return;
                 }
 
-                const response = await fetch(
-                    '/api/listing?ids=' + this.favorites.join(','),
-                    { credentials: 'same-origin' }
-                );
+                const res = await fetch('/api/listing?ids=' + ids.join(','));
+                const json = await res.json();
 
-                const json = await response.json();
-                this.listings = json.data ?? json;
+                this.listings = json.data ?? [];
+                this.loading = false;
             }
         }"
-        x-init="init()"
+        x-init="load()"
         class="container mx-auto px-4 mt-10"
     >
 
         <h1 class="text-3xl font-bold mb-6">My Favorites</h1>
 
-        <!-- No favorites -->
-        <template x-if="favorites.length === 0">
+        <template x-if="loading">
+            <p class="text-gray-500">Loading favorites…</p>
+        </template>
+
+        <template x-if="!loading && listings.length === 0">
             <p class="text-gray-600">You have no favorite listings.</p>
         </template>
 
-        <!-- Favorites grid -->
         <div
             x-show="listings.length > 0"
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
@@ -59,30 +49,17 @@
                             class="w-full h-48 object-cover"
                         >
 
-                        <!-- ❤️ HEART -->
                         <button
-                            @click="
-                                Alpine.store('favorites').toggle(item.id);
-                                favorites = Alpine.store('favorites').list;
-                                loadFavorites();
-                            "
+                            @click="Alpine.store('favorites').toggle(item.id); load();"
                             class="absolute top-2 right-2"
                         >
-                            <span
-                                x-show="favorites.includes(item.id)"
-                                class="text-red-500 text-2xl"
-                            >♥️</span>
-
-                            <span
-                                x-show="!favorites.includes(item.id)"
-                                class="text-gray-300 text-2xl"
-                            >🤍</span>
+                            <span class="text-red-500 text-2xl">♥️</span>
                         </button>
                     </div>
 
                     <div class="p-4">
-                        <h2 class="text-lg font-semibold" x-text="item.pavadinimas"></h2>
-                        <p class="text-gray-500 text-sm line-clamp-2" x-text="item.aprasymas"></p>
+                        <h2 class="font-semibold" x-text="item.pavadinimas"></h2>
+                        <p class="text-sm text-gray-500 line-clamp-2" x-text="item.aprasymas"></p>
 
                         <div class="flex justify-between mt-3">
                             <span class="text-green-600 font-bold" x-text="item.kaina + ' €'"></span>
@@ -93,5 +70,6 @@
                 </div>
             </template>
         </div>
+
     </div>
 </x-app-layout>
