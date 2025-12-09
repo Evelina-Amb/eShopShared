@@ -131,34 +131,34 @@
         <div class="mt-10">
             <label class="font-semibold text-lg">Existing Photos</label>
 
-            @if($listing->ListingPhoto->isEmpty())
-                <p class="text-gray-500 mt-2">No photos uploaded yet.</p>
-            @else
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
-                    @foreach($listing->ListingPhoto as $photo)
-                        <div class="relative border rounded overflow-hidden">
+            @if($listing->photos->isEmpty())
+    <p class="text-gray-500 mt-2">No photos uploaded yet.</p>
+@else
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+        @foreach($listing->photos as $photo)
+            <div class="relative border rounded overflow-hidden">
 
-                            <img src="{{ $photo->failo_url }}" class="w-full h-48 object-cover">
+                <img src="{{ $photo->failo_url }}" class="w-full h-48 object-cover">
 
-                            {{-- DELETE BUTTON --}}
-                            <form 
-                                action="{{ route('listing.photo.delete', [$listing->id, $photo->id]) }}" 
-                                method="POST"
-                                class="absolute top-2 right-2">
-                                @csrf
-                                @method('DELETE')
+                {{-- DELETE BUTTON --}}
+                <form 
+                    action="{{ route('listing.photo.delete', [$listing->id, $photo->id]) }}" 
+                    method="POST"
+                    class="absolute top-2 right-2">
+                    @csrf
+                    @method('DELETE')
 
-                                <button 
-                                    type="submit"
-                                    class="bg-red-600 text-white text-sm px-3 py-1 rounded shadow hover:bg-red-700">
-                                    Delete
-                                </button>
-                            </form>
+                    <button 
+                        type="submit"
+                        class="bg-red-600 text-white text-sm px-3 py-1 rounded shadow hover:bg-red-700">
+                        Delete
+                    </button>
+                </form>
 
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+            </div>
+        @endforeach
+    </div>
+@endif
         </div>
 
     </div>
