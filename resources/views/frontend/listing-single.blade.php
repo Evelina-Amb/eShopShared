@@ -40,23 +40,25 @@ input[type=number] {
 
             {{-- LEFT: IMAGE GALLERY --}}
             <div>
-                <img 
-                    id="mainImage"
-                    src="{{ $listing->ListingPhoto->first()->failo_url ?? 'https://via.placeholder.com/600x450?text=No+Image' }}"
-                    class="rounded-lg shadow w-full max-h-[450px] object-cover mb-4"
-                >
+               <img 
+    id="mainImage"
+    src="{{ optional($listing->photos->first())->failo_url ?? 'https://via.placeholder.com/600x450?text=No+Image' }}"
+    class="rounded-lg shadow w-full max-h-[450px] object-cover mb-4"
+>
 
-                @if($listing->ListingPhoto->count() > 1)
-                    <div class="flex gap-3">
-                        @foreach($listing->ListingPhoto as $photo)
-                            <img 
-                                src="{{ $photo->failo_url }}"
-                                class="w-20 h-20 rounded object-cover cursor-pointer border hover:ring-2 hover:ring-blue-400"
-                                onclick="document.getElementById('mainImage').src=this.src"
-                            >
-                        @endforeach
-                    </div>
-                @endif
+
+                @if($listing->photos->count() > 1)
+    <div class="flex gap-3">
+        @foreach($listing->photos as $photo)
+            <img 
+                src="{{ $photo->failo_url }}"
+                class="w-20 h-20 rounded object-cover cursor-pointer border hover:ring-2 hover:ring-blue-400"
+                onclick="document.getElementById('mainImage').src=this.src"
+            >
+        @endforeach
+    </div>
+@endif
+
             </div>
 
             {{-- RIGHT: DETAILS --}}
