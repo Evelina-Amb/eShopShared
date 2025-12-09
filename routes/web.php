@@ -10,6 +10,20 @@ use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\ListingCreateController;
 use App\Http\Controllers\Frontend\FavoriteController;
 use App\Http\Controllers\Frontend\ReviewController;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
+
+Route::get('/media/{path}', function ($path) {
+    $fullPath = "listing_photos/{$path}";
+
+    if (!Storage::disk('public')->exists($fullPath)) {
+        abort(404);
+    }
+
+    return Response::file(
+        Storage::disk('public')->path($fullPath)
+    );
+})->where('path', '.*');
 
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
