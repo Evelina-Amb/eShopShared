@@ -64,12 +64,4 @@ public function destroy($listingId)
 
         return $this->sendResponse(new FavoriteResource($favorite), 'Favorite updated.');
     }
-
-    public function destroy($id)
-    {
-        $deleted = $this->favoriteService->delete($id);
-        if (!$deleted) return $this->sendError('Favorite not found.', 404);
-
-        return $this->sendResponse(null, 'Favorite deleted.');
-    }
 }
