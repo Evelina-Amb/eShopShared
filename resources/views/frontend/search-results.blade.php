@@ -89,9 +89,17 @@
 
                     <div class="relative">
 
-                        <img src="{{ $item->ListingPhoto->first()?->failo_url ?? 'https://via.placeholder.com/300' }}"
-                             class="w-full h-48 object-cover">
-
+                       @if($item->photos->isNotEmpty())
+    <img
+        src="{{ asset('storage/' . $item->photos->first()->failo_url) }}"
+        class="w-full h-48 object-cover"
+    >
+@else
+    <img
+        src="https://via.placeholder.com/300x200?text=No+Image"
+        class="w-full h-48 object-cover"
+    >
+@endif
                         <!-- Favorite Button -->
                         <button
                             @click="Alpine.store('favorites').toggle({{ $item->id }})"
