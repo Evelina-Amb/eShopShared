@@ -47,7 +47,7 @@ class UserService
         return $this->userRepository->delete($user);
     }
 
-    public function banUser(int $userId, string $reason = null)
+   public function banUser(User $user, ?string $reason = null)
 {
     $user = \App\Models\User::find($userId);
     if (!$user) {
