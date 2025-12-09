@@ -8,10 +8,17 @@
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
                     <div class="relative">
 
-                        <img
-  src="{{ route('media.show', $item->ListingPhoto->first()?->failo_url) }}"
-  class="w-full h-48 object-cover"
->
+@if($item->photos->isNotEmpty())
+    <img
+      src="{{ route('media.show', $item->photos->first()->failo_url) }}"
+      class="w-full h-48 object-cover"
+    >
+@else
+    <img
+      src="https://via.placeholder.com/300x200?text=No+Image"
+      class="w-full h-48 object-cover"
+    >
+@endif
 
                         <button
                             @click="Alpine.store('favorites').toggle({{ $item->id }})"
