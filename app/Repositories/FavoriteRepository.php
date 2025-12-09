@@ -15,12 +15,24 @@ class FavoriteRepository extends BaseRepository implements FavoriteRepositoryInt
     
     public function getAll(): Collection
     {
-        return Favorite::with(['user', 'listing'])->get();
+        return Favorite::where('user_id', auth()->id())
+            ->with([
+                'listing.photos',
+                'listing.category',
+                'listing.user',
+            ])
+            ->get();
     }
 
     public function getById(int $id): ?Favorite
     {
-        return Favorite::with(['user', 'listing'])->find($id);
+        return Favorite::where('user_id', auth()->id())
+            ->with([
+                'listing.photos',
+                'listing.category',
+                'listing.user',
+            ])
+            ->find($id);
     }
 
 } 
