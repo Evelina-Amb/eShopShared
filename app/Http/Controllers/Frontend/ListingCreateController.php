@@ -129,9 +129,9 @@ class ListingCreateController extends Controller
         }
 
         // Prevent deleting last photo
-        if ($listing->ListingPhoto()->count() <= 1) {
-            return back()->with('error', 'A listing must have at least one photo.');
-        }
+        if ($listing->photos()->count() <= 1) {
+    return back()->with('error', 'A listing must have at least one photo.');
+}
 
         // Delete from storage
         if ($photo->failo_url) {
