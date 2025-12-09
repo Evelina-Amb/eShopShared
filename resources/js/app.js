@@ -7,12 +7,22 @@ Alpine.store('favorites', {
     ids: [],
 
     async load() {
-        const res = await fetch('/api/favorites/ids', {
-            headers: { 'Accept': 'application/json' }
-        });
+        try {
+            const res = await fetch('/api/favorites/ids', {
+                headers: {
+                    'Accept': 'application/json',
+                },
+            });
 
-        if (res.ok) {
+            if (!res.ok) {
+                this.ids = [];
+                return;
+            }
+
             this.ids = await res.json();
+        } catch (e) {
+            console.error('Failed to load favorites', e);
+            this.ids = [];
         }
     },
 
@@ -21,36 +31,46 @@ Alpine.store('favorites', {
     },
 
     async toggle(listingId) {
+        const csrf = document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute('content');
+
+        if (!csrf) {
+            console.error('CSRF token missing');
+            return;
+        }
+
         if (this.has(listingId)) {
-            await fetch(`/api/favorite/by-listing/${listingId}`, {
+            // REMOVE favorite
+            await fetch(`/api/favorite/${listingId}`, {
                 method: 'DELETE',
                 headers: {
-                    'X-CSRF-TOKEN': document
-                        .querySelector('meta[name=csrf-token]')
-                        .content
-                }
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json',
+                },
             });
         } else {
+            // ADD favorite
             await fetch('/api/favorite', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document
-                        .querySelector('meta[name=csrf-token]')
-                        .content
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify({
-                    listing_id: listingId
-                })
+                    listing_id: listingId,
+                }),
             });
         }
 
         await this.load();
-    }
+    },
 });
 
 Alpine.start();
 
+// Load favorites once Alpine is ready
 document.addEventListener('alpine:init', () => {
     Alpine.store('favorites').load();
 });
