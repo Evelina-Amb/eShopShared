@@ -5,19 +5,30 @@
             loading: true,
 
             async load() {
-                await Alpine.store('favorites').load();
+                try {
+                    await Alpine.store('favorites').load();
 
-                const ids = Alpine.store('favorites').ids;
-                if (ids.length === 0) {
+                    const ids = Alpine.store('favorites').ids;
+
+                    if (ids.length === 0) {
+                        this.loading = false;
+                        return;
+                    }
+
+                    const res = await fetch('/api/listing?ids=' + ids.join(','), {
+                        headers: { Accept: 'application/json' },
+                        credentials: 'same-origin',
+                    });
+
+                    const json = await res.json();
+
+                    this.listings = json.data ?? [];
+                } catch (e) {
+                    console.error('Failed loading favorites', e);
+                    this.listings = [];
+                } finally {
                     this.loading = false;
-                    return;
                 }
-
-                const res = await fetch('/api/listing?ids=' + ids.join(','));
-                const json = await res.json();
-
-                this.listings = json.data ?? [];
-                this.loading = false;
             }
         }"
         x-init="load()"
@@ -35,7 +46,7 @@
         </template>
 
         <div
-            x-show="listings.length > 0"
+            x-show="!loading && listings.length > 0"
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
         >
             <template x-for="item in listings" :key="item.id">
