@@ -11,20 +11,19 @@
                     const ids = Alpine.store('favorites').ids;
 
                     if (ids.length === 0) {
-                        this.loading = false;
+                        this.listings = [];
                         return;
                     }
 
                     const res = await fetch('/api/listing?ids=' + ids.join(','), {
-                        headers: { Accept: 'application/json' },
                         credentials: 'same-origin',
+                        headers: { Accept: 'application/json' },
                     });
 
                     const json = await res.json();
 
-                    this.listings = Array.isArray(json)
-                        ? json
-                        : (json.data ?? []);
+                    // ✅ CORRECT UNWRAP
+                    this.listings = json.data?.data ?? [];
 
                 } catch (e) {
                     console.error('Failed loading favorites', e);
@@ -37,7 +36,6 @@
         x-init="load()"
         class="container mx-auto px-4 mt-10"
     >
-
 
         <h1 class="text-3xl font-bold mb-6">My Favorites</h1>
 
