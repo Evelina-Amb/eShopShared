@@ -33,35 +33,38 @@ class HomeController extends Controller
             'filters'  => $filters,
         ]);
     }
+    
+       public function show(Listing $listing)
+{
+    $listing->load(['photos', 'user', 'category', 'review.user']);
 
-    public function show(Listing $listing)
-    {
-        // Similar products from the same seller
-        $similar = Listing::where('user_id', $listing->user_id)
-            ->where('id', '!=', $listing->id)
-            ->where('is_hidden', 0)
-            ->where('statusas', '!=', 'parduotas')
-            ->take(4)
-            ->get();
+    $similar = Listing::where('user_id', $listing->user_id)
+        ->where('id', '!=', $listing->id)
+        ->where('is_hidden', 0)
+        ->where('statusas', '!=', 'parduotas')
+        ->with('photos')
+        ->take(4)
+        ->get();
 
-        $hasPurchased = false;
+    $hasPurchased = false;
 
-        if (auth()->check()) {
-            $hasPurchased = OrderItem::where('listing_id', $listing->id)
-                ->whereHas('order', function ($q) {
-                    $q->where('user_id', auth()->id())
-                        ->where('statusas', 'completed');
-                })
-                ->exists();
-        }
-
-        $reviewsAllowed = $listing->is_renewable || $listing->kiekis > 5;
-
-        return view('frontend.listing-single', [
-            'listing'        => $listing,
-            'similar'        => $similar,
-            'hasPurchased'   => $hasPurchased,
-            'reviewsAllowed' => $reviewsAllowed,
-        ]);
+    if (auth()->check()) {
+        $hasPurchased = OrderItem::where('listing_id', $listing->id)
+            ->whereHas('order', function ($q) {
+                $q->where('user_id', auth()->id())
+                  ->where('statusas', 'completed');
+            })
+            ->exists();
     }
+
+    $reviewsAllowed = $listing->is_renewable || $listing->kiekis > 5;
+
+    return view('frontend.listing-single', [
+        'listing'        => $listing,
+        'similar'        => $similar,
+        'hasPurchased'   => $hasPurchased,
+        'reviewsAllowed' => $reviewsAllowed,
+    ]);
+}
+
 }
