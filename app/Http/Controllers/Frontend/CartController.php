@@ -15,7 +15,7 @@ class CartController extends Controller
     // Show current users cart
     public function index()
     {
-        $cartItems = Cart::with('Listing.ListingPhoto')
+        $cartItems = Cart::with('listing.photos')
             ->where('user_id', auth()->id())
             ->get();
 
