@@ -1,35 +1,52 @@
 <x-app-layout>
-
-    <div class="container mx-auto px-4 mt-8">
+    <div
+        x-data
+        x-init="Alpine.store('favorites').load()"
+        class="container mx-auto px-4 mt-8"
+    >
         <!-- Listing Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
             @forelse ($listings as $item)
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
+
+                    <!-- IMAGE + HEART -->
                     <div class="relative">
 
-@if($item->photos->isNotEmpty())
-    <img
-        src="{{ asset('storage/' . $item->photos->first()->failo_url) }}"
-        class="w-full h-48 object-cover"
-    >
-@else
-    <img
-        src="https://via.placeholder.com/300"
-        class="w-full h-48 object-cover"
-    >
-@endif
+                        @if($item->photos->isNotEmpty())
+                            <img
+                                src="{{ asset('storage/' . $item->photos->first()->failo_url) }}"
+                                class="w-full h-48 object-cover"
+                            >
+                        @else
+                            <img
+                                src="https://via.placeholder.com/300"
+                                class="w-full h-48 object-cover"
+                            >
+                        @endif
 
+                        <!-- FAVORITE BUTTON -->
                         <button
                             @click="Alpine.store('favorites').toggle({{ $item->id }})"
-                            class="absolute top-2 right-2">
-                            <span x-show="Alpine.store('favorites').list.includes({{ $item->id }})"
-                                class="text-red-500 text-2xl">♥️</span>
+                            class="absolute top-2 right-2"
+                        >
+                            <span
+                                x-show="Alpine.store('favorites').has({{ $item->id }})"
+                                class="text-red-500 text-2xl"
+                            >
+                                ♥️
+                            </span>
 
-                            <span x-show="!Alpine.store('favorites').list.includes({{ $item->id }})" class="text-gray-200 drop-shadow-lg text-[30px] leading-none">🤍</span>
+                            <span
+                                x-show="!Alpine.store('favorites').has({{ $item->id }})"
+                                class="text-gray-200 drop-shadow-lg text-[30px] leading-none"
+                            >
+                                🤍
+                            </span>
                         </button>
                     </div>
 
+                    <!-- CONTENT -->
                     <div class="p-4">
                         <h2 class="text-lg font-semibold mb-1">
                             {{ $item->pavadinimas }}
@@ -44,17 +61,22 @@
                                 {{ $item->kaina }} €
                             </span>
 
-                            <a href="/listing/{{ $item->id }}" class="text-blue-600 font-semibold">More →</a>
+                            <a
+                                href="{{ route('listing.single', $item->id) }}"
+                                class="text-blue-600 font-semibold"
+                            >
+                                More →
+                            </a>
                         </div>
                     </div>
 
                 </div>
             @empty
-                <p class="text-gray-600 text-center">No listings found</p>
+                <p class="text-gray-600 text-center col-span-full">
+                    No listings found
+                </p>
             @endforelse
 
         </div>
-
     </div>
-
 </x-app-layout>
