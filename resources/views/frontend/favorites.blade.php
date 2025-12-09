@@ -1,24 +1,35 @@
 <x-app-layout>
     <div
         x-data="{
-            favorites: Alpine.store('favorites').list,
             listings: [],
             loading: true,
 
             async loadFavorites() {
-                if (this.favorites.length === 0) {
-                    this.loading = false;
-                    return;
-                }
-
                 try {
-                    const response = await fetch('/api/listing?ids=' + this.favorites.join(','));
-                    const data = await response.json();
-                    this.listings = data.data ?? [];
+                    const res = await fetch('/api/favorites');
+                    const json = await res.json();
+                    this.listings = json.data ?? [];
                 } catch (e) {
-                    console.error('Failed to load favorites', e);
+                    console.error(e);
                 } finally {
                     this.loading = false;
+                }
+            },
+
+            async removeFavorite(favoriteId) {
+                try {
+                    await fetch(`/api/favorites/${favoriteId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document
+                                .querySelector('meta[name=csrf-token]')
+                                .content
+                        }
+                    });
+
+                    this.listings = this.listings.filter(f => f.id !== favoriteId);
+                } catch (e) {
+                    console.error('Failed to remove favorite', e);
                 }
             }
         }"
@@ -28,55 +39,40 @@
 
         <h1 class="text-3xl font-bold mb-6">My Favorites</h1>
 
-        <!-- Loading state -->
+        <!-- Loading -->
         <template x-if="loading">
             <p class="text-gray-500">Loading favorites…</p>
         </template>
 
-        <!-- No favorites -->
-        <template x-if="!loading && favorites.length === 0">
+        <!-- Empty -->
+        <template x-if="!loading && listings.length === 0">
             <p class="text-gray-600">You have no favorite listings.</p>
         </template>
 
-        <!-- Favorites grid -->
+        <!-- Grid -->
         <div
             x-show="!loading && listings.length > 0"
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
         >
-            <template x-for="item in listings" :key="item.id">
+            <template x-for="fav in listings" :key="fav.id">
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
 
-                    <!-- Image -->
+                    <!-- Image + Heart -->
                     <div class="relative">
                         <img
-                            :src="item.photos?.length
-                                ? `/storage/${item.photos[0].failo_url}`
+                            :src="fav.skelbimas.photos?.length
+                                ? `/storage/${fav.skelbimas.photos[0].failo_url}`
                                 : 'https://via.placeholder.com/300x200?text=No+Image'"
                             class="w-full h-48 object-cover"
                         >
 
-                        <!-- Favorite toggle -->
+                        <!-- HEART ❤️ -->
                         <button
-                            @click="
-                                Alpine.store('favorites').toggle(item.id);
-                                favorites = Alpine.store('favorites').list;
-                                loadFavorites();
-                            "
-                            class="absolute top-2 right-2"
+                            @click="removeFavorite(fav.id)"
+                            class="absolute top-2 right-2 text-red-500 text-2xl"
+                            title="Remove from favorites"
                         >
-                            <span
-                                x-show="favorites.includes(item.id)"
-                                class="text-red-500 text-2xl"
-                            >
-                                ♥️
-                            </span>
-
-                            <span
-                                x-show="!favorites.includes(item.id)"
-                                class="text-gray-300 text-2xl"
-                            >
-                                🤍
-                            </span>
+                            ♥️
                         </button>
                     </div>
 
@@ -84,22 +80,22 @@
                     <div class="p-4">
                         <h2
                             class="text-lg font-semibold mb-1"
-                            x-text="item.pavadinimas"
+                            x-text="fav.skelbimas.pavadinimas"
                         ></h2>
 
                         <p
                             class="text-gray-500 text-sm line-clamp-2"
-                            x-text="item.aprasymas"
+                            x-text="fav.skelbimas.aprasymas"
                         ></p>
 
                         <div class="flex justify-between items-center mt-3">
                             <span
                                 class="text-green-600 font-bold text-lg"
-                                x-text="item.kaina + ' €'"
+                                x-text="fav.skelbimas.kaina + ' €'"
                             ></span>
 
                             <a
-                                :href="'/listing/' + item.id"
+                                :href="'/listing/' + fav.skelbimas.id"
                                 class="text-blue-600 font-semibold"
                             >
                                 More →
