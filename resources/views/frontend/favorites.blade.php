@@ -26,7 +26,13 @@
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
                     
                     <div class="relative">
-                        <img :src="item.listing_photo?.[0]?.failo_url || 'https://via.placeholder.com/300'" class="w-full h-48 object-cover"/>
+                        <img
+  :src="item.listing_photo?.[0]
+      ? `/storage/${item.listing_photo[0].failo_url}`
+      : 'https://via.placeholder.com/300'"
+  class="w-full h-48 object-cover"
+/>
+
 
                         <button
                             @click="
