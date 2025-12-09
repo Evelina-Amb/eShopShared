@@ -53,7 +53,8 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
 
         // Category filter
         if (!empty($filters['category_id'])) {
-            $query->where('Category_id', $filters['category_id']);
+            $query->where('category_id', $filters['category_id']);
+
         }
 
         // Type filter (preke / paslauga)
