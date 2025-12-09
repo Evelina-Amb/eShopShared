@@ -8,6 +8,8 @@ use App\Services\FavoriteService;
 use App\Http\Requests\StoreFavoriteRequest;
 use App\Http\Requests\UpdateFavoriteRequest;
 use App\Http\Resources\BaseCollection;
+use App\Models\Favorite;
+use Illuminate\Http\Request;
 
 class FavoriteController extends BaseController
 {
@@ -32,7 +34,7 @@ class FavoriteController extends BaseController
         return $this->sendResponse(new FavoriteResource($favorite), 'Favorite found.');
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
 {
     $data = $request->validate([
         'listing_id' => 'required|exists:listing,id',
@@ -54,7 +56,6 @@ public function destroy($listingId)
 
     return response()->noContent();
 }
-
 
     public function update(UpdateFavoriteRequest $request, $id)
     {
