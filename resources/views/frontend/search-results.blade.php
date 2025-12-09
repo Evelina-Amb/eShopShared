@@ -89,30 +89,36 @@
 
                     <div class="relative">
 
-                       @if($item->photos->isNotEmpty())
-    <img
-        src="{{ asset('storage/' . $item->photos->first()->failo_url) }}"
-        class="w-full h-48 object-cover"
-    >
-@else
-    <img
-        src="https://via.placeholder.com/300x200?text=No+Image"
-        class="w-full h-48 object-cover"
-    >
-@endif
+                        @if($item->photos->isNotEmpty())
+                            <img
+                                src="{{ asset('storage/' . $item->photos->first()->failo_url) }}"
+                                class="w-full h-48 object-cover"
+                            >
+                        @else
+                            <img
+                                src="https://via.placeholder.com/300x200?text=No+Image"
+                                class="w-full h-48 object-cover"
+                            >
+                        @endif
+
                         <!-- Favorite Button -->
                         <button
                             @click="Alpine.store('favorites').toggle({{ $item->id }})"
-                            class="absolute top-2 right-2">
-
-                            <span x-show="Alpine.store('favorites').list.includes({{ $item->id }})" class="text-red-500 text-2xl">
+                            class="absolute top-2 right-2"
+                        >
+                            <span
+                                x-show="Alpine.store('favorites').has({{ $item->id }})"
+                                class="text-red-500 text-2xl"
+                            >
                                 ♥️
                             </span>
 
-                            <span x-show="!Alpine.store('favorites').list.includes({{ $item->id }})" class="text-gray-200 drop-shadow-lg text-2xl leading-none">
+                            <span
+                                x-show="!Alpine.store('favorites').has({{ $item->id }})"
+                                class="text-gray-200 drop-shadow-lg text-2xl leading-none"
+                            >
                                 🤍
                             </span>
-
                         </button>
 
                     </div>
