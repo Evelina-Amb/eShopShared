@@ -95,26 +95,16 @@ public function delete(int $id)
         return false;
     }
 
-    /**
-     * SERVICES
-     * Services are never sold → always delete
-     */
+    // Services → hard delete
     if ($listing->tipas === 'paslauga') {
         return $this->listingRepository->delete($listing);
     }
 
-    /**
-     * PRODUCTS
-     */
+    // Products → ALWAYS hide
+    $listing->is_hidden = true;
+    $listing->save();
 
-    // If product was ever sold → hide
-    if ($listing->statusas === 'parduotas') {
-        $listing->is_hidden = true;
-        $listing->save();
-        return true;
-    }
-
-    // Never sold product → hard delete
-    return $this->listingRepository->delete($listing);
+    return true;
 }
+
 }
