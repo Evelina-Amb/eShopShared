@@ -6,13 +6,15 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreFavoriteRequest extends FormRequest
 {
-    public function authorize() { return true; }
+    public function authorize(): bool
+    {
+        return auth()->check();
+    }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            'user_id'      => 'required|exists:users,id',
-            'listing_id' => 'required|exists:listing,id'
+            'listing_id' => 'required|exists:listing,id',
         ];
     }
 }
