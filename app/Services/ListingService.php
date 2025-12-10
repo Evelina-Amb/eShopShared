@@ -87,7 +87,7 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
-   public function delete(int $id)
+public function delete(int $id)
 {
     $listing = $this->listingRepository->getById($id);
 
@@ -97,7 +97,7 @@ class ListingService
 
     /**
      * SERVICES
-     * Services always delete
+     * Services are never sold → always delete
      */
     if ($listing->tipas === 'paslauga') {
         return $this->listingRepository->delete($listing);
@@ -107,27 +107,14 @@ class ListingService
      * PRODUCTS
      */
 
-    // Fully sold product = hide
+    // If product was ever sold → hide
     if ($listing->statusas === 'parduotas') {
         $listing->is_hidden = true;
         $listing->save();
         return true;
     }
 
-    // Partially sold product (quantity reduced) hide
-    if (
-        $listing->kiekis !== null &&
-        $listing->kiekis < $listing->getOriginal('kiekis')
-    ) {
-        $listing->is_hidden = true;
-        $listing->save();
-        return true;
-    }
-
-    /**
-     * Never sold product = hard delete
-     */
+    // Never sold product → hard delete
     return $this->listingRepository->delete($listing);
 }
-
 }
