@@ -1,82 +1,91 @@
 <x-app-layout>
-    <div
-        x-data
-        x-init="Alpine.store('favorites').load()"
-        class="container mx-auto px-4 mt-8"
-    >
-        <!-- Listing Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-            @forelse ($listings as $item)
-                <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
+<div
+    x-data="favoritesComponent()"
+    x-init="init()"
+    class="container mx-auto px-4 mt-8"
+>
+    <!-- Listing Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-                    <!-- IMAGE + HEART -->
-                    <div class="relative">
+        @forelse ($listings as $item)
+            <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
 
-                        @if($item->photos->isNotEmpty())
-                            <img
-                                src="{{ asset('storage/' . $item->photos->first()->failo_url) }}"
-                                class="w-full h-48 object-cover"
-                            >
-                        @else
-                            <img
-                                src="https://via.placeholder.com/300"
-                                class="w-full h-48 object-cover"
-                            >
-                        @endif
+                <!-- IMAGE + HEART -->
+                <div class="relative">
 
-                        <!-- FAVORITE BUTTON -->
-                        <button
-                            @click="Alpine.store('favorites').toggle({{ $item->id }})"
-                            class="absolute top-2 right-2"
+                    @if($item->photos->isNotEmpty())
+                        <img
+                            src="{{ asset('storage/' . $item->photos->first()->failo_url) }}"
+                            class="w-full h-48 object-cover"
                         >
-                            <span
-                                x-show="Alpine.store('favorites').has({{ $item->id }})"
-                                class="text-red-500 text-2xl"
+                    @else
+                        <img
+                            src="https://via.placeholder.com/300"
+                            class="w-full h-48 object-cover"
+                        >
+                    @endif
+
+                    @auth
+                        @if(auth()->id() !== $item->user_id)
+                            <!-- FAVORITE BUTTON -->
+                            <button
+                                type="button"
+                                @click.prevent="toggle({{ $item->id }})"
+                                class="absolute top-2 right-2 z-50 text-2xl"
+                                aria-label="Toggle favorite"
                             >
-                                ♥️
-                            </span>
+                                <span
+                                    x-show="isFavorite({{ $item->id }})"
+                                    class="text-red-500"
+                                >
+                                    ♥️
+                                </span>
 
-                            <span
-                                x-show="!Alpine.store('favorites').has({{ $item->id }})"
-                                class="text-gray-200 drop-shadow-lg text-[30px] leading-none"
-                            >
-                                🤍
-                            </span>
-                        </button>
-                    </div>
-
-                    <!-- CONTENT -->
-                    <div class="p-4">
-                        <h2 class="text-lg font-semibold mb-1">
-                            {{ $item->pavadinimas }}
-                        </h2>
-
-                        <p class="text-gray-500 text-sm line-clamp-2">
-                            {{ $item->aprasymas }}
-                        </p>
-
-                        <div class="flex justify-between items-center mt-3">
-                            <span class="text-green-600 font-bold text-lg">
-                                {{ $item->kaina }} €
-                            </span>
-
-                            <a
-                                href="{{ route('listing.single', $item->id) }}"
-                                class="text-blue-600 font-semibold"
-                            >
-                                More →
-                            </a>
-                        </div>
-                    </div>
+                                <span
+                                    x-show="!isFavorite({{ $item->id }})"
+                                    class="text-gray-200 drop-shadow-lg text-[30px] leading-none"
+                                >
+                                    🤍
+                                </span>
+                            </button>
+                        @endif
+                    @endauth
 
                 </div>
-            @empty
-                <p class="text-gray-600 text-center col-span-full">
-                    No listings found
-                </p>
-            @endforelse
 
-        </div>
+                <!-- CONTENT -->
+                <div class="p-4">
+                    <h2 class="text-lg font-semibold mb-1">
+                        {{ $item->pavadinimas }}
+                    </h2>
+
+                    <p class="text-gray-500 text-sm line-clamp-2">
+                        {{ $item->aprasymas }}
+                    </p>
+
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-green-600 font-bold text-lg">
+                            {{ $item->kaina }} €
+                        </span>
+
+                        <a
+                            href="{{ route('listing.single', $item->id) }}"
+                            class="text-blue-600 font-semibold"
+                        >
+                            More →
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        @empty
+            <p class="text-gray-600 text-center col-span-full">
+                No listings found
+            </p>
+        @endforelse
+
     </div>
+</div>
+
 </x-app-layout>
