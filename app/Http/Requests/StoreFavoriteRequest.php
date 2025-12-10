@@ -14,7 +14,7 @@ class StoreFavoriteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'listing_id' => 'required|exists:listings,id',
+            'listing_id' => 'required|exists:listing,id',
         ];
     }
 }
