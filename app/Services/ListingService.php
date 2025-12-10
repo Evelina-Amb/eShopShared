@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Listing;
 use App\Repositories\Contracts\ListingRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 
 class ListingService
 {
@@ -88,43 +89,53 @@ class ListingService
     }
 
 public function delete(int $id): bool
-    {
-        $listing = $this->listingRepository->getById($id);
+{
+    $listing = $this->listingRepository->getById($id);
 
-        if (!$listing) {
-            return false;
-        }
-
-        // SERVICES: can always be deleted
-        if ($listing->tipas === 'paslauga') {
-            return (bool) $this->listingRepository->delete($listing);
-        }
-
-        // PRODUCTS:
-
-        // Criterion: "has ever been sold"
-        // We prefer to use order items if relation exists.
-        $hasOrders = false;
-
-        if (method_exists($listing, 'orderItems')) {
-            $hasOrders = $listing->orderItems()->exists();
-        }
-
-        // Fallback: use status field if present
-        if ($listing->statusas === 'parduotas') {
-            $hasOrders = true;
-        }
-
-        // If sold at least once → hide
-        if ($hasOrders) {
-            $listing->is_hidden = true;
-            $listing->save();
-
-            return true;
-        }
-
-        // Never sold → hard delete
-        return (bool) $this->listingRepository->delete($listing);
+    if (!$listing) {
+        return false;
     }
+
+    // SERVICES → always hard delete
+    if ($listing->tipas === 'paslauga') {
+        return $this->forceDeleteListing($listing);
+    }
+
+    // PRODUCTS → hide if sold
+    $hasOrders = false;
+
+    if (method_exists($listing, 'orderItems')) {
+        $hasOrders = $listing->orderItems()->exists();
+    }
+
+    if ($listing->statusas === 'parduotas') {
+        $hasOrders = true;
+    }
+
+    if ($hasOrders) {
+        $listing->is_hidden = true;
+        $listing->save();
+        return true;
+    }
+
+    // Never sold → hard delete
+    return $this->forceDeleteListing($listing);
+}
+
+protected function forceDeleteListing(Listing $listing): bool
+{
+    return DB::transaction(function () use ($listing) {
+
+        if (method_exists($listing, 'favoritedBy')) {
+            $listing->favoritedBy()->detach();
+        }
+
+        if (method_exists($listing, 'photos')) {
+            $listing->photos()->delete();
+        }
+
+        return (bool) $this->listingRepository->delete($listing);
+    });
+}
 
 }
