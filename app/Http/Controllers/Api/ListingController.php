@@ -24,9 +24,10 @@ class ListingController extends BaseController
             $ids = explode(',', $request->ids);
             $listings = $this->listingService->getByIds($ids);
 
-            return response()->json([
-                'data' => ListingResource::collection($listings),
-            ]);
+            return $this->sendResponse(
+                ListingResource::collection($listings),
+                'Favorites retrieved.'
+            );
         }
 
         $listings = $this->listingService->getAll();
@@ -51,7 +52,9 @@ class ListingController extends BaseController
     public function show($id)
     {
         $listing = $this->listingService->getById($id);
-        if (!$listing) return $this->sendError('Listing not found.', 404);
+        if (!$listing) {
+            return $this->sendError('Listing not found.', 404);
+        }
 
         return $this->sendResponse(
             new ListingResource($listing),
@@ -93,6 +96,7 @@ class ListingController extends BaseController
     {
         try {
             $listing = $this->listingService->update($id, $request->validated());
+
             if (!$listing) {
                 return $this->sendError('Listing not found', 404);
             }
@@ -109,6 +113,7 @@ class ListingController extends BaseController
     public function destroy($id)
     {
         $deleted = $this->listingService->delete($id);
+
         if (!$deleted) {
             return $this->sendError('Listing not found.', 404);
         }
