@@ -8,13 +8,10 @@ use App\Http\Controllers\Frontend\HomeSearchController;
 use App\Http\Controllers\Frontend\MyListingsController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\ListingCreateController;
-use App\Http\Controllers\Frontend\FavoriteController;
 use App\Http\Controllers\Frontend\ReviewController;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
 
 Route::get('/media/{filename}', function ($filename) {
-    // Prevent directory traversal
     $filename = basename($filename);
 
     $path = "listing_photos/{$filename}";
@@ -25,25 +22,22 @@ Route::get('/media/{filename}', function ($filename) {
 
     return response()->file(
         Storage::disk('public')->path($path),
-        [
-            'Cache-Control' => 'public, max-age=86400',
-        ]
+        ['Cache-Control' => 'public, max-age=86400']
     );
 })->name('media.show');
 
-// Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [HomeSearchController::class, 'search'])->name('search.listings');
 
-Route::get('/favorites', fn() => view('frontend.favorites'))->name('favorites.page');
+Route::middleware('auth')->get('/favorites', fn () => view('frontend.favorites'))
+    ->name('favorites.page');
 
 Route::middleware('auth')->group(function () {
-    //DELETE PHOTO
+
     Route::delete('/listing/{listing}/photo/{photo}', 
         [ListingCreateController::class, 'deletePhoto'])
         ->name('listing.photo.delete');
-    
-    // CART
+
     Route::get('/cart', [CartController::class, 'index'])
         ->name('cart.index');
 
@@ -62,39 +56,34 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/checkout', [CartController::class, 'checkout'])
         ->name('cart.checkout');
 
-    Route::delete('/cart/clear', [CartController::class, 'clearAll'])->name('cart.clear');
+    Route::delete('/cart/clear', [CartController::class, 'clearAll'])
+        ->name('cart.clear');
 
-    Route::post('/listing/{listing}/review', [ReviewController::class, 'store'])->name('review.store');
+    Route::post('/listing/{listing}/review', [ReviewController::class, 'store'])
+        ->name('review.store');
 
     Route::middleware('seller')->group(function () {
-    // LISTING CREATE
-    Route::get('/listing/create', [ListingCreateController::class, 'create'])
-        ->name('listing.create');
 
-    Route::post('/listing/create', [ListingCreateController::class, 'store'])
-        ->name('listing.store');
+        Route::get('/listing/create', [ListingCreateController::class, 'create'])
+            ->name('listing.create');
 
-    // LISTING EDIT/UPDATE
-    Route::get('/listing/{listing}/edit', [ListingCreateController::class, 'edit'])
-        ->name('listing.edit');
+        Route::post('/listing/create', [ListingCreateController::class, 'store'])
+            ->name('listing.store');
 
-    Route::put('/listing/{listing}', [ListingCreateController::class, 'update'])
-        ->name('listing.update');
+        Route::get('/listing/{listing}/edit', [ListingCreateController::class, 'edit'])
+            ->name('listing.edit');
 
-    // MY LISTINGS
-    Route::get('/my-listings', [MyListingsController::class, 'index'])
-        ->name('my.listings');
+        Route::put('/listing/{listing}', [ListingCreateController::class, 'update'])
+            ->name('listing.update');
 
+        Route::get('/my-listings', [MyListingsController::class, 'index'])
+            ->name('my.listings');
     });
-
 });
 
-//VIEW SINGLE LISTING
 Route::get('/listing/{listing}', [HomeController::class, 'show'])
     ->name('listing.single');
 
-
-//USER PROFILE
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])
@@ -110,8 +99,7 @@ Route::middleware('auth')->group(function () {
         ->name('password.update');
 });
 
-//EMAIL VERIFICATION
-Route::get('/verify-email', fn() => view('auth.pending-verification'))
+Route::get('/verify-email', fn () => view('auth.pending-verification'))
     ->name('verify.notice');
 
 Route::post('/verify-email/resend', [RegisteredUserController::class, 'resend'])
@@ -121,7 +109,6 @@ Route::get('/verify/{token}', [RegisteredUserController::class, 'verify'])
     ->name('verify.complete');
 
 Route::get('/email/verify-new/{token}', [ProfileController::class, 'verifyNewEmail'])
-     ->name('email.verify.new');
-
+    ->name('email.verify.new');
 
 require __DIR__.'/auth.php';
