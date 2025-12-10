@@ -144,5 +144,5 @@ protected function forceDeleteListing(Listing $listing): bool
         // Delete listing
         return (bool) $this->listingRepository->delete($listing);
     });
-
+}
 }
