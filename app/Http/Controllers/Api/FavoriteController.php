@@ -1,147 +1,62 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+use App\Http\Controllers\Api\{
+    CountryController, CityController, AddressController,
+    CategoryController, ListingPhotoController,
+    ReviewController, CartController,
+    FavoriteController, OrderController, OrderItemController,
+    UserController, ListingController
+};
+use App\Models\City;
+use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Api\BaseController;
-use App\Http\Resources\FavoriteResource;
-use App\Services\FavoriteService;
-use App\Http\Requests\StoreFavoriteRequest;
-use App\Http\Requests\UpdateFavoriteRequest;
-use App\Http\Resources\BaseCollection;
-use App\Models\Favorite;
-use Illuminate\Http\Request;
+Route::name('api.')->group(function () {
 
-class FavoriteController extends BaseController
-{
-    protected FavoriteService $favoriteService;
+    Route::get('/listings/mine', [ListingController::class, 'mine']);
+    Route::get('/listings/search', [ListingController::class, 'search']);
 
-    public function __construct(FavoriteService $favoriteService)
-    {
-        $this->favoriteService = $favoriteService;
-    }
+    Route::delete('/cart/item', [CartController::class, 'clearItem']);
+    Route::delete('/cart/clear', [CartController::class, 'clearAll']);
 
-    /**
-     * GET /api/favorite
-     * Used by admin / future API usage
-     */
-    public function index()
-    {
-        $favorites = $this->favoriteService->getAll();
+    Route::post('/users/{id}/ban', [UserController::class, 'ban'])->middleware('admin');
+    Route::post('/users/{id}/unban', [UserController::class, 'unban'])->middleware('admin');
 
-        return $this->sendResponse(
-            new BaseCollection($favorites, FavoriteResource::class),
-            'Favorites retrieved.'
-        );
-    }
+    Route::get('/cities/by-country/{countryId}', function ($countryId) {
+        return City::where('country_id', $countryId)
+            ->get(['id', 'pavadinimas']);
+    });
 
-    /**
-     * GET /api/favorite/{id}
-     */
-    public function show($id)
-    {
-        $favorite = $this->favoriteService->getById($id);
+    Route::middleware('auth:sanctum')->group(function () {
 
-        if (!$favorite) {
-            return $this->sendError('Favorite not found.', 404);
-        }
+        Route::get('/favorites/ids', function () {
+            return auth()->user()
+                ->favoriteListings()
+                ->pluck('listing_id');
+        });
 
-        return $this->sendResponse(
-            new FavoriteResource($favorite),
-            'Favorite found.'
-        );
-    }
+        Route::get('/favorites/my', function () {
+            return auth()->user()
+                ->favoriteListings()
+                ->with(['photos', 'category', 'user'])
+                ->get();
+        });
 
-    /**
-     * POST /api/favorite
-     * Used if you ever want explicit "add favorite"
-     */
-    public function store(StoreFavoriteRequest $request)
-    {
-        try {
-            $favorite = $this->favoriteService->create(
-                array_merge(
-                    $request->validated(),
-                    ['user_id' => auth()->id()]
-                )
-            );
+        Route::post('/favorite', [FavoriteController::class, 'store']);
 
-            return $this->sendResponse(
-                new FavoriteResource($favorite),
-                'Favorite created.',
-                201
-            );
+        Route::delete('/favorite/{listingId}', [FavoriteController::class, 'destroyByListing']);
+    });
 
-        } catch (\Exception $e) {
-            return $this->sendError($e->getMessage(), 400);
-        }
-    }
-
-    /**
-     * PUT /api/favorite/{id}
-     */
-    public function update(UpdateFavoriteRequest $request, $id)
-    {
-        $favorite = $this->favoriteService->update($id, $request->validated());
-
-        if (!$favorite) {
-            return $this->sendError('Favorite not found.', 404);
-        }
-
-        return $this->sendResponse(
-            new FavoriteResource($favorite),
-            'Favorite updated.'
-        );
-    }
-
-    /**
-     * DELETE /api/favorite/{id}
-     * Keeps old behavior intact
-     */
-    public function destroy($id)
-    {
-        $deleted = $this->favoriteService->delete($id);
-
-        if (!$deleted) {
-            return $this->sendError('Favorite not found.', 404);
-        }
-
-        return $this->sendResponse(null, 'Favorite deleted.');
-    }
-
-    /**
-     *  POST /api/favorites/toggle
-     */
-    public function toggle(Request $request)
-    {
-        $user = auth()->user();
-
-        if (!$user) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
-        }
-
-        $request->validate([
-            'listing_id' => 'required|exists:listing,id',
-        ]);
-
-        $favorite = Favorite::where('user_id', $user->id)
-            ->where('listing_id', $request->listing_id)
-            ->first();
-
-        if ($favorite) {
-            $favorite->delete();
-
-            return response()->json([
-                'favorited' => false,
-            ]);
-        }
-
-        Favorite::create([
-            'user_id' => $user->id,
-            'listing_id' => $request->listing_id,
-        ]);
-
-        return response()->json([
-            'favorited' => true,
-        ]);
-    }
-}
+    Route::apiResources([
+        'country' => CountryController::class,
+        'city' => CityController::class,
+        'address' => AddressController::class,
+        'category' => CategoryController::class,
+        'listingPhoto' => ListingPhotoController::class,
+        'review' => ReviewController::class,
+        'cart' => CartController::class,
+        'order' => OrderController::class,
+        'orderItem' => OrderItemController::class,
+        'users' => UserController::class,
+        'listing'=> ListingController::class,
+    ]);
+});
