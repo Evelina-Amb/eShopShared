@@ -6,22 +6,12 @@
 
             async load() {
                 try {
-                    await Alpine.store('favorites').load();
-                    const ids = Alpine.store('favorites').ids;
-
-                    if (ids.length === 0) {
-                        this.listings = [];
-                        return;
-                    }
-
-                    const res = await fetch('/api/listing?ids=' + ids.join(','), {
+                    const res = await fetch('/api/favorites/my', {
                         credentials: 'include',
                         headers: { Accept: 'application/json' },
                     });
 
-                    const json = await res.json();
-
-                    this.listings = json.data?.data ?? [];
+                    this.listings = res.ok ? await res.json() : [];
 
                 } catch (e) {
                     console.error('Failed loading favorites', e);
@@ -52,6 +42,7 @@
             <template x-for="item in listings" :key="item.id">
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
 
+                    <!-- IMAGE + HEART -->
                     <div class="relative">
                         <img
                             :src="item.photos?.length
@@ -60,9 +51,11 @@
                             class="w-full h-48 object-cover"
                         >
 
-                        <!-- remove favorite -->
                         <button
-                            @click="Alpine.store('favorites').toggle(item.id); load();"
+                            @click="
+                                Alpine.store('favorites').toggle(item.id);
+                                load();
+                            "
                             class="absolute top-2 right-2 text-red-500 text-2xl"
                             title="Remove from favorites"
                         >
@@ -70,18 +63,25 @@
                         </button>
                     </div>
 
+                    <!-- CONTENT -->
                     <div class="p-4">
                         <h2 class="font-semibold" x-text="item.pavadinimas"></h2>
 
-                        <p class="text-sm text-gray-500 line-clamp-2"
-                           x-text="item.aprasymas"></p>
+                        <p
+                            class="text-sm text-gray-500 line-clamp-2"
+                            x-text="item.aprasymas"
+                        ></p>
 
                         <div class="flex justify-between mt-3">
-                            <span class="text-green-600 font-bold"
-                                  x-text="item.kaina + ' €'"></span>
+                            <span
+                                class="text-green-600 font-bold"
+                                x-text="item.kaina + ' €'"
+                            ></span>
 
-                            <a :href="'/listing/' + item.id"
-                               class="text-blue-600">
+                            <a
+                                :href="'/listing/' + item.id"
+                                class="text-blue-600"
+                            >
                                 More →
                             </a>
                         </div>
