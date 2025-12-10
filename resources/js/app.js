@@ -3,14 +3,21 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
+/**
+ * Favorites store
+ * - loads favorite listing IDs from DB
+ * - toggles favorite state
+ */
 Alpine.store('favorites', {
     ids: [],
 
     async load() {
         try {
             const res = await fetch('/api/favorites/ids', {
-                credentials: 'include', // ✅ IMPORTANT
-                headers: { Accept: 'application/json' },
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                },
             });
 
             if (!res.ok) {
@@ -20,13 +27,13 @@ Alpine.store('favorites', {
 
             this.ids = await res.json();
         } catch (e) {
-            console.error('Failed to load favorites', e);
+            console.error('Favorites load failed', e);
             this.ids = [];
         }
     },
 
-    has(id) {
-        return this.ids.includes(id);
+    has(listingId) {
+        return this.ids.includes(listingId);
     },
 
     async toggle(listingId) {
@@ -37,7 +44,7 @@ Alpine.store('favorites', {
         if (!csrf) return;
 
         const options = {
-            credentials: 'include', 
+            credentials: 'include',
             headers: {
                 'X-CSRF-TOKEN': csrf,
                 'Accept': 'application/json',
@@ -65,6 +72,9 @@ Alpine.store('favorites', {
     },
 });
 
+/**
+ * Init Alpine
+ */
 document.addEventListener('alpine:init', () => {
     Alpine.store('favorites').load();
 });
