@@ -1,11 +1,10 @@
 <x-app-layout>
 
 <div
-    x-data="favoritesComponent()"
-    x-init="init()"
+    x-data
+    x-init="Alpine.store('favorites').load()"
     class="container mx-auto px-4 mt-8"
 >
-    <!-- Listing Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
         @forelse ($listings as $item)
@@ -28,22 +27,21 @@
 
                     @auth
                         @if(auth()->id() !== $item->user_id)
-                            <!-- FAVORITE BUTTON -->
                             <button
                                 type="button"
-                                @click.prevent="toggle({{ $item->id }})"
+                                @click.prevent="Alpine.store('favorites').toggle({{ $item->id }})"
                                 class="absolute top-2 right-2 z-50 text-2xl"
                                 aria-label="Toggle favorite"
                             >
                                 <span
-                                    x-show="isFavorite({{ $item->id }})"
+                                    x-show="Alpine.store('favorites').has({{ $item->id }})"
                                     class="text-red-500"
                                 >
                                     ♥️
                                 </span>
 
                                 <span
-                                    x-show="!isFavorite({{ $item->id }})"
+                                    x-show="!Alpine.store('favorites').has({{ $item->id }})"
                                     class="text-gray-200 drop-shadow-lg text-[30px] leading-none"
                                 >
                                     🤍
