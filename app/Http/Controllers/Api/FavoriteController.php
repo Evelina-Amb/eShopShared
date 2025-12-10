@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Api\BaseController;
-use App\Http\Resources\FavoriteResource;
-use App\Http\Resources\BaseCollection;
+use App\Http\Controllers\Controller;
 use App\Services\FavoriteService;
 use App\Http\Requests\StoreFavoriteRequest;
-use App\Http\Requests\UpdateFavoriteRequest;
 use App\Models\Favorite;
-use Illuminate\Http\Request;
 
-class FavoriteController extends BaseController
+class FavoriteController extends Controller
 {
     protected FavoriteService $favoriteService;
 
@@ -21,40 +17,7 @@ class FavoriteController extends BaseController
     }
 
     /**
-     * GET /api/favorite
-     * (admin / future use)
-     */
-    public function index()
-    {
-        $favorites = $this->favoriteService->getAll();
-
-        return $this->sendResponse(
-            new BaseCollection($favorites, FavoriteResource::class),
-            'Favorites retrieved.'
-        );
-    }
-
-    /**
-     * GET /api/favorite/{id}
-     * (admin / future use)
-     */
-    public function show($id)
-    {
-        $favorite = $this->favoriteService->getById($id);
-
-        if (!$favorite) {
-            return $this->sendError('Favorite not found.', 404);
-        }
-
-        return $this->sendResponse(
-            new FavoriteResource($favorite),
-            'Favorite found.'
-        );
-    }
-
-    /**
      * POST /api/favorite
-     * Add favorite (frontend)
      */
     public function store(StoreFavoriteRequest $request)
     {
@@ -74,27 +37,9 @@ class FavoriteController extends BaseController
     }
 
     /**
-     * PUT /api/favorite/{id}
-     * (admin / future use)
-     */
-    public function update(UpdateFavoriteRequest $request, $id)
-    {
-        $favorite = $this->favoriteService->update($id, $request->validated());
-
-        if (!$favorite) {
-            return $this->sendError('Favorite not found.', 404);
-        }
-
-        return $this->sendResponse(
-            new FavoriteResource($favorite),
-            'Favorite updated.'
-        );
-    }
-
-    /**
      * DELETE /api/favorite/{listingId}
      */
-    public function destroy($listingId)
+    public function destroyByListing(int $listingId)
     {
         Favorite::where('user_id', auth()->id())
             ->where('listing_id', $listingId)
