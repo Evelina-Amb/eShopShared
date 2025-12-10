@@ -96,53 +96,20 @@ public function delete(int $id): bool
         return false;
     }
 
-    /**
-     * SERVICES
-     * Services are never sold → always delete
-     */
+    // SERVICES → always hard delete
     if ($listing->tipas === 'paslauga') {
-        return $this->forceDeleteListing($listing);
+        return $this->listingRepository->delete($listing);
     }
 
-    /**
-     * PRODUCTS
-     * If product has EVER been sold → hide
-     */
-    $hasSales = DB::table('order_items')
-        ->where('listing_id', $listing->id)
-        ->exists();
-
-    if ($hasSales || $listing->statusas === 'parduotas') {
+    // PRODUCTS → hide if sold or partially sold
+    if ($listing->statusas === 'parduotas') {
         $listing->is_hidden = true;
         $listing->save();
         return true;
     }
 
-    /**
-     * Product never sold → hard delete
-     */
-    return $this->forceDeleteListing($listing);
+    // Never sold → hard delete
+    return $this->listingRepository->delete($listing);
 }
 
-/**
- * Safe hard delete
- */
-protected function forceDeleteListing(Listing $listing): bool
-{
-    return DB::transaction(function () use ($listing) {
-
-        // Remove favorites
-        if (method_exists($listing, 'favoritedBy')) {
-            $listing->favoritedBy()->detach();
-        }
-
-        // Delete photos
-        if (method_exists($listing, 'photos')) {
-            $listing->photos()->delete();
-        }
-
-        // Delete listing
-        return (bool) $this->listingRepository->delete($listing);
-    });
-}
 }
