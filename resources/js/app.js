@@ -9,7 +9,9 @@ Alpine.store('favorites', {
     async load() {
         const res = await fetch('/api/favorites/ids', {
             credentials: 'include',
-            headers: { Accept: 'application/json' },
+            headers: {
+                Accept: 'application/json',
+            },
         });
 
         this.ids = res.ok ? await res.json() : [];
@@ -22,22 +24,27 @@ Alpine.store('favorites', {
     async toggle(listingId) {
         const csrf = document
             .querySelector('meta[name="csrf-token"]')
-            .content;
+            ?.getAttribute('content');
+
+        if (!csrf) return;
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': csrf, 
+            Accept: 'application/json',
+        };
 
         if (this.has(listingId)) {
             await fetch(`/api/favorite/${listingId}`, {
                 method: 'DELETE',
                 credentials: 'include',
-                headers: { 'X-CSRF-TOKEN': csrf },
+                headers,
             });
         } else {
             await fetch('/api/favorite', {
                 method: 'POST',
                 credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf,
-                },
+                headers,
                 body: JSON.stringify({ listing_id: listingId }),
             });
         }
