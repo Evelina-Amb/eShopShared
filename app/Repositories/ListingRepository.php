@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Listing;
 use App\Repositories\Contracts\ListingRepositoryInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class ListingRepository extends BaseRepository implements ListingRepositoryInterface
 {
@@ -18,6 +19,15 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
         return Listing::where('is_hidden', false)
             ->where('statusas', '!=', 'parduotas')
             ->with(['user', 'category', 'photos'])
+            ->withCount([
+                'favorites as is_favorited' => function ($q) {
+                    if (Auth::check()) {
+                        $q->where('user_id', Auth::id());
+                    } else {
+                        $q->whereRaw('0 = 1');
+                    }
+                }
+            ])
             ->get();
     }
 
@@ -26,6 +36,11 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
         return Listing::where('user_id', $userId)
             ->where('is_hidden', false)
             ->with(['category', 'photos'])
+            ->withCount([
+                'favorites as is_favorited' => function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                }
+            ])
             ->get();
     }
 
@@ -39,30 +54,33 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
                 'photos',
                 'user.address.city',
                 'review.user'
+            ])
+            ->withCount([
+                'favorites as is_favorited' => function ($q) {
+                    if (Auth::check()) {
+                        $q->where('user_id', Auth::id());
+                    } else {
+                        $q->whereRaw('0 = 1');
+                    }
+                }
             ]);
 
-        // Keyword search
         if (!empty($filters['q'])) {
-            $q = $filters['q'];
-
-            $query->where(function ($q2) use ($q) {
-                $q2->where('pavadinimas', 'LIKE', "%{$q}%")
-                    ->orWhere('aprasymas', 'LIKE', "%{$q}%");
+            $keyword = $filters['q'];
+            $query->where(function ($q2) use ($keyword) {
+                $q2->where('pavadinimas', 'LIKE', "%{$keyword}%")
+                   ->orWhere('aprasymas', 'LIKE', "%{$keyword}%");
             });
         }
 
-        // Category filter
         if (!empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
-
         }
 
-        // Type filter (preke / paslauga)
         if (!empty($filters['tipas'])) {
             $query->where('tipas', $filters['tipas']);
         }
 
-        // Price range
         if (!empty($filters['min_price'])) {
             $query->where('kaina', '>=', $filters['min_price']);
         }
@@ -71,7 +89,6 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
             $query->where('kaina', '<=', $filters['max_price']);
         }
 
-        // City filter
         if (!empty($filters['city_id'])) {
             $query->whereHas('user.address', function ($q) use ($filters) {
                 $q->where('city_id', $filters['city_id']);
@@ -86,6 +103,15 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
         return Listing::where('is_hidden', false)
             ->whereIn('id', $ids)
             ->with(['photos', 'category', 'user'])
+            ->withCount([
+                'favorites as is_favorited' => function ($q) {
+                    if (Auth::check()) {
+                        $q->where('user_id', Auth::id());
+                    } else {
+                        $q->whereRaw('0 = 1');
+                    }
+                }
+            ])
             ->get();
     }
 }
