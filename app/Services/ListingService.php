@@ -87,24 +87,44 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
-public function delete(int $id)
-{
-    $listing = $this->listingRepository->getById($id);
+public function delete(int $id): bool
+    {
+        $listing = $this->listingRepository->getById($id);
 
-    if (!$listing) {
-        return false;
+        if (!$listing) {
+            return false;
+        }
+
+        // SERVICES: can always be deleted
+        if ($listing->tipas === 'paslauga') {
+            return (bool) $this->listingRepository->delete($listing);
+        }
+
+        // PRODUCTS:
+
+        // Criterion: "has ever been sold"
+        // We prefer to use order items if relation exists.
+        $hasOrders = false;
+
+        if (method_exists($listing, 'orderItems')) {
+            $hasOrders = $listing->orderItems()->exists();
+        }
+
+        // Fallback: use status field if present
+        if ($listing->statusas === 'parduotas') {
+            $hasOrders = true;
+        }
+
+        // If sold at least once → hide
+        if ($hasOrders) {
+            $listing->is_hidden = true;
+            $listing->save();
+
+            return true;
+        }
+
+        // Never sold → hard delete
+        return (bool) $this->listingRepository->delete($listing);
     }
-
-    // Services → hard delete
-    if ($listing->tipas === 'paslauga') {
-        return $this->listingRepository->delete($listing);
-    }
-
-    // Products → ALWAYS hide
-    $listing->is_hidden = true;
-    $listing->save();
-
-    return true;
-}
 
 }
