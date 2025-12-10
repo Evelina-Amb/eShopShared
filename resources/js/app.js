@@ -3,66 +3,40 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
-/**
- * Favorites store
- * - loads favorite listing IDs from DB
- * - toggles favorite state
- */
 Alpine.store('favorites', {
     ids: [],
 
     async load() {
-        try {
-            const res = await fetch('/api/favorites/ids', {
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                },
-            });
+        const res = await fetch('/api/favorites/ids', {
+            credentials: 'include',
+            headers: { Accept: 'application/json' },
+        });
 
-            if (!res.ok) {
-                this.ids = [];
-                return;
-            }
-
-            this.ids = await res.json();
-        } catch (e) {
-            console.error('Favorites load failed', e);
-            this.ids = [];
-        }
+        this.ids = res.ok ? await res.json() : [];
     },
 
-    has(listingId) {
-        return this.ids.includes(listingId);
+    has(id) {
+        return this.ids.includes(id);
     },
 
     async toggle(listingId) {
         const csrf = document
             .querySelector('meta[name="csrf-token"]')
-            ?.getAttribute('content');
-
-        if (!csrf) return;
-
-        const options = {
-            credentials: 'include',
-            headers: {
-                'X-CSRF-TOKEN': csrf,
-                'Accept': 'application/json',
-            },
-        };
+            .content;
 
         if (this.has(listingId)) {
             await fetch(`/api/favorite/${listingId}`, {
-                ...options,
                 method: 'DELETE',
+                credentials: 'include',
+                headers: { 'X-CSRF-TOKEN': csrf },
             });
         } else {
             await fetch('/api/favorite', {
-                ...options,
                 method: 'POST',
+                credentials: 'include',
                 headers: {
-                    ...options.headers,
                     'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
                 },
                 body: JSON.stringify({ listing_id: listingId }),
             });
@@ -72,9 +46,6 @@ Alpine.store('favorites', {
     },
 });
 
-/**
- * Init Alpine
- */
 document.addEventListener('alpine:init', () => {
     Alpine.store('favorites').load();
 });
