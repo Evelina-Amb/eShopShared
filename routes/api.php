@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\{
     UserController, ListingController
 };
 use App\Models\City;
+use Illuminate\Support\Facades\Route;
 
 Route::name('api.')->group(function () {
 
@@ -25,27 +26,24 @@ Route::name('api.')->group(function () {
             ->get(['id', 'pavadinimas']);
     });
 
-     Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/favorites/ids', function () {
             return auth()->user()
                 ->favoriteListings()
-                ->pluck('listing.id');
+                ->pluck('listing_id');
         });
 
         Route::get('/favorites/my', function () {
             return auth()->user()
                 ->favoriteListings()
-                ->with([
-                    'photos',
-                    'category',
-                    'user',
-                ])
+                ->with(['photos', 'category', 'user'])
                 ->get();
         });
 
         Route::post('/favorite', [FavoriteController::class, 'store']);
-        Route::delete('/favorite/{listingId}', [FavoriteController::class, 'destroy']);
+
+        Route::delete('/favorite/{listingId}', [FavoriteController::class, 'destroyByListing']);
     });
 
     Route::apiResources([
