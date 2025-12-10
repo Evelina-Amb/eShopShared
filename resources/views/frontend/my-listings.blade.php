@@ -11,18 +11,33 @@
             x-data="{
                 listings: {{ $listings->toJson() }},
 
-                deleteListing(id) {
-                    if (!confirm('Are you sure you want to delete this listing?')) return;
+               deleteListing(id) {
+    if (!confirm('Are you sure you want to delete this listing?')) return;
 
-                    fetch('/api/listing/' + id, {
-                        method: 'DELETE',
-                        headers: { 'Accept': 'application/json' }
-                    })
-                    .then(res => res.json())
-                    .then(() => {
-                        this.listings = this.listings.filter(l => l.id !== id);
-                    });
-                }
+    const csrf = document
+        .querySelector('meta[name="csrf-token"]')
+        ?.getAttribute('content');
+
+    fetch('/api/listing/' + id, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'X-CSRF-TOKEN': csrf,
+            'Accept': 'application/json',
+        },
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Delete failed');
+        return res.json();
+    })
+    .then(() => {
+        this.listings = this.listings.filter(l => l.id !== id);
+    })
+    .catch(() => {
+        alert('Failed to delete listing');
+    });
+}
+
             }">
 
             <template x-for="item in listings" :key="item.id">
