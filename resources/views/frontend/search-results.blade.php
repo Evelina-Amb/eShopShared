@@ -28,16 +28,6 @@
                             'city_id'     => 'City',
                         ];
 
-                        if ($key === 'sort') {
-                            $value = match ($value) {
-                                'newest'     => 'Newest first',
-                                'oldest'     => 'Oldest first',
-                                'price_asc'  => 'Price: Low to High',
-                                'price_desc' => 'Price: High to Low',
-                                default      => $value,
-                            };
-                        }
-
                         $label = $labels[$key] ?? ucfirst($key);
 
                         // Convert filter values to readable options
@@ -64,8 +54,10 @@
                         }
                     @endphp
 
-                    <a href="{{ route('search.listings') }}?{{ $query }}"
-                       class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2">
+                    <a
+                        href="{{ route('search.listings') }}?{{ $query }}"
+                        class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2"
+                    >
                         <span>{{ $label }}: {{ $value }}</span>
                         <span class="font-bold">✕</span>
                     </a>
@@ -73,8 +65,10 @@
                 @endforeach
 
                 {{-- Clear all --}}
-                <a href="{{ route('search.listings') }}"
-                   class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold">
+                <a
+                    href="{{ route('search.listings') }}"
+                    class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold"
+                >
                     Clear all
                 </a>
 
@@ -101,25 +95,31 @@
                             >
                         @endif
 
-                        <!-- Favorite Button -->
-                        <button
-                            @click="Alpine.store('favorites').toggle({{ $item->id }})"
-                            class="absolute top-2 right-2"
-                        >
-                            <span
-                                x-show="Alpine.store('favorites').has({{ $item->id }})"
-                                class="text-red-500 text-2xl"
-                            >
-                                ♥️
-                            </span>
+                        {{-- FAVORITE BUTTON --}}
+                        @auth
+                            @if(auth()->id() !== $item->user_id)
+                                <button
+                                    type="button"
+                                    @click.prevent="Alpine.store('favorites').toggle({{ $item->id }})"
+                                    class="absolute top-2 right-2 z-50 text-2xl"
+                                    aria-label="Toggle favorite"
+                                >
+                                    <span
+                                        x-show="Alpine.store('favorites').has({{ $item->id }})"
+                                        class="text-red-500"
+                                    >
+                                        ♥️
+                                    </span>
 
-                            <span
-                                x-show="!Alpine.store('favorites').has({{ $item->id }})"
-                                class="text-gray-200 drop-shadow-lg text-2xl leading-none"
-                            >
-                                🤍
-                            </span>
-                        </button>
+                                    <span
+                                        x-show="!Alpine.store('favorites').has({{ $item->id }})"
+                                        class="text-gray-200 drop-shadow-lg leading-none"
+                                    >
+                                        🤍
+                                    </span>
+                                </button>
+                            @endif
+                        @endauth
 
                     </div>
 
@@ -135,8 +135,10 @@
                                 {{ $item['kaina'] }} €
                             </span>
 
-                            <a href="/listing/{{ $item['id'] }}"
-                               class="text-blue-600 font-semibold">
+                            <a
+                                href="/listing/{{ $item['id'] }}"
+                                class="text-blue-600 font-semibold"
+                            >
                                 More →
                             </a>
                         </div>
