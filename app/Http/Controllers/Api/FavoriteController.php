@@ -109,9 +109,7 @@ class FavoriteController extends BaseController
     }
 
     /**
-     * ✅ POST /api/favorites/toggle
-     * ✅ THIS is the working logic from your other project
-     * ✅ Used by frontend heart button
+     *  POST /api/favorites/toggle
      */
     public function toggle(Request $request)
     {
