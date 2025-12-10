@@ -84,18 +84,22 @@ input[type=number] {
                     </h1>
 
                     @if(auth()->check() && auth()->id() !== $listing->user_id)
-                        <div x-data="{ favorites: Alpine.store('favorites').list }">
-                            <button
-                                @click="
-                                    Alpine.store('favorites').toggle({{ $listing->id }});
-                                    favorites = Alpine.store('favorites').list;
-                                "
-                                class="text-3xl"
-                            >
-                                <span x-show="favorites.includes({{ $listing->id }})" class="text-red-500">♥️</span>
-                                <span x-show="!favorites.includes({{ $listing->id }})" class="text-gray-300">🤍</span>
-                            </button>
-                        </div>
+                       <button
+    type="button"
+    @click.prevent="toggle({{ $listing->id }})"
+    class="text-3xl"
+>
+    <span
+        x-show="isFavorite({{ $listing->id }})"
+        class="text-red-500"
+    >❤️</span>
+
+    <span
+        x-show="!isFavorite({{ $listing->id }})"
+        class="text-gray-300"
+    >🤍</span>
+</button>
+
                     @endif
 
                 </div>
