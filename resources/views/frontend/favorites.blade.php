@@ -7,7 +7,6 @@
             async load() {
                 try {
                     await Alpine.store('favorites').load();
-
                     const ids = Alpine.store('favorites').ids;
 
                     if (ids.length === 0) {
@@ -16,13 +15,12 @@
                     }
 
                     const res = await fetch('/api/listing?ids=' + ids.join(','), {
-                        credentials: 'same-origin',
+                        credentials: 'include',
                         headers: { Accept: 'application/json' },
                     });
 
                     const json = await res.json();
 
-                    // ✅ CORRECT UNWRAP
                     this.listings = json.data?.data ?? [];
 
                 } catch (e) {
@@ -62,21 +60,30 @@
                             class="w-full h-48 object-cover"
                         >
 
+                        <!-- remove favorite -->
                         <button
                             @click="Alpine.store('favorites').toggle(item.id); load();"
-                            class="absolute top-2 right-2"
+                            class="absolute top-2 right-2 text-red-500 text-2xl"
+                            title="Remove from favorites"
                         >
-                            <span class="text-red-500 text-2xl">♥️</span>
+                            ♥️
                         </button>
                     </div>
 
                     <div class="p-4">
                         <h2 class="font-semibold" x-text="item.pavadinimas"></h2>
-                        <p class="text-sm text-gray-500 line-clamp-2" x-text="item.aprasymas"></p>
+
+                        <p class="text-sm text-gray-500 line-clamp-2"
+                           x-text="item.aprasymas"></p>
 
                         <div class="flex justify-between mt-3">
-                            <span class="text-green-600 font-bold" x-text="item.kaina + ' €'"></span>
-                            <a :href="'/listing/' + item.id" class="text-blue-600">More →</a>
+                            <span class="text-green-600 font-bold"
+                                  x-text="item.kaina + ' €'"></span>
+
+                            <a :href="'/listing/' + item.id"
+                               class="text-blue-600">
+                                More →
+                            </a>
                         </div>
                     </div>
 
