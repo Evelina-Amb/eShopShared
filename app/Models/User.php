@@ -63,11 +63,11 @@ class User extends Authenticatable
         return $this->hasMany(Favorite::class);
     }
 
-    public function favoriteListings()
+public function favoriteListings()
 {
     return $this->belongsToMany(
         Listing::class,
-        'favorite',
+        'favorites',   
         'user_id',
         'listing_id'
     )->withTimestamps();
