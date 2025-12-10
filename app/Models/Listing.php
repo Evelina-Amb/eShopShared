@@ -32,6 +32,10 @@ class Listing extends Model
     return $this->hasMany(ListingPhoto::class, 'listing_id');
 }
 
+      public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
 
     public function Review()
     {
