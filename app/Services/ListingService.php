@@ -61,7 +61,7 @@ class ListingService
             throw new \Exception('Negalima redaguoti parduoto skelbimo.');
         }
 
-        // Prevent service listings from ever becoming "parduotas"
+        // Prevent service listings from ever becoming sold
         if (
             $listing->tipas === 'paslauga' &&
             isset($data['statusas']) &&
@@ -85,23 +85,10 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
-public function destroy($id)
-{
-    try {
-        $listing = $this->listingService->getById($id);
-
-        if (!$listing) {
-            return $this->sendError("Listing not found", 404);
-        }
-
-        // soft delete / hide
-        $this->listingService->delete($listing);
-
-        return $this->sendResponse(null, 'Listing deleted.');
-    } catch (\Exception $e) {
-        return $this->sendError($e->getMessage(), 500);
+    // ✔ FINAL VERSION OF DELETE
+    public function delete(Listing $listing): bool
+    {
+        $listing->is_hidden = true;
+        return $listing->save();
     }
-}
-
-
 }
