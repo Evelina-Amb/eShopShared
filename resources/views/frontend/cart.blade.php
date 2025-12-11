@@ -75,11 +75,16 @@
             {{-- QUANTITY --}}
             <div class="col-span-2 flex justify-center items-center">
 
-                <form method="POST" action="{{ route('cart.decrease', $item->id) }}">
-                    @csrf
-                    <button class="px-2 py-1 bg-gray-200 rounded">−</button>
-                </form>
-
+<form method="POST" action="{{ route('cart.decrease', $item->id) }}">
+    @csrf
+    <button 
+        class="px-2 py-1 bg-gray-200 rounded 
+               {{ $item->kiekis <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+        {{ $item->kiekis <= 1 ? 'disabled' : '' }}
+    >
+        −
+    </button>
+</form>
                 <span class="px-4">{{ $item->kiekis }}</span>
 
                 <form method="POST" action="{{ route('cart.increase', $item->id) }}">
