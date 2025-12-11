@@ -56,10 +56,12 @@ class ListingService
             return null;
         }
 
+        // Prevent editing sold listings
         if ($listing->statusas === 'parduotas') {
             throw new \Exception('Negalima redaguoti parduoto skelbimo.');
         }
 
+        // Prevent service listings from ever becoming "parduotas"
         if (
             $listing->tipas === 'paslauga' &&
             isset($data['statusas']) &&
@@ -83,8 +85,17 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
-    public function delete(Listing $listing): bool
+    /**
+     * LOGICAL DELETE: hide listing instead of removing row
+     */
+    public function delete(int $id): bool
     {
+        $listing = $this->listingRepository->getById($id);
+
+        if (!$listing) {
+            throw new \Exception('Listing not found.');
+        }
+
         return $this->listingRepository->delete($listing);
     }
 }
