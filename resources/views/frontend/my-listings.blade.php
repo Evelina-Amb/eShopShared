@@ -9,25 +9,7 @@
 
         <div
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-            x-data="{
-                listings: {{ $listings->toJson() }},
-
-                deleteListing(id) {
-                    if (!confirm('Are you sure you want to delete this listing?')) return;
-
-                    fetch('/api/listing/' + id, {
-                        method: 'DELETE',
-                        credentials: 'include',
-                        headers: {
-                            'Accept': 'application/json',
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(() => {
-                        this.listings = this.listings.filter(l => l.id !== id);
-                    });
-                }
-            }"
+            x-data="myListingsComponent({{ $listings->toJson() }})"
         >
 
             <template x-for="item in listings" :key="item.id">
@@ -90,4 +72,40 @@
 
         </div>
     </div>
+
+    <!-- Alpine Delete Logic -->
+    <script>
+        function myListingsComponent(initialListings) {
+            return {
+                listings: initialListings,
+
+                getCSRFToken() {
+                    return document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('XSRF-TOKEN='))
+                        ?.split('=')[1];
+                },
+
+                deleteListing(id) {
+                    if (!confirm('Are you sure you want to delete this listing?')) return;
+
+                    const token = this.getCSRFToken();
+
+                    fetch('/api/listing/' + id, {
+                        method: 'DELETE',
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-XSRF-TOKEN': decodeURIComponent(token)
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(() => {
+                        this.listings = this.listings.filter(l => l.id !== id);
+                    })
+                    .catch(err => console.error('Delete failed:', err));
+                }
+            }
+        }
+    </script>
 </x-app-layout>
