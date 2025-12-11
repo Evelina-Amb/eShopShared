@@ -85,17 +85,17 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
-    /**
-     * LOGICAL DELETE: hide listing instead of removing row
-     */
-    public function delete(int $id): bool
-    {
-        $listing = $this->listingRepository->getById($id);
+   public function delete(int $id): bool
+{
+    $listing = $this->listingRepository->getById($id);
 
-        if (!$listing) {
-            throw new \Exception('Listing not found.');
-        }
-
-        return $this->listingRepository->delete($listing);
+    if (!$listing) {
+        throw new \Exception('Listing not found.');
     }
+
+    // Perform soft-hide
+    $listing->is_hidden = true;
+    return $listing->save();
+}
+
 }
