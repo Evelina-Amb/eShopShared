@@ -16,6 +16,12 @@ class ListingRepository implements ListingRepositoryInterface
         $this->model = $model;
     }
 
+    public function getAll(): Collection
+{
+    return Listing::all();
+}
+
+
     public function getPublic(): Collection
     {
         return Listing::where('is_hidden', false)
