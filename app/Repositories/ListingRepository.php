@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ListingRepository implements ListingRepositoryInterface
 {
-    protected Listing $model;
+    protected Listing $model; 
 
     public function __construct(Listing $model)
     {
