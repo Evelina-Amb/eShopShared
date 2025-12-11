@@ -96,4 +96,24 @@ class CartController extends BaseController
 
         return $this->sendResponse(null, 'Cart item deleted.');
     }
+
+    public function decrease($id)
+{
+    $item = Cart::find($id);
+
+    if (!$item) {
+        return back()->with('error', 'Cart item not found.');
+    }
+
+    // Prevent going below 1
+    if ($item->kiekis <= 1) {
+        return back()->with('error', 'You cannot decrease quantity below 1. Remove the item instead.');
+    }
+
+    $item->kiekis -= 1;
+    $item->save();
+
+    return back()->with('success', 'Quantity updated.');
+}
+
 }
