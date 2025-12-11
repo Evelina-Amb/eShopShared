@@ -12,25 +12,31 @@ use Illuminate\Support\Facades\Route;
 
 Route::name('api.')->group(function () {
 
+    // PUBLIC LISTING ROUTES
     Route::get('/listing', [ListingController::class, 'index']);
     Route::get('/listing/{id}', [ListingController::class, 'show']);
 
     Route::get('/listings/mine', [ListingController::class, 'mine']);
     Route::get('/listings/search', [ListingController::class, 'search']);
 
+    // CART ROUTES
     Route::delete('/cart/item', [CartController::class, 'clearItem']);
     Route::delete('/cart/clear', [CartController::class, 'clearAll']);
 
+    // ADMIN
     Route::post('/users/{id}/ban', [UserController::class, 'ban'])->middleware('admin');
     Route::post('/users/{id}/unban', [UserController::class, 'unban'])->middleware('admin');
 
+    // CITY LOOKUP
     Route::get('/cities/by-country/{countryId}', function ($countryId) {
         return City::where('country_id', $countryId)
             ->get(['id', 'pavadinimas']);
     });
 
+    // AUTHENTICATED ROUTES
     Route::middleware('auth:sanctum')->group(function () {
 
+        // FAVORITES
         Route::get('/favorites/ids', function () {
             return auth()->user()
                 ->favoriteListings()
@@ -47,11 +53,13 @@ Route::name('api.')->group(function () {
         Route::post('/favorite', [FavoriteController::class, 'store']);
         Route::delete('/favorite/{listingId}', [FavoriteController::class, 'destroyByListing']);
 
+        // PROTECTED LISTING ROUTES
         Route::post('/listing', [ListingController::class, 'store']);
         Route::put('/listing/{id}', [ListingController::class, 'update']);
         Route::delete('/listing/{id}', [ListingController::class, 'destroy']);
     });
 
+    // OTHER RESOURCES
     Route::apiResources([
         'country'     => CountryController::class,
         'city'        => CityController::class,
@@ -64,6 +72,5 @@ Route::name('api.')->group(function () {
         'orderItem'   => OrderItemController::class,
         'users'       => UserController::class,
     ]);
-    
-});
 
+});
