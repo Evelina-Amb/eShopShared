@@ -88,20 +88,11 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
-public function delete(int $id): bool
+public function delete(Listing $listing): bool
 {
-    $listing = $this->listingRepository->getById($id);
-
-    if (!$listing) {
-        return false;
-    }
-
-    // Always hide listings, never hard delete
+    // HIDE INSTEAD OF DELETE
     $listing->is_hidden = true;
-    $listing->save();
-
-    return true;
+    return $listing->save();
 }
-
 
 }
