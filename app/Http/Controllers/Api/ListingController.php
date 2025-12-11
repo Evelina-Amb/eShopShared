@@ -122,13 +122,16 @@ public function destroy($id)
             return $this->sendError("Listing not found", 404);
         }
 
+        // Soft delete (hide)
         $this->listingService->delete($listing);
 
         return $this->sendResponse(null, 'Listing deleted.');
-    } catch (\Exception $e) {
-        return $this->sendError($e->getMessage(), 500);
+    } 
+    catch (\Throwable $e) {
+        return $this->sendError("Server error: " . $e->getMessage(), 500);
     }
 }
+
 
     
 }
