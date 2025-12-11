@@ -85,10 +85,10 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
-    // ✔ FINAL VERSION OF DELETE
-    public function delete(Listing $listing): bool
-    {
-        $listing->is_hidden = true;
-        return $listing->save();
-    }
+  public function delete(Listing $listing): bool
+{
+    $listing->is_hidden = true;
+    return $listing->save();
+}
+
 }
