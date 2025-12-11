@@ -85,17 +85,12 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
-   public function delete(int $id): bool
+ public function delete(Listing $listing): bool
 {
-    $listing = $this->listingRepository->getById($id);
-
-    if (!$listing) {
-        throw new \Exception('Listing not found.');
-    }
-
-    // Perform soft-hide
+    // Perform soft hide
     $listing->is_hidden = true;
     return $listing->save();
 }
+
 
 }
