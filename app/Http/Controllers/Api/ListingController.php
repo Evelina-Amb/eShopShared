@@ -110,19 +110,10 @@ class ListingController extends BaseController
         }
     }
 
-    public function destroy($id)
+    public function destroy(Listing $listing)
 {
-    try {
-        $deleted = $this->listingService->delete((int) $id);
-
-        if (!$deleted) {
-            return $this->sendError('Listing not found.', 404);
-        }
-
-        return $this->sendResponse(null, 'Listing deleted.');
-    } catch (\Throwable $e) {
-        return $this->sendError($e->getMessage(), 400);
-    }
+    $this->listingService->delete($listing);
+    return $this->sendResponse(null, 'Listing deleted.');
 }
 
 }
