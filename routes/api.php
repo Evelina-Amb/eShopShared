@@ -28,34 +28,35 @@ Route::name('api.')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/favorites/ids', function () {
-        return auth()->user()
-            ->favoriteListings()
-            ->pluck('listing_id');
-    });
+        Route::get('/favorites/ids', function () {
+            return auth()->user()
+                ->favoriteListings()
+                ->pluck('listing_id');
+        });
 
-    Route::get('/favorites/my', function () {
-        return auth()->user()
-            ->favoriteListings()
-            ->with(['photos', 'category', 'user'])
-            ->get();
-    });
+        Route::get('/favorites/my', function () {
+            return auth()->user()
+                ->favoriteListings()
+                ->with(['photos', 'category', 'user'])
+                ->get();
+        });
 
-    Route::post('/favorite', [FavoriteController::class, 'store']);
-    Route::delete('/favorite/{listingId}', [FavoriteController::class, 'destroyByListing']);
-});
+        Route::post('/favorite', [FavoriteController::class, 'store']);
+        Route::delete('/favorite/{listingId}', [FavoriteController::class, 'destroyByListing']);
+    });
 
     Route::apiResources([
-        'country' => CountryController::class,
-        'city' => CityController::class,
-        'address' => AddressController::class,
-        'category' => CategoryController::class,
-        'listingPhoto' => ListingPhotoController::class,
-        'review' => ReviewController::class,
-        'cart' => CartController::class,
-        'order' => OrderController::class,
-        'orderItem' => OrderItemController::class,
-        'users' => UserController::class,
-        'listing'=> ListingController::class,
+        'country'     => CountryController::class,
+        'city'        => CityController::class,
+        'address'     => AddressController::class,
+        'category'    => CategoryController::class,
+        'listingPhoto'=> ListingPhotoController::class,
+        'review'      => ReviewController::class,
+        'cart'        => CartController::class,
+        'order'       => OrderController::class,
+        'orderItem'   => OrderItemController::class,
+        'users'       => UserController::class,
+        'listing'     => ListingController::class,
     ]);
 });
+
