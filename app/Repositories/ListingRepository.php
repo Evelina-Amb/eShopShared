@@ -7,19 +7,43 @@ use App\Repositories\Contracts\ListingRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
-class ListingRepository extends BaseRepository implements ListingRepositoryInterface
+class ListingRepository implements ListingRepositoryInterface
 {
     protected Listing $model;
 
     public function __construct(Listing $model)
     {
-        parent::__construct($model);
         $this->model = $model;
     }
 
-    /**
-     * All public listings (visible, not sold)
-     */
+    public function getAll(): Collection
+    {
+        return $this->getPublic();
+    }
+
+    public function getById(int $id)
+    {
+        return $this->model->find($id);
+    }
+
+    public function create(array $data)
+    {
+        return $this->model->create($data);
+    }
+
+    public function update($listing, array $data)
+    {
+        $listing->update($data);
+        return $listing;
+    }
+
+    public function delete($listing)
+    {
+        // HIDE INSTEAD OF HARD DELETE
+        $listing->is_hidden = true;
+        return $listing->save();
+    }
+
     public function getPublic(): Collection
     {
         return Listing::where('is_hidden', false)
@@ -37,9 +61,6 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
             ->get();
     }
 
-    /**
-     * Listings belonging to a specific user
-     */
     public function getByUser(int $userId): Collection
     {
         return Listing::where('user_id', $userId)
@@ -53,9 +74,23 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
             ->get();
     }
 
-    /**
-     * Search listings
-     */
+    public function getByIds(array $ids): Collection
+    {
+        return Listing::where('is_hidden', false)
+            ->whereIn('id', $ids)
+            ->with(['photos', 'category', 'user'])
+            ->withCount([
+                'favorites as is_favorited' => function ($q) {
+                    if (Auth::check()) {
+                        $q->where('user_id', Auth::id());
+                    } else {
+                        $q->whereRaw('0 = 1');
+                    }
+                }
+            ])
+            ->get();
+    }
+
     public function search(array $filters): Collection
     {
         $query = Listing::where('is_hidden', false)
@@ -65,7 +100,7 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
                 'category',
                 'photos',
                 'user.address.city',
-                'review.user',
+                'review.user'
             ])
             ->withCount([
                 'favorites as is_favorited' => function ($q) {
@@ -81,7 +116,7 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
             $keyword = $filters['q'];
             $query->where(function ($q2) use ($keyword) {
                 $q2->where('pavadinimas', 'LIKE', "%{$keyword}%")
-                    ->orWhere('aprasymas', 'LIKE', "%{$keyword}%");
+                   ->orWhere('aprasymas', 'LIKE', "%{$keyword}%");
             });
         }
 
@@ -109,38 +144,4 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
 
         return $query->get();
     }
-
-    /**
-     * Get visible listings by IDs (used for favorites, etc.)
-     */
-    public function getByIds(array $ids): Collection
-    {
-        return Listing::where('is_hidden', false)
-            ->whereIn('id', $ids)
-            ->with(['photos', 'category', 'user'])
-            ->withCount([
-                'favorites as is_favorited' => function ($q) {
-                    if (Auth::check()) {
-                        $q->where('user_id', Auth::id());
-                    } else {
-                        $q->whereRaw('0 = 1');
-                    }
-                }
-            ])
-            ->get();
-    }
-
-    public function delete($listing)
-    {
-        if ($listing instanceof Listing) {
-            $model = $listing;
-        } else {
-            $model = $this->model->findOrFail($listing);
-        }
-
-        $model->is_hidden = true;
-
-        return $model->save();
-    }
-
 }
