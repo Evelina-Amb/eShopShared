@@ -47,10 +47,24 @@ class ListingPhotoController extends BaseController
     }
 
     public function destroy($id)
-    {
-        $deleted = $this->listingPhotoService->delete($id);
-        if (!$deleted) return $this->sendError('Listing photo not found.', 404);
+{
+    $photo = ListingPhoto::find($id);
 
-        return $this->sendResponse(null, 'Listing photo deleted.');
+    if (!$photo) {
+        return $this->sendError('Listing photo not found.', 404);
     }
+
+    $listing = $photo->listing;
+
+    if ($listing->photos()->count() <= 1) {
+        return $this->sendError('You must keep at least one photo.', 400);
+    }
+
+    Storage::delete('public/' . $photo->failo_url);
+
+    $photo->delete();
+
+    return $this->sendResponse(null, 'Listing photo deleted.');
+}
+
 }
