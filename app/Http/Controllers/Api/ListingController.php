@@ -52,6 +52,7 @@ class ListingController extends BaseController
     public function show($id)
     {
         $listing = $this->listingService->getById($id);
+
         if (!$listing) {
             return $this->sendError('Listing not found.', 404);
         }
@@ -81,7 +82,8 @@ class ListingController extends BaseController
             'tipas',
             'min_price',
             'max_price',
-            'sort'
+            'sort',
+            'city_id',
         ]);
 
         $results = $this->listingService->search($filters);
@@ -98,7 +100,7 @@ class ListingController extends BaseController
             $listing = $this->listingService->update($id, $request->validated());
 
             if (!$listing) {
-                return $this->sendError('Listing not found', 404);
+                return $this->sendError('Listing not found.', 404);
             }
 
             return $this->sendResponse(
@@ -110,15 +112,17 @@ class ListingController extends BaseController
         }
     }
 
-  public function destroy(Listing $listing)
-{
-    if (!$listing) {
-        return $this->sendError('Listing not found.', 404);
+
+    public function destroy($id)
+    {
+        try {
+            $this->listingService->delete((int) $id);
+
+            return $this->sendResponse(null, 'Listing deleted.');
+        } catch (\Exception $e) {
+
+            return $this->sendError($e->getMessage(), 500);
+    
+        }
     }
-
-    $this->listingService->delete($listing);
-
-    return $this->sendResponse(null, 'Listing hidden.');
-}
-
 }
