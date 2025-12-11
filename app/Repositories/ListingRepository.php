@@ -7,21 +7,19 @@ use App\Repositories\Contracts\ListingRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
-class ListingRepository implements ListingRepositoryInterface
+class ListingRepository extends BaseRepository implements ListingRepositoryInterface
 {
-    protected Listing $model; 
+    protected Listing $model;
 
     public function __construct(Listing $model)
     {
+        parent::__construct($model);
         $this->model = $model;
     }
 
-    public function getAll(): Collection
-{
-    return Listing::all();
-}
-
-
+    /**
+     * All public listings (visible, not sold)
+     */
     public function getPublic(): Collection
     {
         return Listing::where('is_hidden', false)
@@ -39,6 +37,9 @@ class ListingRepository implements ListingRepositoryInterface
             ->get();
     }
 
+    /**
+     * Listings belonging to a specific user
+     */
     public function getByUser(int $userId): Collection
     {
         return Listing::where('user_id', $userId)
@@ -52,6 +53,9 @@ class ListingRepository implements ListingRepositoryInterface
             ->get();
     }
 
+    /**
+     * Search listings
+     */
     public function search(array $filters): Collection
     {
         $query = Listing::where('is_hidden', false)
@@ -61,7 +65,7 @@ class ListingRepository implements ListingRepositoryInterface
                 'category',
                 'photos',
                 'user.address.city',
-                'review.user'
+                'review.user',
             ])
             ->withCount([
                 'favorites as is_favorited' => function ($q) {
@@ -77,7 +81,7 @@ class ListingRepository implements ListingRepositoryInterface
             $keyword = $filters['q'];
             $query->where(function ($q2) use ($keyword) {
                 $q2->where('pavadinimas', 'LIKE', "%{$keyword}%")
-                   ->orWhere('aprasymas', 'LIKE', "%{$keyword}%");
+                    ->orWhere('aprasymas', 'LIKE', "%{$keyword}%");
             });
         }
 
@@ -106,11 +110,9 @@ class ListingRepository implements ListingRepositoryInterface
         return $query->get();
     }
 
-    public function getById(int $id)
-    {
-        return Listing::find($id);
-    }
-
+    /**
+     * Get visible listings by IDs (used for favorites, etc.)
+     */
     public function getByIds(array $ids): Collection
     {
         return Listing::where('is_hidden', false)
@@ -128,23 +130,17 @@ class ListingRepository implements ListingRepositoryInterface
             ->get();
     }
 
-    public function create(array $data)
-    {
-        return Listing::create($data);
-    }
-
-    public function update($listing, array $data)
-    {
-        $listing->update($data);
-        return $listing;
-    }
-
-    /**
-     * SOFT DELETE — hide instead of deleting.
-     */
     public function delete($listing)
     {
-        $listing->is_hidden = true;
-        return $listing->save();
+        if ($listing instanceof Listing) {
+            $model = $listing;
+        } else {
+            $model = $this->model->findOrFail($listing);
+        }
+
+        $model->is_hidden = true;
+
+        return $model->save();
     }
+
 }
