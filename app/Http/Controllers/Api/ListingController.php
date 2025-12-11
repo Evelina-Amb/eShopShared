@@ -113,7 +113,7 @@ class ListingController extends BaseController
     }
 
 
-   public function destroy($id)
+public function destroy($id)
 {
     try {
         $listing = $this->listingService->getById($id);
@@ -122,7 +122,6 @@ class ListingController extends BaseController
             return $this->sendError("Listing not found", 404);
         }
 
-        // hide listing instead of delete
         $this->listingService->delete($listing);
 
         return $this->sendResponse(null, 'Listing deleted.');
@@ -130,7 +129,6 @@ class ListingController extends BaseController
         return $this->sendError($e->getMessage(), 500);
     }
 }
-
 
     
 }
