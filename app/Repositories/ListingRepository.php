@@ -115,9 +115,10 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
             ->get();
     }
 
-    public function delete($model)
-{
-    return $model->delete();
-}
+   public function delete($listing)
+    {
+        $listing->is_hidden = true;
+        return $listing->save();
+    }
 
 }
