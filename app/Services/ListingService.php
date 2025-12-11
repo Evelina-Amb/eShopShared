@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Listing;
 use App\Repositories\Contracts\ListingRepositoryInterface;
-use Illuminate\Support\Facades\DB;
 
 class ListingService
 {
@@ -37,7 +36,6 @@ class ListingService
 
     public function create(array $data)
     {
-        // Default status
         if (empty($data['statusas'])) {
             $data['statusas'] = 'aktyvus';
         }
@@ -58,12 +56,10 @@ class ListingService
             return null;
         }
 
-        // Prevent editing sold listings
         if ($listing->statusas === 'parduotas') {
             throw new \Exception('Negalima redaguoti parduoto skelbimo.');
         }
 
-        // Prevent service listings from ever becoming "parduotas"
         if (
             $listing->tipas === 'paslauga' &&
             isset($data['statusas']) &&
@@ -72,7 +68,6 @@ class ListingService
             throw new \Exception('Services cannot be marked as sold.');
         }
 
-        // Ensure quantity + renewable flag update
         $allowedFields = [
             'pavadinimas',
             'aprasymas',
@@ -88,11 +83,8 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
-public function delete(Listing $listing): bool
-{
-    // HIDE INSTEAD OF DELETE
-    $listing->is_hidden = true;
-    return $listing->save();
-}
-
+    public function delete(Listing $listing): bool
+    {
+        return $this->listingRepository->delete($listing);
+    }
 }
