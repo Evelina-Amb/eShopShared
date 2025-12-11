@@ -4,6 +4,18 @@
 
     <h1 class="text-3xl font-bold mb-6">My Cart</h1>
 
+    @if(session('error'))
+    <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if(session('success'))
+    <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
+        {{ session('success') }}
+    </div>
+@endif
+
     @if($cartItems->isEmpty())
         <div class="bg-white shadow p-6 rounded text-center">
             <p class="text-gray-600">Your cart is empty.</p>
