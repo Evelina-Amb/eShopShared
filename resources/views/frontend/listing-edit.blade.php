@@ -50,6 +50,7 @@
                 <label class="font-semibold">Price (€)</label>
                 <input 
                     type="number" 
+                    min="0"
                     step="0.01" 
                     name="kaina"
                     value="{{ old('kaina', $listing->kaina) }}"
