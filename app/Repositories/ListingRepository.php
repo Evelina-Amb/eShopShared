@@ -7,11 +7,13 @@ use App\Repositories\Contracts\ListingRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
-class ListingRepository extends BaseRepository implements ListingRepositoryInterface
+class ListingRepository implements ListingRepositoryInterface
 {
+    protected Listing $model;
+
     public function __construct(Listing $model)
     {
-        parent::__construct($model);
+        $this->model = $model;
     }
 
     public function getPublic(): Collection
@@ -98,6 +100,11 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
         return $query->get();
     }
 
+    public function getById(int $id)
+    {
+        return Listing::find($id);
+    }
+
     public function getByIds(array $ids): Collection
     {
         return Listing::where('is_hidden', false)
@@ -115,10 +122,23 @@ class ListingRepository extends BaseRepository implements ListingRepositoryInter
             ->get();
     }
 
-   public function delete($listing)
+    public function create(array $data)
+    {
+        return Listing::create($data);
+    }
+
+    public function update($listing, array $data)
+    {
+        $listing->update($data);
+        return $listing;
+    }
+
+    /**
+     * SOFT DELETE — hide instead of deleting.
+     */
+    public function delete($listing)
     {
         $listing->is_hidden = true;
         return $listing->save();
     }
-
 }
