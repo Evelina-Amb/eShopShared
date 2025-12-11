@@ -85,11 +85,22 @@ class ListingService
         return $this->listingRepository->update($listing, $updateData);
     }
 
- public function delete(Listing $listing): bool
+public function destroy($id)
 {
-    // Perform soft hide
-    $listing->is_hidden = true;
-    return $listing->save();
+    try {
+        $listing = $this->listingService->getById($id);
+
+        if (!$listing) {
+            return $this->sendError("Listing not found", 404);
+        }
+
+        // soft delete / hide
+        $this->listingService->delete($listing);
+
+        return $this->sendResponse(null, 'Listing deleted.');
+    } catch (\Exception $e) {
+        return $this->sendError($e->getMessage(), 500);
+    }
 }
 
 
