@@ -46,6 +46,7 @@
             <label class="block font-semibold">Price (€)</label>
             <input
                 type="number"
+                 min="0"
                 step="0.01"
                 name="kaina"
                 class="w-full border rounded p-2"
