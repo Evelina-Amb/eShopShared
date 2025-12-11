@@ -10,6 +10,12 @@
             </div>
         @endif
 
+        @if(session('error'))
+    <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
+        {{ session('error') }}
+    </div>
+@endif
+
         @if ($errors->any())
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
                 <ul class="list-disc ml-5">
@@ -152,10 +158,13 @@
                     @method('DELETE')
 
                     <button 
-                        type="submit"
-                        class="bg-red-600 text-white text-sm px-3 py-1 rounded shadow hover:bg-red-700">
-                        Delete
-                    </button>
+    type="submit"
+    @disabled($listing->photos->count() <= 1)
+    class="bg-red-600 text-white text-sm px-3 py-1 rounded shadow hover:bg-red-700 
+           disabled:bg-gray-400 disabled:cursor-not-allowed">
+    Delete
+</button>
+
                 </form>
 
             </div>
