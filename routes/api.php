@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::name('api.')->group(function () {
 
+    Route::get('/listing', [ListingController::class, 'index']);
+    Route::get('/listing/{id}', [ListingController::class, 'show']);
+
     Route::get('/listings/mine', [ListingController::class, 'mine']);
     Route::get('/listings/search', [ListingController::class, 'search']);
 
@@ -43,6 +46,10 @@ Route::name('api.')->group(function () {
 
         Route::post('/favorite', [FavoriteController::class, 'store']);
         Route::delete('/favorite/{listingId}', [FavoriteController::class, 'destroyByListing']);
+
+        Route::post('/listing', [ListingController::class, 'store']);
+        Route::put('/listing/{id}', [ListingController::class, 'update']);
+        Route::delete('/listing/{id}', [ListingController::class, 'destroy']);
     });
 
     Route::apiResources([
@@ -56,7 +63,7 @@ Route::name('api.')->group(function () {
         'order'       => OrderController::class,
         'orderItem'   => OrderItemController::class,
         'users'       => UserController::class,
-        'listing'     => ListingController::class,
     ]);
+    
 });
 
