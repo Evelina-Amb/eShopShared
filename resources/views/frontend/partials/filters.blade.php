@@ -26,6 +26,7 @@
         class="border rounded px-3 py-2"
         placeholder="Min price"
         value="{{ request('min_price') }}"
+        min="0"
     >
 
     <!-- Max Price -->
@@ -35,6 +36,7 @@
         class="border rounded px-3 py-2"
         placeholder="Max price"
         value="{{ request('max_price') }}"
+        min="0"
     >
 
     <!-- City  -->
