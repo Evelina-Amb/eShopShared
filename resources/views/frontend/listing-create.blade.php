@@ -128,7 +128,6 @@
             ></div>
         </div>
          
-<div class="flex gap-4 mt-6">
         {{-- SUBMIT --}}
         <button
             type="submit"
@@ -141,7 +140,7 @@
         class="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400">
         Cancel
     </a>
-    </div>     
+   
     </form>
 </div>
 
