@@ -108,7 +108,7 @@ if ($emailChanged) {
         'We sent a verification link to your new email address. Please verify it to continue.'
     );
 }
-
+}
     /**
      * Delete the user's account.
      */
