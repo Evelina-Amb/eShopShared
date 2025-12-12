@@ -31,45 +31,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-   <?php
-
-namespace App\Http\Controllers;
-
-use App\Models\User;
-use App\Models\Address;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
-
-class ProfileController extends Controller
-{
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request)
-    {
-        $user = $request->user()->load('address.city');
-
-        return view('profile.edit', [
-            'user'      => $user,
-            'countries' => \App\Models\Country::select('id', 'pavadinimas')
-                ->orderBy('pavadinimas')
-                ->get(),
-            'cities'    => \App\Models\City::select('id', 'pavadinimas', 'country_id')
-                ->orderBy('pavadinimas')
-                ->get(),
-        ]);
-    }
-
-    /**
-     * Update the user's profile information.
-     */
+    
     public function update(Request $request)
     {
         $user = auth()->user();
@@ -172,65 +134,6 @@ class ProfileController extends Controller
 
         return back()->with('status', 'profile-updated');
     }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request)
-    {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
-    }
-
-    /**
-     * Update password.
-     */
-    public function updatePassword(Request $request)
-    {
-        $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'password' => [
-                'required',
-                'confirmed',
-                \Illuminate\Validation\Rules\Password::defaults()
-            ],
-        ]);
-
-        $request->user()->update([
-            'slaptazodis' => $request->password,
-        ]);
-
-        return back()->with('status', 'password-updated');
-    }
-
-    /**
-     * Verify new email address.
-     */
-    public function verifyNewEmail($token)
-    {
-        $user = User::where('pending_email_token', $token)->firstOrFail();
-
-        $user->el_pastas = $user->pending_email;
-        $user->pending_email = null;
-        $user->pending_email_token = null;
-        $user->save();
-
-        return redirect()
-            ->route('profile.edit')
-            ->with('status', 'Your email has been updated and verified.');
-    }
-}
 
     /**
      * Delete the user's account.
