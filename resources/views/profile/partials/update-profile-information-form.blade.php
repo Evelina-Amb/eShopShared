@@ -99,9 +99,13 @@
             <x-text-input id="telefonas"
                           name="telefonas"
                           type="text"
+                          inputmode="numeric"
+                          pattern="^\+?[0-9]*$"
                           class="mt-1 block w-full"
                           placeholder="+370xxxxxxx"
-                          :value="old('telefonas', $user->telefonas)" />
+                          :value="old('telefonas', $user->telefonas)"
+                oninput="this.value = this.value.replace(/[^0-9+]/g, '')"
+                />
             <x-input-error class="mt-2" :messages="$errors->get('telefonas')" />
         </div>
 
