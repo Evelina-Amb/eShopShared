@@ -108,6 +108,7 @@ if ($emailChanged) {
         'We sent a verification link to your new email address. Please verify it to continue.'
     );
 }
+    return back()->with('status', 'profile-updated');
 }
     /**
      * Delete the user's account.
