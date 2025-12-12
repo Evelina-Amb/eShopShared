@@ -42,26 +42,18 @@ class ProfileController extends Controller
         'el_pastas'  => [
             'required',
             'email',
-            'max:255',
             Rule::unique('users', 'el_pastas')->ignore($user->id),
         ],
         'telefonas'       => ['nullable', 'string', 'max:50'],
-        'business_email'  => ['nullable', 'email', 'max:255'],
+        'business_email'  => ['nullable', 'email'],
         'role'            => ['nullable', 'string'],
         'city_id'         => ['nullable', 'exists:city,id'],
-        'gatve'           => ['nullable', 'string', 'max:255'],
-        'namo_nr'         => ['nullable', 'string', 'max:50'],
-        'buto_nr'         => ['nullable', 'string', 'max:50'],
+        'gatve'           => ['nullable', 'string'],
+        'namo_nr'         => ['nullable', 'string'],
+        'buto_nr'         => ['nullable', 'string'],
     ]);
 
-    // Prevent disabling seller if listings exist
-    if ($user->listings()->exists() && !$request->has('role')) {
-        return back()->withErrors([
-            'role' => 'You cannot disable seller mode because you have active listings.',
-        ]);
-    }
-
-    // Seller requirements
+    // Seller rules
     if ($request->has('role')) {
         $request->validate([
             'city_id'        => 'required',
@@ -70,39 +62,21 @@ class ProfileController extends Controller
         ]);
     }
 
-    // Check email BEFORE updating user
     $emailChanged = $validated['el_pastas'] !== $user->el_pastas;
 
-    // Build update payload safely
-    $data = [
-        'vardas'         => $validated['vardas'] ?? $user->vardas,
-        'pavarde'        => $validated['pavarde'] ?? $user->pavarde,
-        'telefonas'      => $validated['telefonas'] ?? $user->telefonas,
-        'business_email' => $validated['business_email'] ?? $user->business_email,
-    ];
+    $user->update([
+        'vardas'         => $validated['vardas'],
+        'pavarde'        => $validated['pavarde'],
+        'telefonas'      => $validated['telefonas'],
+        'business_email' => $validated['business_email'],
+        'el_pastas'      => $emailChanged ? $user->el_pastas : $validated['el_pastas'],
+        'role'           => $request->has('role') ? 'seller' : 'buyer',
+    ]);
 
-    if ($request->has('role')) {
-        $data['role'] = 'seller';
-    }
-
-    $user->update($data);
-
-    // Address (create or update)
-    if (
-        !empty($validated['city_id']) ||
-        !empty($validated['gatve']) ||
-        !empty($validated['namo_nr']) ||
-        !empty($validated['buto_nr'])
-    ) {
+    // Address
+    if ($validated['city_id'] ?? false) {
         $address = $user->address ?? new Address();
-
-        $address->fill([
-            'city_id' => $validated['city_id'] ?? $address->city_id,
-            'gatve'   => $validated['gatve'] ?? $address->gatve,
-            'namo_nr' => $validated['namo_nr'] ?? $address->namo_nr,
-            'buto_nr' => $validated['buto_nr'] ?? $address->buto_nr,
-        ]);
-
+        $address->fill($validated);
         $address->save();
 
         if (!$user->address_id) {
@@ -111,21 +85,17 @@ class ProfileController extends Controller
         }
     }
 
-    // Email change → verification flow
     if ($emailChanged) {
-        $user->pending_email = $validated['el_pastas'];
-        $user->pending_email_token = Str::random(60);
-        $user->save();
+        $user->update([
+            'pending_email' => $validated['el_pastas'],
+            'pending_email_token' => Str::random(60),
+        ]);
 
-        Mail::to($user->pending_email)->send(
-            new \App\Mail\VerifyNewEmail($user)
-        );
+        Mail::to($validated['el_pastas'])
+            ->send(new \App\Mail\VerifyNewEmail($user));
     }
 
-    return back()->with(
-        'status',
-        $emailChanged ? 'Email verification sent.' : 'profile-updated'
-    );
+    return back()->with('status', 'profile-updated');
 }
 
 
