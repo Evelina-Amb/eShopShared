@@ -143,7 +143,14 @@ if ($emailChanged) {
             'slaptazodis' => $request->password,
         ]);
 
-        return back()->with('status', 'password-updated');
+           Auth::logout();
+        $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+         return redirect()->route('login')->with(
+        'status',
+        'Your password was changed successfully. Please log in again.'
+    );
     }
 
     public function verifyNewEmail($token)
