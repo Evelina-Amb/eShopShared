@@ -68,12 +68,10 @@ class ProfileController extends Controller
         // Seller requirements
         if ($request->has('role')) {
             $request->validate([
-                'country_id'     => 'required',
                 'city_id'        => 'required',
                 'business_email' => 'required_without:telefonas',
                 'telefonas'      => 'required_without:business_email',
             ], [
-                'country_id.required' => 'Country is required to become a seller.',
                 'city_id.required'    => 'City is required to become a seller.',
                 'business_email.required_without' => 'Provide at least one contact method (email or phone).',
                 'telefonas.required_without'      => 'Provide at least one contact method (email or phone).',
