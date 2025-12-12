@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->string('slaptazodis', 255);
             $table->string('telefonas', 30)->nullable();
             $table->unsignedBigInteger('address_id')->nullable();
-            $table->string('role', 20)->default('pirkejas');
+            $table->string('role', 20)->default('buyer');
             $table->timestamps();
             $table->rememberToken();
             $table->foreign('address_id')->references('id')->on('address')->onDelete('cascade');
