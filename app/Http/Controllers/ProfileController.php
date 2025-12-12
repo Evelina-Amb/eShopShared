@@ -32,106 +32,102 @@ class ProfileController extends Controller
     }
 
     
-    public function update(Request $request)
-    {
-        $user = auth()->user();
+   public function update(Request $request)
+{
+    $user = auth()->user();
 
-        $validated = $request->validate([
-            'vardas'     => ['nullable', 'string', 'max:255'],
-            'pavarde'    => ['nullable', 'string', 'max:255'],
+    $validated = $request->validate([
+        'vardas'     => ['nullable', 'string', 'max:255'],
+        'pavarde'    => ['nullable', 'string', 'max:255'],
+        'el_pastas'  => [
+            'required',
+            'email',
+            'max:255',
+            Rule::unique('users', 'el_pastas')->ignore($user->id),
+        ],
+        'telefonas'       => ['nullable', 'string', 'max:50'],
+        'business_email'  => ['nullable', 'email', 'max:255'],
+        'role'            => ['nullable', 'string'],
+        'city_id'         => ['nullable', 'exists:city,id'],
+        'gatve'           => ['nullable', 'string', 'max:255'],
+        'namo_nr'         => ['nullable', 'string', 'max:50'],
+        'buto_nr'         => ['nullable', 'string', 'max:50'],
+    ]);
 
-            'el_pastas' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'el_pastas')->ignore($user->id),
-            ],
-
-            'telefonas'       => ['nullable', 'string', 'max:50'],
-            'business_email' => ['nullable', 'email', 'max:255'],
-
-            'role' => ['nullable', 'string'],
-
-            'city_id' => ['nullable', 'exists:city,id'],
-            'gatve'   => ['nullable', 'string', 'max:255'],
-            'namo_nr' => ['nullable', 'string', 'max:50'],
-            'buto_nr' => ['nullable', 'string', 'max:50'],
+    // Prevent disabling seller if listings exist
+    if ($user->listings()->exists() && !$request->has('role')) {
+        return back()->withErrors([
+            'role' => 'You cannot disable seller mode because you have active listings.',
         ]);
-
-        // Prevent disabling seller if listings exist
-        if ($user->listings()->exists() && !$request->has('role')) {
-            return back()->withErrors([
-                'role' => 'You cannot disable seller mode because you have active listings.',
-            ]);
-        }
-
-        // Seller requirements
-        if ($request->has('role')) {
-            $request->validate([
-                'city_id'        => 'required',
-                'business_email' => 'required_without:telefonas',
-                'telefonas'      => 'required_without:business_email',
-            ], [
-                'city_id.required'    => 'City is required to become a seller.',
-                'business_email.required_without' => 'Provide at least one contact method (email or phone).',
-                'telefonas.required_without'      => 'Provide at least one contact method (email or phone).',
-            ]);
-        }
-
-        /**
-         *  SAVE NON-EMAIL USER DATA
-         */
-        $user->update([
-            'vardas'         => $validated['vardas'] ?? $user->vardas,
-            'pavarde'        => $validated['pavarde'] ?? $user->pavarde,
-            'telefonas'      => $validated['telefonas'] ?? $user->telefonas,
-            'business_email' => $validated['business_email'] ?? $user->business_email,
-            'role'           => $request->has('role') ? 'seller' : 'buyer',
-        ]);
-
-        /**
-         *  ADDRESS (create or update)
-         */
-        if (
-            !empty($validated['city_id']) ||
-            !empty($validated['gatve']) ||
-            !empty($validated['namo_nr']) ||
-            !empty($validated['buto_nr'])
-        ) {
-            $address = $user->address ?? new Address();
-
-            $address->fill([
-                'city_id' => $validated['city_id'] ?? $address->city_id,
-                'gatve'   => $validated['gatve'] ?? $address->gatve,
-                'namo_nr' => $validated['namo_nr'] ?? $address->namo_nr,
-                'buto_nr' => $validated['buto_nr'] ?? $address->buto_nr,
-            ]);
-
-            $address->save();
-
-            if (!$user->address_id) {
-                $user->address_id = $address->id;
-                $user->save();
-            }
-        }
-
-        /**
-         *  EMAIL CHANGE 
-         */
-        if ($validated['el_pastas'] !== $user->el_pastas) {
-            $user->pending_email = $validated['el_pastas'];
-            $user->pending_email_token = Str::random(60);
-            $user->save();
-
-            Mail::to($user->pending_email)->send(
-                new \App\Mail\VerifyNewEmail($user)
-            );
-
-            return back()->with('status', 'Email verification sent.');
-        }
-
-        return back()->with('status', 'profile-updated');
     }
+
+    // Seller requirements
+    if ($request->has('role')) {
+        $request->validate([
+            'city_id'        => 'required',
+            'business_email' => 'required_without:telefonas',
+            'telefonas'      => 'required_without:business_email',
+        ]);
+    }
+
+    // Check email BEFORE updating user
+    $emailChanged = $validated['el_pastas'] !== $user->el_pastas;
+
+    // Build update payload safely
+    $data = [
+        'vardas'         => $validated['vardas'] ?? $user->vardas,
+        'pavarde'        => $validated['pavarde'] ?? $user->pavarde,
+        'telefonas'      => $validated['telefonas'] ?? $user->telefonas,
+        'business_email' => $validated['business_email'] ?? $user->business_email,
+    ];
+
+    if ($request->has('role')) {
+        $data['role'] = 'seller';
+    }
+
+    $user->update($data);
+
+    // Address (create or update)
+    if (
+        !empty($validated['city_id']) ||
+        !empty($validated['gatve']) ||
+        !empty($validated['namo_nr']) ||
+        !empty($validated['buto_nr'])
+    ) {
+        $address = $user->address ?? new Address();
+
+        $address->fill([
+            'city_id' => $validated['city_id'] ?? $address->city_id,
+            'gatve'   => $validated['gatve'] ?? $address->gatve,
+            'namo_nr' => $validated['namo_nr'] ?? $address->namo_nr,
+            'buto_nr' => $validated['buto_nr'] ?? $address->buto_nr,
+        ]);
+
+        $address->save();
+
+        if (!$user->address_id) {
+            $user->address_id = $address->id;
+            $user->save();
+        }
+    }
+
+    // Email change → verification flow
+    if ($emailChanged) {
+        $user->pending_email = $validated['el_pastas'];
+        $user->pending_email_token = Str::random(60);
+        $user->save();
+
+        Mail::to($user->pending_email)->send(
+            new \App\Mail\VerifyNewEmail($user)
+        );
+    }
+
+    return back()->with(
+        'status',
+        $emailChanged ? 'Email verification sent.' : 'profile-updated'
+    );
+}
+
 
     /**
      * Delete the user's account.
