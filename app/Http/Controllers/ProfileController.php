@@ -95,16 +95,19 @@ if ($emailChanged) {
     $user->pending_email_token = Str::random(60);
     $user->save();
 
-    $user->refresh();
-
     Mail::to($validated['el_pastas'])
         ->send(new \App\Mail\VerifyNewEmail($user));
+
+    Auth::logout();
+
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect()->route('login')->with(
+        'status',
+        'We sent a verification link to your new email address. Please verify it to continue.'
+    );
 }
-
-
-    return back()->with('status', 'profile-updated');
-}
-
 
     /**
      * Delete the user's account.
