@@ -67,8 +67,13 @@ class ProfileController extends Controller
  $user->update([
     'vardas'         => $validated['vardas'] ?? $user->vardas,
     'pavarde'        => $validated['pavarde'] ?? $user->pavarde,
-    'telefonas'      => $validated['telefonas'] ?? $user->telefonas,
-    'business_email' => $validated['business_email'] ?? $user->business_email,
+   'telefonas'      => $request->filled('telefonas')
+                            ? $validated['telefonas']
+                            : null,
+
+    'business_email' => $request->filled('business_email')
+                            ? $validated['business_email']
+                            : null,
     'el_pastas'      => $emailChanged ? $user->el_pastas : $validated['el_pastas'],
     'role'           => $request->has('role') ? 'seller' : 'buyer',
 ]);
