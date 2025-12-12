@@ -64,14 +64,14 @@ class ProfileController extends Controller
 
     $emailChanged = $validated['el_pastas'] !== $user->el_pastas;
 
-    $user->update([
-        'vardas'         => $validated['vardas'],
-        'pavarde'        => $validated['pavarde'],
-        'telefonas'      => $validated['telefonas'],
-        'business_email' => $validated['business_email'],
-        'el_pastas'      => $emailChanged ? $user->el_pastas : $validated['el_pastas'],
-        'role'           => $request->has('role') ? 'seller' : 'buyer',
-    ]);
+ $user->update([
+    'vardas'         => $validated['vardas'] ?? $user->vardas,
+    'pavarde'        => $validated['pavarde'] ?? $user->pavarde,
+    'telefonas'      => $validated['telefonas'] ?? $user->telefonas,
+    'business_email' => $validated['business_email'] ?? $user->business_email,
+    'el_pastas'      => $emailChanged ? $user->el_pastas : $validated['el_pastas'],
+    'role'           => $request->has('role') ? 'seller' : 'buyer',
+]);
 
     // Address
     if ($validated['city_id'] ?? false) {
