@@ -90,15 +90,17 @@ class ProfileController extends Controller
         }
     }
 
-    if ($emailChanged) {
-        $user->update([
-            'pending_email' => $validated['el_pastas'],
-            'pending_email_token' => Str::random(60),
-        ]);
+if ($emailChanged) {
+    $user->pending_email = $validated['el_pastas'];
+    $user->pending_email_token = Str::random(60);
+    $user->save();
 
-        Mail::to($validated['el_pastas'])
-            ->send(new \App\Mail\VerifyNewEmail($user));
-    }
+    $user->refresh();
+
+    Mail::to($validated['el_pastas'])
+        ->send(new \App\Mail\VerifyNewEmail($user));
+}
+
 
     return back()->with('status', 'profile-updated');
 }
