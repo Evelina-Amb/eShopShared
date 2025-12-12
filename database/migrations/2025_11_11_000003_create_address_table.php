@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('address', function (Blueprint $table) {
             $table->id();
-            $table->string('gatve', 100);
+            $table->string('gatve', 100)->nullable();;
             $table->string('namo_nr', 10)->nullable();
             $table->string('buto_nr', 10)->nullable();
             $table->unsignedBigInteger('city_id')->nullable();
