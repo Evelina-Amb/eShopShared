@@ -31,10 +31,10 @@ Route::name('api.')->group(function () {
     Route::get('/cities/by-country/{countryId}', function ($countryId) {
         return City::where('country_id', $countryId)
             ->get(['id', 'pavadinimas']);
-
-    Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
     });
 
+    Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
+    
     // AUTHENTICATED ROUTES
     Route::middleware('auth:sanctum')->group(function () {
 
