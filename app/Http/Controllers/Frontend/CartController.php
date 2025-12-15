@@ -111,55 +111,6 @@ class CartController extends Controller
         return back()->with('success', 'Item removed from cart.');
     }
 
-     public function pay(Request $request, OrderService $orderService)
-    {
-        $validated = $request->validate([
-            'address' => 'required|string|max:255',
-            'city' => 'required|string|max:120',
-            'postal_code' => 'required|string|max:30',
-            'country' => 'required|string|max:120',
-        ]);
-
-        $userId = auth()->id();
-
-        // Create order as PENDING + create order items snapshot from cart
-        $order = $orderService->createPendingFromCart($userId, [
-            'address' => $validated['address'],
-            'city' => $validated['city'],
-            'postal_code' => $validated['postal_code'],
-            'country' => $validated['country'],
-        ]);
-
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        $amountCents = (int) round(((float) $order->bendra_suma) * 100);
-
-        $intent = PaymentIntent::create([
-            'amount' => $amountCents,
-            'currency' => 'eur',
-            'automatic_payment_methods' => ['enabled' => true],
-            'metadata' => [
-                'order_id' => (string) $order->id,
-                'user_id' => (string) $order->user_id,
-            ],
-        ]);
-
-        $order->update([
-            'payment_provider' => 'stripe',
-            'payment_intent_id' => $intent->id,
-        ]);
-
-        return response()->json([
-            'client_secret' => $intent->client_secret,
-            'order_id' => $order->id,
-        ]);
-    }
-
-    public function success()
-    {
-        return view('frontend.checkout.success');
-    }
-
     private function authorizeCart(Cart $cart)
     {
         if ($cart->user_id !== auth()->id()) {
