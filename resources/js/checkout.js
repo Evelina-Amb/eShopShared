@@ -13,63 +13,57 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    //Load Stripe
     const stripe = await loadStripe(stripeKey);
-    let elements;
 
+    //Create PaymentIntent
+    let clientSecret;
+    try {
+        const intentRes = await fetch('/checkout/intent', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document
+                    .querySelector('meta[name="csrf-token"]')
+                    .content,
+            },
+        });
+
+        const intentData = await intentRes.json();
+
+        if (!intentData.client_secret) {
+            throw new Error('Failed to initialize payment');
+        }
+
+        clientSecret = intentData.client_secret;
+    } catch (err) {
+        console.error(err);
+        errorBox.innerText = 'Payment initialization failed.';
+        errorBox.classList.remove('hidden');
+        return;
+    }
+
+    //Mount Stripe Payment Element
+    const elements = stripe.elements({ clientSecret });
+    const paymentElement = elements.create('payment');
+    paymentElement.mount('#payment-element');
+
+    //Confirm payment on submit
     checkoutForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         errorBox.classList.add('hidden');
         payButton.disabled = true;
-        payButton.innerText = 'Initializing payment...';
+        payButton.innerText = 'Processing...';
 
-        try {
-            // 🔹 Create PaymentIntent ONLY when user clicks Pay
-            const response = await fetch('/checkout/pay', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute('content'),
-                },
-                body: JSON.stringify({
-                    address: document.getElementById('address').value,
-                    city: document.getElementById('city').value,
-                    postal_code: document.getElementById('postal_code').value,
-                    country: document.getElementById('country').value,
-                }),
-            });
+        const { error } = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+                return_url: `${window.location.origin}/checkout/success`,
+            },
+        });
 
-            if (!response.ok) {
-                throw new Error('Failed to initialize payment');
-            }
-
-            const data = await response.json();
-
-            elements = stripe.elements({
-                clientSecret: data.client_secret,
-            });
-
-            const paymentElement = elements.create('payment');
-            paymentElement.mount('#payment-element');
-
-            payButton.innerText = 'Processing...';
-
-            const { error } = await stripe.confirmPayment({
-                elements,
-                confirmParams: {
-                    return_url: `${window.location.origin}/checkout/success`,
-                },
-            });
-
-            if (error) {
-                throw error;
-            }
-
-        } catch (err) {
-            console.error(err);
-            errorBox.innerText = err.message || 'Payment failed.';
+        if (error) {
+            errorBox.innerText = error.message || 'Payment failed.';
             errorBox.classList.remove('hidden');
             payButton.disabled = false;
             payButton.innerText = 'Pay again';
