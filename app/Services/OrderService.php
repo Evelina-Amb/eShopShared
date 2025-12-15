@@ -52,28 +52,56 @@ class OrderService
         });
     }
 
-    public function markPaidAndFinalize(Order $order): void
-    {
-        DB::transaction(function () use ($order) {
+   public function markPaidAndFinalize(Order $order): void
+{
+    DB::transaction(function () use ($order) {
 
-            $order->update(['statusas' => Order::STATUS_PAID]);
+        // Reload and lock the order row to prevent race conditions
+        $order = Order::where('id', $order->id)
+            ->lockForUpdate()
+            ->firstOrFail();
 
-            foreach ($order->orderItems as $item) {
-                $listing = Listing::lockForUpdate()->find($item->listing_id);
+        // 🔒 IDEMPOTENCY GUARD
+        // Stripe can send the same webhook multiple times
+        if ($order->statusas === Order::STATUS_PAID) {
+            return;
+        }
 
-                if ($listing && $listing->tipas !== 'paslauga') {
-                    $listing->kiekis -= $item->kiekis;
+        // Mark order as paid ONLY once
+        $order->update([
+            'statusas' => Order::STATUS_PAID,
+        ]);
 
-                    if ($listing->kiekis <= 0 && !$listing->is_renewable) {
-                        $listing->statusas = 'parduotas';
-                        $listing->is_hidden = 1;
-                    }
+        // Finalize order items (stock, visibility, etc.)
+        foreach ($order->orderItems as $item) {
+            $listing = Listing::where('id', $item->listing_id)
+                ->lockForUpdate()
+                ->first();
 
-                    $listing->save();
-                }
+            if (!$listing) {
+                continue;
             }
 
-            Cart::where('user_id', $order->user_id)->delete();
-        });
-    }
+            // Services do not reduce stock
+            if ($listing->tipas === 'paslauga') {
+                continue;
+            }
+
+            $listing->kiekis -= (int) $item->kiekis;
+
+            // Hide non-renewable listings when sold out
+            if ($listing->kiekis <= 0 && (int) $listing->is_renewable === 0) {
+                $listing->statusas = 'parduotas';
+                $listing->is_hidden = 1;
+            }
+
+            $listing->save();
+        }
+
+        // Clear user's cart AFTER successful payment
+        Cart::where('user_id', $order->user_id)->delete();
+    });
+}
+
+    
 }
