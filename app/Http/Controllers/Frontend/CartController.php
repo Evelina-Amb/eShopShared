@@ -23,10 +23,10 @@ class CartController extends Controller
             ->get();
 
        if ($cartItems->isEmpty()) {
-            return redirect()
-                ->route('cart.index')
-                ->with('error', 'Your cart is empty.');
-        }
+    return view('frontend.cart', [
+        'cartItems' => collect()
+    ]);
+}
 
         $total = $cartItems->sum(fn ($i) => ($i->listing?->kaina ?? 0) * $i->kiekis);
 
