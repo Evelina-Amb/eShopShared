@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\{
     CategoryController, ListingPhotoController,
     ReviewController, CartController,
     FavoriteController, OrderController, OrderItemController,
-    UserController, ListingController
+    UserController, ListingController, StripeWebhookController
 };
 use App\Models\City;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +31,8 @@ Route::name('api.')->group(function () {
     Route::get('/cities/by-country/{countryId}', function ($countryId) {
         return City::where('country_id', $countryId)
             ->get(['id', 'pavadinimas']);
+
+    Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
     });
 
     // AUTHENTICATED ROUTES
