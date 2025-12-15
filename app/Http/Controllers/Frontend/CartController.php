@@ -100,68 +100,6 @@ class CartController extends Controller
         return back()->with('success', 'Item removed from cart.');
     }
 
-    // Checkout logic
-    public function checkout()
-    {
-        $userId = auth()->id();
-
-        $cartItems = Cart::with('listing')->where('user_id', $userId)->get();
-
-        if ($cartItems->isEmpty()) {
-            return back()->with('error', 'Your cart is empty.');
-        }
-
-        // Calculate total
-        $total = 0;
-        foreach ($cartItems as $item) {
-            if ($item->listing) {
-                $total += $item->listing->kaina * $item->kiekis;
-            }
-        }
-
-        // Create order
-        $order = Order::create([
-            'user_id'      => $userId,
-            'pirkimo_data' => Carbon::now(),
-            'bendra_suma'  => $total,
-            'statusas'     => 'completed',
-        ]);
-
-        // Process each cart item
-        foreach ($cartItems as $item) {
-
-            $listing = $item->listing;
-
-            $listing->kiekis -= $item->kiekis;
-
-        if ($listing->tipas === 'paslauga') {
-            } else {
-            // If sold out & NON-RENEWABLE hide
-            if ($listing->kiekis <= 0 && $listing->is_renewable == 0) {
-                $listing->statusas = 'parduotas';
-                $listing->is_hidden = 1;
-            }
-        }
-
-            $listing->save();
-
-            // Create order item
-            OrderItem::create([
-                'order_id'   => $order->id,
-                'listing_id' => $listing->id,
-                'kaina'      => $listing->kaina,
-                'kiekis'     => $item->kiekis,
-            ]);
-        }
-
-        // Clear cart
-        Cart::where('user_id', $userId)->delete();
-        session(['cart_count' => 0]);
-
-        return redirect('/')
-            ->with('success', 'Purchase completed! Your order has been saved.');
-    }
-
     private function authorizeCart(Cart $cart)
     {
         if ($cart->user_id !== auth()->id()) {
