@@ -61,8 +61,6 @@ class OrderService
             ->lockForUpdate()
             ->firstOrFail();
 
-        // 🔒 IDEMPOTENCY GUARD
-        // Stripe can send the same webhook multiple times
         if ($order->statusas === Order::STATUS_PAID) {
             return;
         }
@@ -72,7 +70,7 @@ class OrderService
             'statusas' => Order::STATUS_PAID,
         ]);
 
-        // Finalize order items (stock, visibility, etc.)
+        // Finalize order items
         foreach ($order->orderItems as $item) {
             $listing = Listing::where('id', $item->listing_id)
                 ->lockForUpdate()
