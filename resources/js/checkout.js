@@ -14,20 +14,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Create PaymentIntent
         const response = await fetch('/checkout/pay', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document
-                    .querySelector('meta[name="csrf-token"]')
-                    .getAttribute('content'),
-            },
-            body: JSON.stringify({
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                postal_code: document.getElementById('postal_code').value,
-                country: document.getElementById('country').value,
-            }),
-        });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content'),
+    },
+    body: JSON.stringify({
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        postal_code: document.getElementById('postal_code').value,
+        country: document.getElementById('country').value,
+    }),
+});
 
         const data = await response.json();
 
