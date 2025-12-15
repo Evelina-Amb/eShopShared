@@ -114,7 +114,7 @@
             </div>
  {{-- fix --}}
             {{-- CHECKOUT --}}
-            <form method="POST" action="{{ route('cart.checkout') }}">
+            <form href="{{ route('checkout.index') }}">
                 @csrf
                 <button class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full">
                     Continue to Checkout
