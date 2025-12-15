@@ -1,56 +1,59 @@
 import { loadStripe } from '@stripe/stripe-js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const paymentElementContainer = document.getElementById('payment-element');
     const checkoutForm = document.getElementById('checkout-form');
-
-    if (!paymentElementContainer || !checkoutForm) {
-        return;
-    }
+    if (!checkoutForm) return;
 
     const payButton = document.getElementById('pay-button');
     const errorBox = document.getElementById('checkout-error');
+    const stripeKey = document.querySelector('meta[name="stripe-key"]')?.content;
 
-    try {
-        // Create PaymentIntent
-        const response = await fetch('/checkout/pay', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-CSRF-TOKEN': document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute('content'),
-    },
-    body: JSON.stringify({
-        address: document.getElementById('address').value,
-        city: document.getElementById('city').value,
-        postal_code: document.getElementById('postal_code').value,
-        country: document.getElementById('country').value,
-    }),
-});
+    if (!stripeKey) {
+        console.error('Missing Stripe public key');
+        return;
+    }
 
-        const data = await response.json();
+    const stripe = await loadStripe(stripeKey);
+    let elements;
 
-        if (!data.client_secret) {
-            throw new Error('Payment initialization failed.');
-        }
+    checkoutForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-        const stripe = await loadStripe(
-            document.querySelector('meta[name="stripe-key"]').content
-        );
+        errorBox.classList.add('hidden');
+        payButton.disabled = true;
+        payButton.innerText = 'Initializing payment...';
 
-        const elements = stripe.elements({
-            clientSecret: data.client_secret,
-        });
+        try {
+            // 🔹 Create PaymentIntent ONLY when user clicks Pay
+            const response = await fetch('/checkout/pay', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content'),
+                },
+                body: JSON.stringify({
+                    address: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    postal_code: document.getElementById('postal_code').value,
+                    country: document.getElementById('country').value,
+                }),
+            });
 
-        const paymentElement = elements.create('payment');
-        paymentElement.mount('#payment-element');
+            if (!response.ok) {
+                throw new Error('Failed to initialize payment');
+            }
 
-        checkoutForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            const data = await response.json();
 
-            payButton.disabled = true;
+            elements = stripe.elements({
+                clientSecret: data.client_secret,
+            });
+
+            const paymentElement = elements.create('payment');
+            paymentElement.mount('#payment-element');
+
             payButton.innerText = 'Processing...';
 
             const { error } = await stripe.confirmPayment({
@@ -61,16 +64,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (error) {
-                errorBox.innerText = error.message;
-                errorBox.classList.remove('hidden');
-                payButton.disabled = false;
-                payButton.innerText = 'Pay now';
+                throw error;
             }
-        });
 
-    } catch (err) {
-        console.error(err);
-        errorBox.innerText = err.message || 'Payment error.';
-        errorBox.classList.remove('hidden');
-    }
+        } catch (err) {
+            console.error(err);
+            errorBox.innerText = err.message || 'Payment failed.';
+            errorBox.classList.remove('hidden');
+            payButton.disabled = false;
+            payButton.innerText = 'Pay again';
+        }
+    });
 });
