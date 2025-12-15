@@ -10,9 +10,10 @@ return new class extends Migration {
             $table->string('payment_provider')->nullable()->after('user_id');
             $table->string('payment_reference')->nullable()->after('payment_provider');
             $table->json('shipping_address')->nullable()->after('bendra_suma');
+        });
 
-            // statusas values:
-            // pending, paid, failed, cancelled
+        // Change status separately (safer)
+        Schema::table('order', function (Blueprint $table) {
             $table->string('statusas')->default('pending')->change();
         });
     }
