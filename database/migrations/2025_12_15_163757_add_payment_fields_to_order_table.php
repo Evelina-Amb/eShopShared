@@ -7,9 +7,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('order', function (Blueprint $table) {
-            $table->string('payment_provider')->nullable();
+            $table->string('payment_provider')->nullable()->index();
             $table->string('payment_reference')->nullable();
-            $table->string('payment_intent_id')->nullable();
+            $table->string('payment_intent_id')->nullable()->unique();
             $table->json('shipping_address')->nullable();
         });
     }
