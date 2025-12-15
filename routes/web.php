@@ -10,6 +10,7 @@ use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\ListingCreateController;
 use App\Http\Controllers\Frontend\ReviewController;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Frontend\CheckoutController;
 
 Route::get('/media/{filename}', function ($filename) {
     $filename = basename($filename);
@@ -53,11 +54,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cart/remove/{cart}', [CartController::class, 'remove'])
         ->name('cart.remove');
 
-    Route::post('/cart/checkout', [CartController::class, 'checkout'])
-        ->name('cart.checkout');
-
     Route::delete('/cart/clear', [CartController::class, 'clearAll'])
         ->name('cart.clear');
+
+    Route::get('/checkout', [CheckoutController::class, 'index'])
+        ->name('checkout.index');
+
+    Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
+        ->name('checkout.pay');
+
+    Route::get('/checkout/success', [CheckoutController::class, 'success'])
+        ->name('checkout.success');
 
     Route::post('/listing/{listing}/review', [ReviewController::class, 'store'])
         ->name('review.store');
