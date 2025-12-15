@@ -1,14 +1,18 @@
 import { loadStripe } from '@stripe/stripe-js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const paymentElementContainer = document.getElementById('payment-element');
     const checkoutForm = document.getElementById('checkout-form');
-    if (!checkoutForm) return;
+
+    if (!paymentElementContainer || !checkoutForm) {
+        return;
+    }
 
     const payButton = document.getElementById('pay-button');
-    const errorBox = document.getElementById('payment-error');
+    const errorBox = document.getElementById('checkout-error');
 
     try {
-        //Create PaymentIntent on backend
+        // Create PaymentIntent
         const response = await fetch('/checkout/pay', {
             method: 'POST',
             headers: {
@@ -31,7 +35,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             throw new Error('Payment initialization failed.');
         }
 
-        //Initialize Stripe
         const stripe = await loadStripe(
             document.querySelector('meta[name="stripe-key"]').content
         );
@@ -43,7 +46,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const paymentElement = elements.create('payment');
         paymentElement.mount('#payment-element');
 
-        //Submit payment
         checkoutForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
