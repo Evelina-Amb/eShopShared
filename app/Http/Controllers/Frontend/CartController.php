@@ -30,7 +30,7 @@ class CartController extends Controller
 
         $total = $cartItems->sum(fn ($i) => ($i->listing?->kaina ?? 0) * $i->kiekis);
 
-        return view('frontend.checkout.index', compact('cartItems', 'total'));
+       return view('frontend.cart', compact('cartItems'));
     }
 
     // Add a listing to cart
