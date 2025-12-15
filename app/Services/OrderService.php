@@ -110,4 +110,114 @@ class OrderService
 
         return $this->orderRepository->delete($order);
     }
+
+    public function createPendingFromCart(int $userId, array $shippingAddress): Order
+    {
+        return DB::transaction(function () use ($userId, $shippingAddress) {
+
+            $cartItems = Cart::with('listing')
+                ->where('user_id', $userId)
+                ->lockForUpdate()
+                ->get();
+
+            if ($cartItems->isEmpty()) {
+                throw new \RuntimeException('Your cart is empty.');
+            }
+
+            // Validate listings + stock again inside transaction
+            $total = 0.0;
+
+            foreach ($cartItems as $item) {
+                if (!$item->listing) {
+                    throw new \RuntimeException('One of the cart items is invalid.');
+                }
+
+                $listing = Listing::where('id', $item->listing_id)->lockForUpdate()->first();
+                if (!$listing) {
+                    throw new \RuntimeException('Listing not found.');
+                }
+
+                // If it’s a product, enforce stock. If service, skip stock constraint.
+                if ($listing->tipas !== 'paslauga') {
+                    if ($item->kiekis > $listing->kiekis) {
+                        throw new \RuntimeException("Only {$listing->kiekis} units available for {$listing->pavadinimas}.");
+                    }
+                }
+
+                $total += ((float) $listing->kaina) * (int) $item->kiekis;
+            }
+
+            $order = Order::create([
+                'user_id' => $userId,
+                'pirkimo_data' => now(),
+                'bendra_suma' => $total,
+                'statusas' => Order::STATUS_PENDING,
+                'shipping_address' => $shippingAddress,
+            ]);
+
+            // Snapshot items
+            foreach ($cartItems as $item) {
+                $listing = $item->listing;
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'listing_id' => $listing->id,
+                    'kaina' => $listing->kaina,
+                    'kiekis' => $item->kiekis,
+                ]);
+            }
+
+            return $order;
+        });
+    }
+
+public function markPaidAndFinalize(Order $order, array $paymentMeta = []): void
+    {
+        DB::transaction(function () use ($order, $paymentMeta) {
+
+            $order = Order::where('id', $order->id)->lockForUpdate()->firstOrFail();
+
+            if ($order->statusas === Order::STATUS_PAID) {
+                return; 
+            }
+
+            $order->update([
+                'statusas' => Order::STATUS_PAID,
+                'payment_reference' => $paymentMeta['payment_reference'] ?? $order->payment_reference,
+            ]);
+
+            $this->finalizePaidOrder($order);
+
+            // Clear cart after success
+            Cart::where('user_id', $order->user_id)->delete();
+        });
+    }
+
+public function finalizePaidOrder(Order $order): void
+    {
+        $items = OrderItem::where('order_id', $order->id)->get();
+
+        foreach ($items as $item) {
+            $listing = Listing::where('id', $item->listing_id)->lockForUpdate()->first();
+
+            if (!$listing) {
+                continue;
+            }
+
+            if ($listing->tipas === 'paslauga') {
+                continue;
+            }
+
+            $listing->kiekis -= (int) $item->kiekis;
+
+            if ($listing->kiekis <= 0 && (int) $listing->is_renewable === 0) {
+                $listing->statusas = 'parduotas';
+                $listing->is_hidden = 1;
+            }
+
+            $listing->save();
+        }
+    }
+
+    
 }
