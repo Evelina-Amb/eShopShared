@@ -114,12 +114,10 @@
             </div>
  {{-- fix --}}
             {{-- CHECKOUT --}}
-            <form href="{{ route('checkout.index') }}">
-                @csrf
-                <button class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full">
-                    Continue to Checkout
-                </button>
-            </form>
+            <a href="{{ route('checkout.index') }}"
+   class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full text-center block">
+    Continue to Checkout
+</a>
         </div>
     @endif
 </div>
