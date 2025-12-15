@@ -10,15 +10,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
-<<<<<<< HEAD
         "stripe/stripe-php": "^19.0"
-=======
-<<<<<<< HEAD
-        "stripe/stripe-php": "^12.0"
-=======
-        "stripe/stripe-php": "^19.0"
->>>>>>> 42f4888 (Add Stripe PHP SDK)
->>>>>>> 1a5d68e (Add Stripe PHP SDK)
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
