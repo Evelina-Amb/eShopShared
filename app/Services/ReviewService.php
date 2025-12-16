@@ -52,12 +52,12 @@ class ReviewService
             throw new \Exception("You have already reviewed this listing.");
         }
 
-        $hasPurchased = OrderItem::where('listing_id', $listingId)
-            ->whereHas('order', function ($q) use ($userId) {
-                $q->where('user_id', $userId)
-                  ->where('statusas', 'completed');
-            })
-            ->exists();
+       $hasPurchased = OrderItem::where('listing_id', $listingId)
+        ->whereHas('order', function ($q) use ($userId) {
+            $q->where('user_id', $userId)
+              ->where('statusas', \App\Models\Order::STATUS_PAID);
+        })
+    ->exists();
 
         if (!$hasPurchased) {
             throw new \Exception("You can only review listings you purchased");
