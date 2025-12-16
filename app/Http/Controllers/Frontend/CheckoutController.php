@@ -19,8 +19,7 @@ class CheckoutController extends Controller
             ->get();
 
         if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')
-                ->with('error', 'Cart is empty.');
+            return redirect()->route('cart.index')->with('error', 'Cart is empty.');
         }
 
         $total = $cartItems->sum(fn ($i) => $i->listing->kaina * $i->kiekis);
@@ -30,7 +29,6 @@ class CheckoutController extends Controller
 
     public function pay(Request $request, OrderService $orderService)
     {
-        //  Validate address data
         $data = $request->validate([
             'address' => 'required|string',
             'city' => 'required|string',
@@ -38,79 +36,20 @@ class CheckoutController extends Controller
             'country' => 'required|string',
         ]);
 
-        //  Create pending order from cart
         $order = $orderService->createPendingFromCart(auth()->id(), $data);
 
-        // Load order relations → seller
         $order->load('orderItem.Listing.user');
 
-        $sellers = $order->orderItem
-            ->pluck('Listing.user')
-            ->unique('id');
-
-        if ($sellers->count() !== 1) {
-            return response()->json([
-                'error' => 'Order must contain items from one seller only.'
-            ], 400);
-        }
-
-        $seller = $sellers->first();
-
-        //  Ensure seller is Stripe-ready
-        if (
-            !$seller->stripe_account_id ||
-            !$seller->stripe_onboarded
-        ) {
-            return response()->json([
-                'error' => 'Seller is not ready to receive payments.'
-            ], 400);
-        }
-
-        // Create Stripe PaymentIntent (DESTINATION CHARGE)
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        try {
-            $intent = PaymentIntent::create([
-                'amount' => (int) round($order->bendra_suma * 100),
-                'currency' => 'eur',
-                'payment_method_types' => ['card'],
-
-                // SEND MONEY TO SELLER
-                'transfer_data' => [
-                    'destination' => $seller->stripe_account_id,
-                ],
-
-                // 'application_fee_amount' => (int) round($order->bendra_suma * 0.10 * 100),
-
-                'metadata' => [
-                    'order_id' => $order->id,
-                    'seller_id' => $seller->id,
-                ],
-            ]);
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-
-            // LOG REAL STRIPE ERROR
-            logger()->error('Stripe PaymentIntent creation failed', [
-                'message' => $e->getMessage(),
-                'stripe_code' => $e->getStripeCode(),
-                'seller_account' => $seller->stripe_account_id,
-                'order_id' => $order->id,
-            ]);
-
-            return response()->json([
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-
-        //  Save Stripe references
-        $order->update([
-            'payment_provider' => 'stripe',
-            'payment_intent_id' => $intent->id,
-        ]);
-
-        //  Return client secret to frontend
         return response()->json([
-            'client_secret' => $intent->client_secret,
+            'order_id' => $order->id,
+            'items' => $order->orderItem->map(function ($item) {
+                return [
+                    'listing_id' => $item->listing_id,
+                    'seller_id' => $item->Listing->user->id ?? null,
+                    'stripe_account_id' => $item->Listing->user->stripe_account_id ?? null,
+                    'stripe_onboarded' => $item->Listing->user->stripe_onboarded ?? null,
+                ];
+            }),
         ]);
     }
 
@@ -119,8 +58,7 @@ class CheckoutController extends Controller
         $paymentIntentId = $request->query('payment_intent');
 
         if (!$paymentIntentId) {
-            return redirect()->route('cart.index')
-                ->with('error', 'Missing payment reference.');
+            return redirect()->route('cart.index')->with('error', 'Missing payment reference.');
         }
 
         Stripe::setApiKey(config('services.stripe.secret'));
@@ -128,8 +66,7 @@ class CheckoutController extends Controller
         $intent = PaymentIntent::retrieve($paymentIntentId);
 
         if (($intent->status ?? null) !== 'succeeded') {
-            return redirect()->route('checkout.index')
-                ->with('error', 'Payment not completed.');
+            return redirect()->route('checkout.index')->with('error', 'Payment not completed.');
         }
 
         $order = Order::where('payment_intent_id', $paymentIntentId)->first();
