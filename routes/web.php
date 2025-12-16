@@ -24,6 +24,16 @@ Route::get('/_whoami', function () {
     ];
 })->middleware('auth');
 
+Route::get('/_listing-owner/{id}', function ($id) {
+    $listing = \App\Models\Listing::with('user')->findOrFail($id);
+    return [
+        'listing_id' => $listing->id,
+        'seller_id' => $listing->user->id,
+        'seller_email' => $listing->user->el_pastas,
+        'stripe_account_id' => $listing->user->stripe_account_id,
+        'stripe_onboarded' => $listing->user->stripe_onboarded,
+    ];
+});
 
 Route::get('/media/{filename}', function ($filename) {
     $filename = basename($filename);
