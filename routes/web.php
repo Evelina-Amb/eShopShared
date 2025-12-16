@@ -11,6 +11,7 @@ use App\Http\Controllers\Frontend\ListingCreateController;
 use App\Http\Controllers\Frontend\ReviewController;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\CheckoutController;
+use App\Http\Controllers\Frontend\StripeConnectController;
 
 Route::get('/media/{filename}', function ($filename) {
     $filename = basename($filename);
@@ -38,6 +39,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/listing/{listing}/photo/{photo}', 
         [ListingCreateController::class, 'deletePhoto'])
         ->name('listing.photo.delete');
+
+      Route::get('/seller/stripe/connect', [StripeConnectController::class, 'connect'])
+        ->name('stripe.connect');
+
+    Route::get('/seller/stripe/refresh', [StripeConnectController::class, 'refresh'])
+        ->name('stripe.refresh');
+
+    Route::get('/seller/stripe/return', [StripeConnectController::class, 'return'])
+        ->name('stripe.return');
 
     Route::get('/cart', [CartController::class, 'index'])
         ->name('cart.index');
