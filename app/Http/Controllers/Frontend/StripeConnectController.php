@@ -55,11 +55,22 @@ class StripeConnectController extends Controller
 
     public function return(Request $request)
     {
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $account = Account::retrieve($request->user()->stripe_account_id);
+
         $request->user()->update([
-            'stripe_onboarded' => true,
+            'stripe_onboarded' => $account->charges_enabled && $account->payouts_enabled,
         ]);
 
         return redirect()->route('profile.edit')
-            ->with('success', 'Stripe connected! You can now sell.');
+            ->with(
+                $account->charges_enabled && $account->payouts_enabled
+                    ? 'success'
+                    : 'warning',
+                $account->charges_enabled && $account->payouts_enabled
+                    ? 'Stripe connected! You can now sell.'
+                    : 'Stripe setup incomplete. Please finish onboarding.'
+            );
     }
 }
