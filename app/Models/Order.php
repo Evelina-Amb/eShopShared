@@ -30,7 +30,7 @@ protected $table = 'order';
         return $this->belongsTo(User::class);
     }
 
-   public function orderItems()
+   public function orderItem()
     {
         return $this->hasMany(OrderItem::class, 'order_id');
     }
