@@ -13,6 +13,20 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\StripeConnectController;
 
+use Stripe\Stripe;
+use Stripe\Account;
+Route::get('/_stripe-debug', function () {
+    Stripe::setApiKey(config('services.stripe.secret'));
+
+    $account = Account::retrieve();
+
+    return [
+        'account_id' => $account->id,
+        'key_prefix' => substr(config('services.stripe.secret'), 0, 12),
+        'env_secret' => env('STRIPE_SECRET'),
+    ];
+});
+
 Route::get('/media/{filename}', function ($filename) {
     $filename = basename($filename);
 
