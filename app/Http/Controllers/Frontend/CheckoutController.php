@@ -40,16 +40,49 @@ class CheckoutController extends Controller
 
         $order->load('orderItem.Listing.user');
 
+        $sellers = $order->orderItem
+            ->pluck('Listing.user')
+            ->unique('id');
+
+        if ($sellers->count() !== 1) {
+            return response()->json([
+                'error' => 'Order must contain items from one seller only.'
+            ], 400);
+        }
+
+        $seller = $sellers->first();
+
+        if (
+            !$seller->stripe_account_id ||
+            !$seller->stripe_onboarded
+        ) {
+            return response()->json([
+                'error' => 'Seller is not ready to receive payments.'
+            ], 400);
+        }
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $intent = PaymentIntent::create([
+            'amount' => (int) round($order->bendra_suma * 100),
+            'currency' => 'eur',
+            'payment_method_types' => ['card'],
+            'transfer_data' => [
+                'destination' => $seller->stripe_account_id,
+            ],
+            'metadata' => [
+                'order_id' => $order->id,
+                'seller_id' => $seller->id,
+            ],
+        ]);
+
+        $order->update([
+            'payment_provider' => 'stripe',
+            'payment_intent_id' => $intent->id,
+        ]);
+
         return response()->json([
-            'order_id' => $order->id,
-            'items' => $order->orderItem->map(function ($item) {
-                return [
-                    'listing_id' => $item->listing_id,
-                    'seller_id' => $item->Listing->user->id ?? null,
-                    'stripe_account_id' => $item->Listing->user->stripe_account_id ?? null,
-                    'stripe_onboarded' => $item->Listing->user->stripe_onboarded ?? null,
-                ];
-            }),
+            'client_secret' => $intent->client_secret,
         ]);
     }
 
