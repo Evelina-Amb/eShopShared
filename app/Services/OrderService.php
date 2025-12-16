@@ -74,7 +74,7 @@ class OrderService
         ]);
 
         // Finalize order items
-        foreach ($order->OrderItem as $item) {
+        foreach ($order->orderItem as $item) {
             $listing = Listing::where('id', $item->listing_id)
                 ->lockForUpdate()
                 ->first();
