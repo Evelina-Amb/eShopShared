@@ -43,9 +43,7 @@ class StripeWebhookController extends Controller
                 return response()->json(['status' => 'ok']);
             }
 
-            $orderService->markPaidAndFinalize($order, [
-                'payment_reference' => $intent->latest_charge ?? null,
-            ]);
+           $orderService->markPaidAndFinalize($order);
 
             return response()->json(['status' => 'ok']);
         }
