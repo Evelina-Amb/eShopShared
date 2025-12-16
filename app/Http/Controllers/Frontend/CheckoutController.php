@@ -8,6 +8,7 @@ use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use App\Models\Order;
 
 class CheckoutController extends Controller
 {
@@ -77,8 +78,30 @@ class CheckoutController extends Controller
         return response()->json(['client_secret' => $intent->client_secret]);
     }
 
-    public function success()
-    {
-        return view('frontend.checkout.success');
+   public function success(Request $request, OrderService $orderService)
+{
+    $paymentIntentId = $request->query('payment_intent');
+
+    if (!$paymentIntentId) {
+        return redirect()->route('cart.index')->with('error', 'Missing payment reference.');
     }
+
+    Stripe::setApiKey(config('services.stripe.secret'));
+
+    $intent = PaymentIntent::retrieve($paymentIntentId);
+
+    if (($intent->status ?? null) !== 'succeeded') {
+        return redirect()->route('checkout.index')->with('error', 'Payment not completed.');
+    }
+
+    $order = Order::where('payment_intent_id', $paymentIntentId)->first();
+
+    if ($order) {
+        $orderService->markPaidAndFinalize($order);
+    }
+
+    session(['cart_count' => 0]);
+
+    return view('frontend.checkout.success');
+}
 }
