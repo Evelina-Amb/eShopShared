@@ -11,70 +11,67 @@ use Stripe\AccountLink;
 class StripeConnectController extends Controller
 {
     public function connect(Request $request)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    if ($user->role !== 'seller') {
-        abort(403, 'Only sellers can connect Stripe');
-    }
+        if ($user->role !== 'seller') {
+            abort(403);
+        }
 
-    Stripe::setApiKey(config('services.stripe.secret'));
+        Stripe::setApiKey(config('services.stripe.secret'));
 
-    if (!$user->stripe_account_id) {
-        $account = Account::create([
-            'type' => 'express',
-            'country' => 'LT',
-            'email' => $user->el_pastas,
-            'capabilities' => [
-                'card_payments' => ['requested' => true],
-                'transfers' => ['requested' => true],
-            ],
+        if (!$user->stripe_account_id) {
+            $account = Account::create([
+                'type' => 'express',
+                'country' => 'LT',
+                'email' => $user->el_pastas,
+                'capabilities' => [
+                    'card_payments' => ['requested' => true],
+                    'transfers' => ['requested' => true],
+                ],
+            ]);
+
+            $user->forceFill([
+                'stripe_account_id' => $account->id,
+                'stripe_onboarded' => false,
+            ])->save();
+        }
+
+        $link = AccountLink::create([
+            'account' => $user->stripe_account_id,
+            'refresh_url' => route('stripe.refresh'),
+            'return_url' => route('stripe.return'),
+            'type' => 'account_onboarding',
         ]);
 
-        $user->update([
-            'stripe_account_id' => $account->id,
-            'stripe_onboarded' => false,
-        ]);
-
-        $stripeAccountId = $account->id;
-    } else {
-        $stripeAccountId = $user->stripe_account_id;
+        return redirect()->away($link->url);
     }
-
-    $link = AccountLink::create([
-        'account' => $stripeAccountId,
-        'refresh_url' => route('stripe.refresh'),
-        'return_url' => route('stripe.return'),
-        'type' => 'account_onboarding',
-    ]);
-
-    return redirect()->away($link->url);
-}
 
     public function refresh()
     {
-        return redirect()->route('stripe.connect')
-            ->with('error', 'Please finish Stripe onboarding to sell.');
+        return redirect()->route('profile.edit')
+            ->with('error', 'Please finish Stripe onboarding.');
     }
 
     public function return(Request $request)
     {
+        $user = $request->user();
+
+        if (!$user->stripe_account_id) {
+            abort(400, 'Stripe account missing.');
+        }
+
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $account = Account::retrieve($request->user()->stripe_account_id);
+        $account = Account::retrieve($user->stripe_account_id);
 
-        $request->user()->update([
-            'stripe_onboarded' => $account->charges_enabled && $account->payouts_enabled,
-        ]);
+        if ($account->charges_enabled) {
+            $user->forceFill([
+                'stripe_onboarded' => true,
+            ])->save();
+        }
 
         return redirect()->route('profile.edit')
-            ->with(
-                $account->charges_enabled && $account->payouts_enabled
-                    ? 'success'
-                    : 'warning',
-                $account->charges_enabled && $account->payouts_enabled
-                    ? 'Stripe connected! You can now sell.'
-                    : 'Stripe setup incomplete. Please finish onboarding.'
-            );
+            ->with('success', 'Stripe connected successfully.');
     }
 }
