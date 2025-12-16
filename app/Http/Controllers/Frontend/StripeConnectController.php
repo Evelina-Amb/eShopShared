@@ -23,10 +23,18 @@ class StripeConnectController extends Controller
 
         // Create Stripe account once
         if (!$user->stripe_account_id) {
-            $account = Account::create([
-                'type' => 'standard',
-                'email' => $user->email,
-            ]);
+           $account = Account::create([
+    'type' => 'standard',
+    'country' => 'LT',
+    'email' => $user->el_pastas,
+
+    // REQUIRED for marketplaces
+    'capabilities' => [
+        'card_payments' => ['requested' => true],
+        'transfers'     => ['requested' => true],
+    ],
+]);
+
 
             $user->update([
                 'stripe_account_id' => $account->id,
