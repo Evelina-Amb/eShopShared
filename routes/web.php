@@ -13,6 +13,18 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\StripeConnectController;
 
+Route::get('/_whoami', function () {
+    $u = auth()->user();
+    return [
+        'id' => $u?->id,
+        'email' => $u?->el_pastas,
+        'stripe_account_id' => $u?->stripe_account_id,
+        'stripe_onboarded' => $u?->stripe_onboarded,
+        'role' => $u?->role,
+    ];
+})->middleware('auth');
+
+
 Route::get('/media/{filename}', function ($filename) {
     $filename = basename($filename);
 
