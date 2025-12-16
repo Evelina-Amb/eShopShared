@@ -37,22 +37,57 @@ class CheckoutController extends Controller
         ]);
 
         $order = $orderService->createPendingFromCart(auth()->id(), $data);
+Stripe::setApiKey(config('services.stripe.secret'));
 
-        Stripe::setApiKey(config('services.stripe.secret'));
+//Load order with relations
+$order->load('orderItem.Listing.user');
 
-        $intent = PaymentIntent::create([
-            'amount' => (int) round($order->bendra_suma * 100),
-            'currency' => 'eur',
-            'automatic_payment_methods' => ['enabled' => true],
-            'metadata' => ['order_id' => $order->id],
-        ]);
+//Enforce ONE seller per order
+$sellers = $order->orderItem
+    ->pluck('Listing.user')
+    ->unique('id');
 
-        $order->update([
-            'payment_provider' => 'stripe',
-            'payment_intent_id' => $intent->id,
-        ]);
+if ($sellers->count() !== 1) {
+    abort(400, 'Order must contain items from one seller only.');
+}
 
-        return response()->json(['client_secret' => $intent->client_secret]);
+$seller = $sellers->first();
+
+//Validate seller Stripe readiness
+if (
+    !$seller->stripe_account_id ||
+    !$seller->stripe_onboarded
+) {
+    abort(400, 'Seller is not ready to receive payments.');
+}
+
+// Create PaymentIntent
+$intent = PaymentIntent::create([
+    'amount' => (int) round($order->bendra_suma * 100),
+    'currency' => 'eur',
+    'automatic_payment_methods' => ['enabled' => true],
+    'transfer_data' => [
+        'destination' => $seller->stripe_account_id,
+    ],
+
+    // 'application_fee_amount' => (int) round($order->bendra_suma * 0.10 * 100),
+    'metadata' => [
+        'order_id' => $order->id,
+        'seller_id' => $seller->id,
+    ],
+]);
+
+// Save Stripe references
+$order->update([
+    'payment_provider' => 'stripe',
+    'payment_intent_id' => $intent->id,
+]);
+
+return response()->json([
+    'client_secret' => $intent->client_secret
+]);
+
+       
     }
 
    public function success(Request $request, OrderService $orderService)
