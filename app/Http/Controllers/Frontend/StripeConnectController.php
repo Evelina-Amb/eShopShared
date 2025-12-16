@@ -11,41 +11,45 @@ use Stripe\AccountLink;
 class StripeConnectController extends Controller
 {
     public function connect(Request $request)
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
 
-        if ($user->role !== 'seller') {
-            abort(403, 'Only sellers can connect Stripe');
-        }
+    if ($user->role !== 'seller') {
+        abort(403, 'Only sellers can connect Stripe');
+    }
 
-        Stripe::setApiKey(config('services.stripe.secret'));
+    Stripe::setApiKey(config('services.stripe.secret'));
 
-        if (!$user->stripe_account_id) {
-            $account = Account::create([
-                'type' => 'express',
-                'country' => 'LT',
-                'email' => $user->el_pastas,
-                'capabilities' => [
-                    'card_payments' => ['requested' => true],
-                    'transfers' => ['requested' => true],
-                ],
-            ]);
-
-            $user->update([
-                'stripe_account_id' => $account->id,
-                'stripe_onboarded' => false,
-            ]);
-        }
-
-        $link = AccountLink::create([
-            'account' => $user->stripe_account_id,
-            'refresh_url' => route('stripe.refresh'),
-            'return_url' => route('stripe.return'),
-            'type' => 'account_onboarding',
+    if (!$user->stripe_account_id) {
+        $account = Account::create([
+            'type' => 'express',
+            'country' => 'LT',
+            'email' => $user->el_pastas,
+            'capabilities' => [
+                'card_payments' => ['requested' => true],
+                'transfers' => ['requested' => true],
+            ],
         ]);
 
-        return redirect()->away($link->url);
+        $user->update([
+            'stripe_account_id' => $account->id,
+            'stripe_onboarded' => false,
+        ]);
+
+        $stripeAccountId = $account->id;
+    } else {
+        $stripeAccountId = $user->stripe_account_id;
     }
+
+    $link = AccountLink::create([
+        'account' => $stripeAccountId,
+        'refresh_url' => route('stripe.refresh'),
+        'return_url' => route('stripe.return'),
+        'type' => 'account_onboarding',
+    ]);
+
+    return redirect()->away($link->url);
+}
 
     public function refresh()
     {
