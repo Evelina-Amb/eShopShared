@@ -14,26 +14,22 @@ class StripeConnectController extends Controller
     {
         $user = $request->user();
 
-        // Must be seller
         if ($user->role !== 'seller') {
             abort(403, 'Only sellers can connect Stripe');
         }
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        // Create Stripe account once
         if (!$user->stripe_account_id) {
-           $account = Account::create([
-    'type' => 'express',
-    'country' => 'LT',
-    'email' => $user->el_pastas,
-    'capabilities' => [
-        'card_payments' => ['requested' => true],
-        'transfers' => ['requested' => true],
-    ],
-]);
-
-
+            $account = Account::create([
+                'type' => 'express',
+                'country' => 'LT',
+                'email' => $user->el_pastas,
+                'capabilities' => [
+                    'card_payments' => ['requested' => true],
+                    'transfers' => ['requested' => true],
+                ],
+            ]);
 
             $user->update([
                 'stripe_account_id' => $account->id,
@@ -41,7 +37,6 @@ class StripeConnectController extends Controller
             ]);
         }
 
-        // Create onboarding link
         $link = AccountLink::create([
             'account' => $user->stripe_account_id,
             'refresh_url' => route('stripe.refresh'),
@@ -60,9 +55,7 @@ class StripeConnectController extends Controller
 
     public function return(Request $request)
     {
-        $user = $request->user();
-
-        $user->update([
+        $request->user()->update([
             'stripe_onboarded' => true,
         ]);
 
