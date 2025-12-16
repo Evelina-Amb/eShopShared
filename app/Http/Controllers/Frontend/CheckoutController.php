@@ -65,7 +65,7 @@ if (
 $intent = PaymentIntent::create([
     'amount' => (int) round($order->bendra_suma * 100),
     'currency' => 'eur',
-    'automatic_payment_methods' => ['enabled' => true],
+'payment_method_types' => ['card'],
     'transfer_data' => [
         'destination' => $seller->stripe_account_id,
     ],
