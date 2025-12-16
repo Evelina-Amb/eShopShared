@@ -35,6 +35,7 @@ class ProfileController extends Controller
    public function update(Request $request)
 {
     $user = auth()->user();
+    $wasSeller = $user->role === 'seller';
 
     $validated = $request->validate([
         'vardas'     => ['nullable', 'string', 'max:255'],
@@ -108,6 +109,10 @@ if ($emailChanged) {
         'We sent a verification link to your new email address. Please verify it to continue.'
     );
 }
+      if (!$wasSeller && $user->role === 'seller') {
+        return redirect()->route('stripe.connect');
+    }
+    
     return back()->with('status', 'profile-updated');
 }
     /**
