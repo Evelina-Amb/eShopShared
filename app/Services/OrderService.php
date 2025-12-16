@@ -59,38 +59,31 @@ class OrderService
 {
     DB::transaction(function () use ($order) {
 
-        // Reload and lock the order row to prevent race conditions
-        $order = Order::where('id', $order->id)
+        $order = Order::with('orderItem')
             ->lockForUpdate()
-            ->firstOrFail();
+            ->findOrFail($order->id);
 
         if ($order->statusas === Order::STATUS_PAID) {
             return;
         }
 
-        // Mark order as paid ONLY once
         $order->update([
             'statusas' => Order::STATUS_PAID,
         ]);
 
-        // Finalize order items
         foreach ($order->orderItem as $item) {
-            $listing = Listing::where('id', $item->listing_id)
-                ->lockForUpdate()
-                ->first();
+            $listing = Listing::lockForUpdate()->find($item->listing_id);
 
             if (!$listing) {
                 continue;
             }
 
-            // Services do not reduce stock
             if ($listing->tipas === 'paslauga') {
                 continue;
             }
 
             $listing->kiekis -= (int) $item->kiekis;
 
-            // Hide non-renewable listings when sold out
             if ($listing->kiekis <= 0 && (int) $listing->is_renewable === 0) {
                 $listing->statusas = 'parduotas';
                 $listing->is_hidden = 1;
@@ -98,11 +91,10 @@ class OrderService
 
             $listing->save();
         }
-
-        // Clear user's cart AFTER successful payment
         Cart::where('user_id', $order->user_id)->delete();
     });
 }
+
 
     
 }
