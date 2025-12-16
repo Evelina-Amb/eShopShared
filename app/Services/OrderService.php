@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\{Order, OrderItem, Cart, Listing};
+use App\Models\OrderItem; 
+use App\Models\Listing;
+use App\Models\Cart;
+use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
