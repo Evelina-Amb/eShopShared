@@ -27,29 +27,6 @@ class CheckoutController extends Controller
         return view('frontend.checkout.index', compact('cartItems', 'total'));
     }
 
-    public function intent()
-{
-    $cartItems = Cart::where('user_id', auth()->id())->get();
-
-    if ($cartItems->isEmpty()) {
-        return response()->json(['error' => 'Cart is empty'], 400);
-    }
-
-    $total = $cartItems->sum(fn ($i) => $i->listing->kaina * $i->kiekis);
-
-    Stripe::setApiKey(config('services.stripe.secret'));
-
-    $intent = PaymentIntent::create([
-        'amount' => (int) round($total * 100),
-        'currency' => 'eur',
-        'automatic_payment_methods' => ['enabled' => true],
-    ]);
-
-    return response()->json([
-        'client_secret' => $intent->client_secret,
-    ]);
-}
-
     public function pay(Request $request, OrderService $orderService)
     {
         $data = $request->validate([
