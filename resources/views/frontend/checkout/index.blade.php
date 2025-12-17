@@ -1,88 +1,43 @@
 <x-app-layout>
+    <meta name="stripe-key" content="{{ config('services.stripe.key') }}">
+
     <div class="max-w-4xl mx-auto mt-10">
         <h1 class="text-3xl font-bold mb-6">Checkout</h1>
 
-        @if(session('error'))
-            <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {{-- LEFT --}}
-            <div class="bg-white shadow rounded p-6">
-                <h2 class="text-xl font-semibold mb-4">Shipping address</h2>
-
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded shadow">
                 <form id="checkout-form">
                     @csrf
 
-                    <div class="mb-3">
-                        <label class="block text-sm text-gray-600 mb-1">Address</label>
-                        <input id="address" class="w-full border rounded p-2" required>
-                    </div>
+                    <input id="address" class="w-full border p-2 mb-2" placeholder="Address" required>
+                    <input id="city" class="w-full border p-2 mb-2" placeholder="City" required>
+                    <input id="postal_code" class="w-full border p-2 mb-2" placeholder="Postal code" required>
+                    <input id="country" class="w-full border p-2 mb-4" placeholder="Country" required>
 
-                    <div class="mb-3">
-                        <label class="block text-sm text-gray-600 mb-1">City</label>
-                        <input id="city" class="w-full border rounded p-2" required>
-                    </div>
+                    <div id="payment-element" class="border p-4 rounded mb-4"></div>
 
-                    <div class="mb-3">
-                        <label class="block text-sm text-gray-600 mb-1">Postal code</label>
-                        <input id="postal_code" class="w-full border rounded p-2" required>
-                    </div>
+                    <div id="checkout-error" class="hidden bg-red-100 text-red-700 p-3 mb-3 rounded"></div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm text-gray-600 mb-1">Country</label>
-                        <input id="country" class="w-full border rounded p-2" required>
-                    </div>
-
-                    <h2 class="text-xl font-semibold mb-3">Payment</h2>
-
-                    <div class="border rounded p-3 mb-3">
-                        <div id="payment-element"></div>
-                    </div>
-
-                    <div id="checkout-error"
-                         class="hidden bg-red-100 text-red-800 p-3 rounded mb-3"></div>
-
-                    <button id="pay-button"
-                            type="submit"
-                            class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full">
+                    <button class="bg-green-600 text-white w-full py-3 rounded">
                         Pay {{ number_format($total, 2) }} €
                     </button>
                 </form>
             </div>
 
-            {{-- RIGHT --}}
-            <div class="bg-white shadow rounded p-6">
+            <div class="bg-white p-6 rounded shadow">
                 <h2 class="text-xl font-semibold mb-4">Order summary</h2>
-
-                <div class="space-y-3">
-                    @foreach($cartItems as $item)
-                        <div class="flex justify-between border-b pb-2">
-                            <div>
-                                <div class="font-semibold">
-                                    {{ $item->listing->pavadinimas }}
-                                </div>
-                                <div class="text-sm text-gray-600">
-                                    Qty: {{ $item->kiekis }}
-                                </div>
-                            </div>
-                            <div class="font-semibold">
-                                {{ number_format($item->listing->kaina * $item->kiekis, 2) }} €
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-
-                <div class="mt-4 text-xl font-bold">
-                    Total: {{ number_format($total, 2) }} €
-                </div>
+                @foreach($cartItems as $item)
+                    <div class="flex justify-between mb-2">
+                        <span>{{ $item->listing->pavadinimas }}</span>
+                        <span>{{ number_format($item->listing->kaina * $item->kiekis, 2) }} €</span>
+                    </div>
+                @endforeach
+                <hr class="my-3">
+                <strong>Total: {{ number_format($total, 2) }} €</strong>
             </div>
         </div>
     </div>
 
-    {{-- Stripe --}}
     <script src="https://js.stripe.com/v3/"></script>
     @vite('resources/js/checkout.js')
 </x-app-layout>
