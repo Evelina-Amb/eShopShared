@@ -14,12 +14,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     const res = await fetch("/checkout/intent", {
-      method: "POST",
-      headers: {
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
-        "Accept": "application/json",
-      },
-    });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+  },
+  body: JSON.stringify({})
+});
+  }
 
     const data = await res.json();
     if (!data.client_secret) throw new Error("Failed to initialize payment");
