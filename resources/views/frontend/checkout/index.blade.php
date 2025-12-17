@@ -37,7 +37,5 @@
             </div>
         </div>
     </div>
-
-    <script src="https://js.stripe.com/v3/"></script>
     @vite('resources/js/checkout.js')
 </x-app-layout>
