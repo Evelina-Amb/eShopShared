@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   let orderId;
 
   try {
-    // 🔥 CREATE PAYMENT INTENTS ON PAGE LOAD
     const res = await fetch("/checkout/pay", {
       method: "POST",
       headers: {
