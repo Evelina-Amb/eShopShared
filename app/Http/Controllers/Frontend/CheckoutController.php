@@ -8,7 +8,7 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
-use Stripe\PaymentIntent;
+use Stripe\PaymentIntent; 
 use Stripe\Transfer;
 
 class CheckoutController extends Controller
