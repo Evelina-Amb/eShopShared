@@ -9,12 +9,13 @@ use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use Stripe\Transfer;
 
 class CheckoutController extends Controller
 {
     public function index()
     {
-        $cartItems = Cart::with('listing.photos')
+        $cartItems = Cart::with('listing.photos', 'listing.user')
             ->where('user_id', auth()->id())
             ->get();
 
@@ -41,44 +42,14 @@ class CheckoutController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $platformPercent = 0.10;
-        $smallOrderThreshold = 5.00;
-        $smallOrderFee = 0.30;
-
-        $splits = [];
-        $totalCharged = 0;
-        $platformFeeTotal = 0;
-
-        foreach ($order->orderItem->groupBy(fn ($i) => $i->Listing->user->id) as $sellerId => $items) {
-            $seller = $items->first()->Listing->user;
-
-            if (!$seller->stripe_account_id || !$seller->stripe_onboarded) {
-                return response()->json([
-                    'error' => "Seller {$seller->id} is not ready to receive payments."
-                ], 400);
-            }
-
-            $subtotal = round($items->sum(fn ($i) => $i->kaina * $i->kiekis), 2);
-            $platformFee = round($subtotal * $platformPercent, 2);
-            $extraFee = $subtotal < $smallOrderThreshold ? $smallOrderFee : 0.00;
-
-            $buyerPays = $subtotal + $extraFee;
-            $sellerReceives = $subtotal - $platformFee;
-
-            $splits[] = [
-                'seller_id' => $seller->id,
-                'stripe_account_id' => $seller->stripe_account_id,
-                'seller_amount_cents' => (int) round($sellerReceives * 100),
-            ];
-
-            $totalCharged += (int) round($buyerPays * 100);
-            $platformFeeTotal += (int) round(($platformFee + $extraFee) * 100);
-        }
+        $amountCents = (int) round($order->bendra_suma * 100);
+        $platformFeeCents = (int) round($order->bendra_suma * 0.10 * 100);
 
         $intent = PaymentIntent::create([
-            'amount' => $totalCharged,
+            'amount' => $amountCents,
             'currency' => 'eur',
             'payment_method_types' => ['card'],
+            'application_fee_amount' => $platformFeeCents,
             'metadata' => [
                 'order_id' => $order->id,
             ],
@@ -87,59 +58,56 @@ class CheckoutController extends Controller
         $order->update([
             'payment_provider' => 'stripe',
             'payment_intent_id' => $intent->id,
-            'payment_intents' => $splits,
-            'amount_charged_cents' => $totalCharged,
-            'platform_fee_cents' => $platformFeeTotal,
+            'amount_charged_cents' => $amountCents,
+            'platform_fee_cents' => $platformFeeCents,
         ]);
 
         return response()->json([
+            'order_id' => $order->id,
             'client_secret' => $intent->client_secret,
         ]);
     }
 
-   public function success(Request $request, OrderService $orderService)
-{
-    $orderId = $request->query('order_id');
-
-    if (!$orderId) {
-        return redirect()->route('cart.index')
-            ->with('error', 'Missing order reference.');
-    }
-
-    $order = Order::find($orderId);
-
-    if (!$order) {
-        return redirect()->route('cart.index')
-            ->with('error', 'Order not found.');
-    }
-
-    $paymentIntents = $order->payment_intents;
-
-    if (!is_array($paymentIntents) || count($paymentIntents) === 0) {
-        return redirect()->route('checkout.index')
-            ->with('error', 'Missing payment intents.');
-    }
-
-    Stripe::setApiKey(config('services.stripe.secret'));
-
-    foreach ($paymentIntents as $pi) {
-        if (empty($pi['payment_intent_id'])) {
-            return redirect()->route('checkout.index')
-                ->with('error', 'Invalid payment reference.');
+    public function success(Request $request, OrderService $orderService)
+    {
+        $orderId = $request->query('order_id');
+        if (!$orderId) {
+            return redirect()->route('cart.index')->with('error', 'Missing order reference.');
         }
 
-        $intent = PaymentIntent::retrieve($pi['payment_intent_id']);
+        $order = Order::with('orderItem.Listing.user')->findOrFail($orderId);
 
-        if (($intent->status ?? null) !== 'succeeded') {
-            return redirect()->route('checkout.index')
-                ->with('error', 'Payment not completed.');
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $intent = PaymentIntent::retrieve($order->payment_intent_id);
+        if ($intent->status !== 'succeeded') {
+            return redirect()->route('checkout.index')->with('error', 'Payment not completed.');
         }
+
+        // Split money to sellers
+        $groups = $order->orderItem->groupBy(fn ($i) => $i->Listing->user->id);
+
+        foreach ($groups as $items) {
+            $seller = $items->first()->Listing->user;
+
+            if (!$seller->stripe_account_id || !$seller->stripe_onboarded) {
+                continue;
+            }
+
+            $subtotal = $items->sum(fn ($i) => $i->kaina * $i->kiekis);
+            $sellerReceivesCents = (int) round($subtotal * 0.90 * 100);
+
+            Transfer::create([
+                'amount' => $sellerReceivesCents,
+                'currency' => 'eur',
+                'destination' => $seller->stripe_account_id,
+                'transfer_group' => 'order_' . $order->id,
+            ]);
+        }
+
+        $orderService->markPaidAndFinalize($order);
+        session(['cart_count' => 0]);
+
+        return view('frontend.checkout.success');
     }
-    $orderService->markPaidAndFinalize($order);
-
-    session(['cart_count' => 0]);
-
-    return view('frontend.checkout.success');
-}
-
 }
