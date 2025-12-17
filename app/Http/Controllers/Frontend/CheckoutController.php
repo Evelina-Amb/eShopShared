@@ -63,18 +63,26 @@ class CheckoutController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $intent = PaymentIntent::create([
-            'amount' => (int) round($order->bendra_suma * 100),
-            'currency' => 'eur',
-            'payment_method_types' => ['card'],
-            'transfer_data' => [
-                'destination' => $seller->stripe_account_id,
-            ],
-            'metadata' => [
-                'order_id' => $order->id,
-                'seller_id' => $seller->id,
-            ],
-        ]);
+       $platformFee = (int) round($order->bendra_suma * 0.10 * 100);
+
+$intent = PaymentIntent::create([
+    'amount' => (int) round($order->bendra_suma * 100),
+    'currency' => 'eur',
+    'payment_method_types' => ['card'],
+
+    'application_fee_amount' => $platformFee,
+
+    'transfer_data' => [
+        'destination' => $seller->stripe_account_id,
+    ],
+
+    'metadata' => [
+        'order_id' => $order->id,
+        'seller_id' => $seller->id,
+        'platform_fee_cents' => $platformFee,
+    ],
+]);
+
 
         $order->update([
             'payment_provider' => 'stripe',
