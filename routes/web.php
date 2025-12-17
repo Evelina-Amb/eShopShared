@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\StripeConnectController;
 
+Route::post('/checkout/intent', [CheckoutController::class, 'intent'])
+    ->middleware('auth')
+    ->name('checkout.intent');
+
 Route::get('/seller/stripe/dashboard', [
     \App\Http\Controllers\Frontend\StripeConnectController::class,
     'dashboard'
