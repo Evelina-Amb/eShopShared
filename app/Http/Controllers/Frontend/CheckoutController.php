@@ -28,28 +28,26 @@ class CheckoutController extends Controller
         return view('frontend.checkout.index', compact('cartItems', 'total'));
     }
 
-    public function pay(Request $request, OrderService $orderService)
+    public function intent(OrderService $orderService)
     {
-        $data = $request->validate([
-            'address' => 'required|string',
-            'city' => 'required|string',
-            'postal_code' => 'required|string',
-            'country' => 'required|string',
-        ]);
+        $placeholder = [
+            'address' => '__pending__',
+            'city' => '__pending__',
+            'postal_code' => '__pending__',
+            'country' => '__pending__',
+        ];
 
-        $order = $orderService->createPendingFromCart(auth()->id(), $data);
+        $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
         $order->load('orderItem.Listing.user');
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $amountCents = (int) round($order->bendra_suma * 100);
-        $platformFeeCents = (int) round($order->bendra_suma * 0.10 * 100);
 
         $intent = PaymentIntent::create([
             'amount' => $amountCents,
             'currency' => 'eur',
-            'payment_method_types' => ['card'],
-            'application_fee_amount' => $platformFeeCents,
+            'automatic_payment_methods' => ['enabled' => true],
             'metadata' => [
                 'order_id' => $order->id,
             ],
@@ -59,7 +57,6 @@ class CheckoutController extends Controller
             'payment_provider' => 'stripe',
             'payment_intent_id' => $intent->id,
             'amount_charged_cents' => $amountCents,
-            'platform_fee_cents' => $platformFeeCents,
         ]);
 
         return response()->json([
@@ -84,7 +81,6 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.index')->with('error', 'Payment not completed.');
         }
 
-        // Split money to sellers
         $groups = $order->orderItem->groupBy(fn ($i) => $i->Listing->user->id);
 
         foreach ($groups as $items) {
@@ -110,54 +106,4 @@ class CheckoutController extends Controller
 
         return view('frontend.checkout.success');
     }
-
-   public function intent(OrderService $orderService)
-{
-    try {
-        $placeholder = [
-            'address' => '__pending__',
-            'city' => '__pending__',
-            'postal_code' => '__pending__',
-            'country' => '__pending__',
-        ];
-
-        $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
-
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        $amountCents = (int) round($order->bendra_suma * 100);
-        $platformFeeCents = (int) round($order->bendra_suma * 0.10 * 100);
-
-        $intent = PaymentIntent::create([
-            'amount' => $amountCents,
-            'currency' => 'eur',
-            'payment_method_types' => ['card'],
-            'application_fee_amount' => $platformFeeCents,
-            'metadata' => ['order_id' => $order->id],
-        ]);
-
-        $order->update([
-            'payment_provider' => 'stripe',
-            'payment_intent_id' => $intent->id,
-            'amount_charged_cents' => $amountCents,
-            'platform_fee_cents' => $platformFeeCents,
-        ]);
-
-        return response()->json([
-            'order_id' => $order->id,
-            'client_secret' => $intent->client_secret,
-        ]);
-    } catch (\Throwable $e) {
-        logger()->error('checkout.intent failed', [
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ]);
-
-        return response()->json([
-            'error' => $e->getMessage(),
-        ], 500);
-    }
-}
-
-
 }
