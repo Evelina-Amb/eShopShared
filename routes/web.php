@@ -13,27 +13,10 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\StripeConnectController;
 
-Route::get('/_whoami', function () {
-    $u = auth()->user();
-    return [
-        'id' => $u?->id,
-        'email' => $u?->el_pastas,
-        'stripe_account_id' => $u?->stripe_account_id,
-        'stripe_onboarded' => $u?->stripe_onboarded,
-        'role' => $u?->role,
-    ];
-})->middleware('auth');
-
-Route::get('/_listing-owner/{id}', function ($id) {
-    $listing = \App\Models\Listing::with('user')->findOrFail($id);
-    return [
-        'listing_id' => $listing->id,
-        'seller_id' => $listing->user->id,
-        'seller_email' => $listing->user->el_pastas,
-        'stripe_account_id' => $listing->user->stripe_account_id,
-        'stripe_onboarded' => $listing->user->stripe_onboarded,
-    ];
-});
+Route::get('/seller/stripe/dashboard', [
+    \App\Http\Controllers\Frontend\StripeConnectController::class,
+    'dashboard'
+])->middleware('auth')->name('stripe.dashboard');
 
 Route::get('/media/{filename}', function ($filename) {
     $filename = basename($filename);
