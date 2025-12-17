@@ -37,10 +37,7 @@ class CheckoutController extends Controller
         ]);
 
         $order = $orderService->createPendingFromCart(auth()->id(), $data);
-
         $order->load('orderItem.Listing.user');
-
-        $groups = $order->orderItem->groupBy(fn ($item) => $item->Listing->user->id);
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -48,13 +45,11 @@ class CheckoutController extends Controller
         $smallOrderThreshold = 5.00;
         $smallOrderFee = 0.30;
 
-        $paymentIntentsOut = [];
+        $splits = [];
+        $totalCharged = 0;
+        $platformFeeTotal = 0;
 
-        $totalChargedCents = 0;
-        $totalPlatformFeeCents = 0;
-        $totalSmallOrderFeeCents = 0;
-
-        foreach ($groups as $sellerId => $items) {
+        foreach ($order->orderItem->groupBy(fn ($i) => $i->Listing->user->id) as $sellerId => $items) {
             $seller = $items->first()->Listing->user;
 
             if (!$seller->stripe_account_id || !$seller->stripe_onboarded) {
@@ -63,100 +58,68 @@ class CheckoutController extends Controller
                 ], 400);
             }
 
-            $sellerSubtotal = (float) $items->sum(fn ($i) => $i->kaina * $i->kiekis);
-            $sellerSubtotal = round($sellerSubtotal, 2);
+            $subtotal = round($items->sum(fn ($i) => $i->kaina * $i->kiekis), 2);
+            $platformFee = round($subtotal * $platformPercent, 2);
+            $extraFee = $subtotal < $smallOrderThreshold ? $smallOrderFee : 0.00;
 
-            $platformFee = round($sellerSubtotal * $platformPercent, 2);
-            $extraFee = $sellerSubtotal < $smallOrderThreshold ? $smallOrderFee : 0.00;
+            $buyerPays = $subtotal + $extraFee;
+            $sellerReceives = $subtotal - $platformFee;
 
-            $buyerPays = $sellerSubtotal + $extraFee;
-            $sellerReceives = $sellerSubtotal - $platformFee;
-
-            $buyerPaysCents = (int) round($buyerPays * 100);
-            $platformFeeCents = (int) round($platformFee * 100);
-            $extraFeeCents = (int) round($extraFee * 100);
-            $sellerReceivesCents = (int) round($sellerReceives * 100);
-
-            $intent = PaymentIntent::create([
-                'amount' => $buyerPaysCents,
-                'currency' => 'eur',
-                'payment_method_types' => ['card'],
-
-                'transfer_data' => [
-                    'destination' => $seller->stripe_account_id,
-                    'amount' => $sellerReceivesCents,
-                ],
-
-                'application_fee_amount' => $platformFeeCents + $extraFeeCents,
-
-                'metadata' => [
-                    'order_id' => $order->id,
-                    'seller_id' => $seller->id,
-                    'platform_fee_cents' => $platformFeeCents,
-                    'small_order_fee_cents' => $extraFeeCents,
-                ],
-            ]);
-
-            $paymentIntentsOut[] = [
+            $splits[] = [
                 'seller_id' => $seller->id,
-                'payment_intent_id' => $intent->id,
-                'client_secret' => $intent->client_secret,
-                'amount_cents' => $buyerPaysCents,
+                'stripe_account_id' => $seller->stripe_account_id,
+                'seller_amount_cents' => (int) round($sellerReceives * 100),
             ];
 
-            $totalChargedCents += $buyerPaysCents;
-            $totalPlatformFeeCents += $platformFeeCents;
-            $totalSmallOrderFeeCents += $extraFeeCents;
+            $totalCharged += (int) round($buyerPays * 100);
+            $platformFeeTotal += (int) round(($platformFee + $extraFee) * 100);
         }
+
+        $intent = PaymentIntent::create([
+            'amount' => $totalCharged,
+            'currency' => 'eur',
+            'payment_method_types' => ['card'],
+            'metadata' => [
+                'order_id' => $order->id,
+            ],
+        ]);
 
         $order->update([
             'payment_provider' => 'stripe',
-            'payment_intents' => $paymentIntentsOut,
-            'amount_charged_cents' => $totalChargedCents,
-            'platform_fee_cents' => $totalPlatformFeeCents,
-            'small_order_fee_cents' => $totalSmallOrderFeeCents,
+            'payment_intent_id' => $intent->id,
+            'payment_intents' => $splits,
+            'amount_charged_cents' => $totalCharged,
+            'platform_fee_cents' => $platformFeeTotal,
         ]);
 
         return response()->json([
-            'order_id' => $order->id,
-            'payment_intents' => $paymentIntentsOut,
+            'client_secret' => $intent->client_secret,
         ]);
     }
 
     public function success(Request $request, OrderService $orderService)
     {
-        $orderId = $request->query('order_id');
-
-        if (!$orderId) {
-            return redirect()->route('cart.index')->with('error', 'Missing order reference.');
-        }
-
-        $order = Order::find($orderId);
-        if (!$order) {
-            return redirect()->route('cart.index')->with('error', 'Order not found.');
-        }
-
-        $intents = $order->payment_intents ?? [];
-        if (count($intents) === 0) {
-            return redirect()->route('checkout.index')->with('error', 'Missing payment intents.');
-        }
+        $paymentIntentId = $request->query('payment_intent');
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        foreach ($intents as $pi) {
-            $piId = $pi['payment_intent_id'] ?? null;
-            if (!$piId) {
-                return redirect()->route('checkout.index')->with('error', 'Invalid payment reference.');
-            }
+        $intent = PaymentIntent::retrieve($paymentIntentId);
+        if ($intent->status !== 'succeeded') {
+            return redirect()->route('checkout.index')->with('error', 'Payment not completed.');
+        }
 
-            $intent = PaymentIntent::retrieve($piId);
-            if (($intent->status ?? null) !== 'succeeded') {
-                return redirect()->route('checkout.index')->with('error', 'Payment not completed.');
-            }
+        $order = Order::where('payment_intent_id', $paymentIntentId)->firstOrFail();
+
+        foreach ($order->payment_intents as $split) {
+            \Stripe\Transfer::create([
+                'amount' => $split['seller_amount_cents'],
+                'currency' => 'eur',
+                'destination' => $split['stripe_account_id'],
+                'transfer_group' => 'order_' . $order->id,
+            ]);
         }
 
         $orderService->markPaidAndFinalize($order);
-
         session(['cart_count' => 0]);
 
         return view('frontend.checkout.success');
