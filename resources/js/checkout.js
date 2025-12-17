@@ -1,163 +1,58 @@
-<?php
+import { loadStripe } from "@stripe/stripe-js";
 
-namespace App\Http\Controllers\Frontend;
+document.addEventListener("DOMContentLoaded", async () => {
+  const form = document.getElementById("checkout-form");
+  const errorBox = document.getElementById("checkout-error");
 
-use App\Http\Controllers\Controller;
-use App\Models\Cart;
-use App\Models\Order;
-use App\Services\OrderService;
-use Illuminate\Http\Request;
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
-use Stripe\Transfer;
+  if (!form) return;
 
-class CheckoutController extends Controller
-{
-    public function index()
-    {
-        $cartItems = Cart::with('listing.photos', 'listing.user')
-            ->where('user_id', auth()->id())
-            ->get();
+  const stripeKey = document.querySelector('meta[name="stripe-key"]')?.content;
+  if (!stripeKey) return;
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Cart is empty.');
-        }
+  const stripe = await loadStripe(stripeKey);
+  let elements;
+  let orderId;
 
-        $total = $cartItems->sum(fn ($i) => $i->listing->kaina * $i->kiekis);
+  try {
+    const res = await fetch("/checkout/intent", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+      },
+      body: JSON.stringify({}),
+    });
 
-        return view('frontend.checkout.index', compact('cartItems', 'total'));
+    const data = await res.json();
+    if (!res.ok || !data.client_secret) {
+      throw new Error(data.error || "Failed to initialize payment");
     }
 
-    public function pay(Request $request, OrderService $orderService)
-    {
-        $data = $request->validate([
-            'address' => 'required|string',
-            'city' => 'required|string',
-            'postal_code' => 'required|string',
-            'country' => 'required|string',
-        ]);
+    orderId = data.order_id;
 
-        $order = $orderService->createPendingFromCart(auth()->id(), $data);
-        $order->load('orderItem.Listing.user');
+    elements = stripe.elements({ clientSecret: data.client_secret });
+    elements.create("payment").mount("#payment-element");
 
-        Stripe::setApiKey(config('services.stripe.secret'));
+  } catch (err) {
+    errorBox.textContent = err.message;
+    errorBox.classList.remove("hidden");
+    return;
+  }
 
-        $amountCents = (int) round($order->bendra_suma * 100);
-        $platformFeeCents = (int) round($order->bendra_suma * 0.10 * 100);
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        $intent = PaymentIntent::create([
-            'amount' => $amountCents,
-            'currency' => 'eur',
-            'payment_method_types' => ['card'],
-            'application_fee_amount' => $platformFeeCents,
-            'metadata' => [
-                'order_id' => $order->id,
-            ],
-        ]);
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/checkout/success?order_id=${orderId}`,
+      },
+    });
 
-        $order->update([
-            'payment_provider' => 'stripe',
-            'payment_intent_id' => $intent->id,
-            'amount_charged_cents' => $amountCents,
-            'platform_fee_cents' => $platformFeeCents,
-        ]);
-
-        return response()->json([
-            'order_id' => $order->id,
-            'client_secret' => $intent->client_secret,
-        ]);
+    if (error) {
+      errorBox.textContent = error.message;
+      errorBox.classList.remove("hidden");
     }
-
-    public function success(Request $request, OrderService $orderService)
-    {
-        $orderId = $request->query('order_id');
-        if (!$orderId) {
-            return redirect()->route('cart.index')->with('error', 'Missing order reference.');
-        }
-
-        $order = Order::with('orderItem.Listing.user')->findOrFail($orderId);
-
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        $intent = PaymentIntent::retrieve($order->payment_intent_id);
-        if ($intent->status !== 'succeeded') {
-            return redirect()->route('checkout.index')->with('error', 'Payment not completed.');
-        }
-
-        // Split money to sellers
-        $groups = $order->orderItem->groupBy(fn ($i) => $i->Listing->user->id);
-
-        foreach ($groups as $items) {
-            $seller = $items->first()->Listing->user;
-
-            if (!$seller->stripe_account_id || !$seller->stripe_onboarded) {
-                continue;
-            }
-
-            $subtotal = $items->sum(fn ($i) => $i->kaina * $i->kiekis);
-            $sellerReceivesCents = (int) round($subtotal * 0.90 * 100);
-
-            Transfer::create([
-                'amount' => $sellerReceivesCents,
-                'currency' => 'eur',
-                'destination' => $seller->stripe_account_id,
-                'transfer_group' => 'order_' . $order->id,
-            ]);
-        }
-
-        $orderService->markPaidAndFinalize($order);
-        session(['cart_count' => 0]);
-
-        return view('frontend.checkout.success');
-    }
-
-   public function intent(OrderService $orderService)
-{
-    try {
-        $placeholder = [
-            'address' => '__pending__',
-            'city' => '__pending__',
-            'postal_code' => '__pending__',
-            'country' => '__pending__',
-        ];
-
-        $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
-
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        $amountCents = (int) round($order->bendra_suma * 100);
-        $platformFeeCents = (int) round($order->bendra_suma * 0.10 * 100);
-
-        $intent = PaymentIntent::create([
-            'amount' => $amountCents,
-            'currency' => 'eur',
-            'payment_method_types' => ['card'],
-            'application_fee_amount' => $platformFeeCents,
-            'metadata' => ['order_id' => $order->id],
-        ]);
-
-        $order->update([
-            'payment_provider' => 'stripe',
-            'payment_intent_id' => $intent->id,
-            'amount_charged_cents' => $amountCents,
-            'platform_fee_cents' => $platformFeeCents,
-        ]);
-
-        return response()->json([
-            'order_id' => $order->id,
-            'client_secret' => $intent->client_secret,
-        ]);
-    } catch (\Throwable $e) {
-        logger()->error('checkout.intent failed', [
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ]);
-
-        return response()->json([
-            'error' => $e->getMessage(),
-        ], 500);
-    }
-}
-
-
-}
+  });
+});
