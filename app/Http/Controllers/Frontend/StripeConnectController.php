@@ -76,7 +76,7 @@ class StripeConnectController extends Controller
             ->with('success', 'Stripe connected successfully.');
     }
 
-    public function dashboard(Request $request)
+public function dashboard(Request $request)
 {
     $user = $request->user();
 
@@ -91,10 +91,9 @@ class StripeConnectController extends Controller
 
     Stripe::setApiKey(config('services.stripe.secret'));
 
-    $loginLink = LoginLink::create([
-        'account' => $user->stripe_account_id,
-    ]);
+    $loginLink = Account::createLoginLink($user->stripe_account_id);
 
     return redirect()->away($loginLink->url);
 }
+
 }
