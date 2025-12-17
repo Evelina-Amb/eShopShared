@@ -19,53 +19,53 @@ document.addEventListener("DOMContentLoaded", async () => {
   const stripe = await loadStripe(stripeKey);
   let elements;
 
+  try {
+
+    const res = await fetch("/checkout/pay", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": document
+          .querySelector('meta[name="csrf-token"]')
+          .content,
+      },
+      body: JSON.stringify({
+        address: "__pending__",
+        city: "__pending__",
+        postal_code: "__pending__",
+        country: "__pending__",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.client_secret) {
+      throw new Error(data.error || "Payment initialization failed.");
+    }
+    
+    elements = stripe.elements({ clientSecret: data.client_secret });
+    const paymentElement = elements.create("payment");
+    paymentElement.mount("#payment-element");
+
+  } catch (err) {
+    errorBox.textContent = err.message || "Payment initialization failed.";
+    errorBox.classList.remove("hidden");
+    return;
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorBox.classList.add("hidden");
 
-    const payload = {
-      address: document.getElementById("address").value,
-      city: document.getElementById("city").value,
-      postal_code: document.getElementById("postal_code").value,
-      country: document.getElementById("country").value,
-    };
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/checkout/success`,
+      },
+    });
 
-    try {
-      const res = await fetch("/checkout/pay", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": document
-            .querySelector('meta[name="csrf-token"]')
-            .content,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.client_secret) {
-        throw new Error(data.error || "Payment initialization failed.");
-      }
-
-      elements = stripe.elements({
-        clientSecret: data.client_secret,
-      });
-
-      const paymentElement = elements.create("payment");
-      paymentElement.mount("#payment-element");
-
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/checkout/success`,
-        },
-      });
-
-      if (error) throw error;
-
-    } catch (err) {
-      errorBox.textContent = err.message || "Payment failed.";
+    if (error) {
+      errorBox.textContent = error.message;
       errorBox.classList.remove("hidden");
     }
   });
