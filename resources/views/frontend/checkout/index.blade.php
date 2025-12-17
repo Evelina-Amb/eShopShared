@@ -9,7 +9,7 @@
         @endif
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {{-- LEFT: ADDRESS + PAYMENT --}}
+            {{-- LEFT --}}
             <div class="bg-white shadow rounded p-6">
                 <h2 class="text-xl font-semibold mb-4">Shipping address</h2>
 
@@ -18,22 +18,22 @@
 
                     <div class="mb-3">
                         <label class="block text-sm text-gray-600 mb-1">Address</label>
-                        <input id="address" name="address" class="w-full border rounded p-2" required>
+                        <input id="address" class="w-full border rounded p-2" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="block text-sm text-gray-600 mb-1">City</label>
-                        <input id="city" name="city" class="w-full border rounded p-2" required>
+                        <input id="city" class="w-full border rounded p-2" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="block text-sm text-gray-600 mb-1">Postal code</label>
-                        <input id="postal_code" name="postal_code" class="w-full border rounded p-2" required>
+                        <input id="postal_code" class="w-full border rounded p-2" required>
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-sm text-gray-600 mb-1">Country</label>
-                        <input id="country" name="country" class="w-full border rounded p-2" required>
+                        <input id="country" class="w-full border rounded p-2" required>
                     </div>
 
                     <h2 class="text-xl font-semibold mb-3">Payment</h2>
@@ -42,16 +42,18 @@
                         <div id="payment-element"></div>
                     </div>
 
-                    <div id="checkout-error" class="hidden bg-red-100 text-red-800 p-3 rounded mb-3"></div>
+                    <div id="checkout-error"
+                         class="hidden bg-red-100 text-red-800 p-3 rounded mb-3"></div>
 
-                    <button id="pay-button" type="submit"
+                    <button id="pay-button"
+                            type="submit"
                             class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full">
                         Pay {{ number_format($total, 2) }} €
                     </button>
                 </form>
             </div>
 
-            {{-- RIGHT: SUMMARY --}}
+            {{-- RIGHT --}}
             <div class="bg-white shadow rounded p-6">
                 <h2 class="text-xl font-semibold mb-4">Order summary</h2>
 
@@ -59,11 +61,15 @@
                     @foreach($cartItems as $item)
                         <div class="flex justify-between border-b pb-2">
                             <div>
-                                <div class="font-semibold">{{ $item->listing->pavadinimas ?? 'Item' }}</div>
-                                <div class="text-sm text-gray-600">Qty: {{ $item->kiekis }}</div>
+                                <div class="font-semibold">
+                                    {{ $item->listing->pavadinimas }}
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    Qty: {{ $item->kiekis }}
+                                </div>
                             </div>
                             <div class="font-semibold">
-                                {{ number_format(($item->listing->kaina ?? 0) * $item->kiekis, 2) }} €
+                                {{ number_format($item->listing->kaina * $item->kiekis, 2) }} €
                             </div>
                         </div>
                     @endforeach
@@ -76,7 +82,7 @@
         </div>
     </div>
 
-    {{-- Stripe + checkout JS --}}
+    {{-- Stripe --}}
     <script src="https://js.stripe.com/v3/"></script>
     @vite('resources/js/checkout.js')
 </x-app-layout>
