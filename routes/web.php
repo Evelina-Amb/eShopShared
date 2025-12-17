@@ -13,6 +13,21 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\StripeConnectController;
 
+Route::get('/_intent-debug', function () {
+    try {
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+        $pi = \Stripe\PaymentIntent::create([
+            'amount' => 500,
+            'currency' => 'eur',
+            'payment_method_types' => ['card'],
+        ]);
+        return ['ok' => true, 'client_secret_prefix' => substr($pi->client_secret, 0, 12)];
+    } catch (\Throwable $e) {
+        return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);
+    }
+})->middleware('auth');
+
+
 Route::post('/checkout/intent', [CheckoutController::class, 'intent'])
     ->middleware('auth')
     ->name('checkout.intent');
