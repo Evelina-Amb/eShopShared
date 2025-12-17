@@ -97,31 +97,49 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function success(Request $request, OrderService $orderService)
-    {
-        $paymentIntentId = $request->query('payment_intent');
+   public function success(Request $request, OrderService $orderService)
+{
+    $orderId = $request->query('order_id');
 
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        $intent = PaymentIntent::retrieve($paymentIntentId);
-        if ($intent->status !== 'succeeded') {
-            return redirect()->route('checkout.index')->with('error', 'Payment not completed.');
-        }
-
-        $order = Order::where('payment_intent_id', $paymentIntentId)->firstOrFail();
-
-        foreach ($order->payment_intents as $split) {
-            \Stripe\Transfer::create([
-                'amount' => $split['seller_amount_cents'],
-                'currency' => 'eur',
-                'destination' => $split['stripe_account_id'],
-                'transfer_group' => 'order_' . $order->id,
-            ]);
-        }
-
-        $orderService->markPaidAndFinalize($order);
-        session(['cart_count' => 0]);
-
-        return view('frontend.checkout.success');
+    if (!$orderId) {
+        return redirect()->route('cart.index')
+            ->with('error', 'Missing order reference.');
     }
+
+    $order = Order::find($orderId);
+
+    if (!$order) {
+        return redirect()->route('cart.index')
+            ->with('error', 'Order not found.');
+    }
+
+    $paymentIntents = $order->payment_intents;
+
+    if (!is_array($paymentIntents) || count($paymentIntents) === 0) {
+        return redirect()->route('checkout.index')
+            ->with('error', 'Missing payment intents.');
+    }
+
+    Stripe::setApiKey(config('services.stripe.secret'));
+
+    foreach ($paymentIntents as $pi) {
+        if (empty($pi['payment_intent_id'])) {
+            return redirect()->route('checkout.index')
+                ->with('error', 'Invalid payment reference.');
+        }
+
+        $intent = PaymentIntent::retrieve($pi['payment_intent_id']);
+
+        if (($intent->status ?? null) !== 'succeeded') {
+            return redirect()->route('checkout.index')
+                ->with('error', 'Payment not completed.');
+        }
+    }
+    $orderService->markPaidAndFinalize($order);
+
+    session(['cart_count' => 0]);
+
+    return view('frontend.checkout.success');
+}
+
 }
