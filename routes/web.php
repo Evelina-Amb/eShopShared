@@ -94,9 +94,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])
         ->name('checkout.index');
 
-    Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
-        ->name('checkout.pay');
-
     Route::get('/checkout/success', [CheckoutController::class, 'success'])
         ->name('checkout.success');
 
