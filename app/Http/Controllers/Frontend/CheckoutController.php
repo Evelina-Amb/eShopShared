@@ -52,10 +52,7 @@ class CheckoutController extends Controller
 
         $seller = $sellers->first();
 
-        if (
-            !$seller->stripe_account_id ||
-            !$seller->stripe_onboarded
-        ) {
+        if (!$seller->stripe_account_id || !$seller->stripe_onboarded) {
             return response()->json([
                 'error' => 'Seller is not ready to receive payments.'
             ], 400);
@@ -63,26 +60,37 @@ class CheckoutController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-       $platformFee = (int) round($order->bendra_suma * 0.10 * 100);
+        $orderAmount = round($order->bendra_suma, 2);
 
-$intent = PaymentIntent::create([
-    'amount' => (int) round($order->bendra_suma * 100),
-    'currency' => 'eur',
-    'payment_method_types' => ['card'],
+        $platformPercent = 0.10;
+        $smallOrderThreshold = 5.00;
+        $smallOrderFee = 0.30;
 
-    'application_fee_amount' => $platformFee,
+        $platformFee = round($orderAmount * $platformPercent, 2);
+        $extraFee = $orderAmount < $smallOrderThreshold ? $smallOrderFee : 0.00;
 
-    'transfer_data' => [
-        'destination' => $seller->stripe_account_id,
-    ],
+        $buyerPays = $orderAmount + $extraFee;
+        $sellerReceives = $orderAmount - $platformFee;
 
-    'metadata' => [
-        'order_id' => $order->id,
-        'seller_id' => $seller->id,
-        'platform_fee_cents' => $platformFee,
-    ],
-]);
+        $intent = PaymentIntent::create([
+            'amount' => (int) round($buyerPays * 100),
+            'currency' => 'eur',
+            'payment_method_types' => ['card'],
 
+            'transfer_data' => [
+                'destination' => $seller->stripe_account_id,
+                'amount' => (int) round($sellerReceives * 100),
+            ],
+
+            'application_fee_amount' => (int) round(($platformFee + $extraFee) * 100),
+
+            'metadata' => [
+                'order_id' => $order->id,
+                'seller_id' => $seller->id,
+                'platform_fee' => $platformFee,
+                'small_order_fee' => $extraFee,
+            ],
+        ]);
 
         $order->update([
             'payment_provider' => 'stripe',
