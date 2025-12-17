@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\Account;
 use Stripe\AccountLink;
+use Stripe\LoginLink;
 
 class StripeConnectController extends Controller
 {
@@ -74,4 +75,26 @@ class StripeConnectController extends Controller
         return redirect()->route('profile.edit')
             ->with('success', 'Stripe connected successfully.');
     }
+
+    public function dashboard(Request $request)
+{
+    $user = $request->user();
+
+    if ($user->role !== 'seller') {
+        abort(403);
+    }
+
+    if (!$user->stripe_account_id || !$user->stripe_onboarded) {
+        return redirect()->route('profile.edit')
+            ->with('error', 'Please finish Stripe onboarding first.');
+    }
+
+    Stripe::setApiKey(config('services.stripe.secret'));
+
+    $loginLink = LoginLink::create([
+        'account' => $user->stripe_account_id,
+    ]);
+
+    return redirect()->away($loginLink->url);
+}
 }
