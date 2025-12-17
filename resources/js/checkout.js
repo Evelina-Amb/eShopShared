@@ -1,74 +1,72 @@
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe } from "@stripe/stripe-js";
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const form = document.getElementById('checkout-form');
-    const paymentElementContainer = document.getElementById('payment-element');
-    const payButton = document.getElementById('pay-button');
-    const errorBox = document.getElementById('checkout-error');
+document.addEventListener("DOMContentLoaded", async () => {
+  const form = document.getElementById("checkout-form");
+  const errorBox = document.getElementById("checkout-error");
 
-    if (!form || !paymentElementContainer) return;
+  if (!form) return;
 
-    const stripeKey = document
-        .querySelector('meta[name="stripe-key"]')
-        ?.getAttribute('content');
+  const stripeKey = document
+    .querySelector('meta[name="stripe-key"]')
+    ?.getAttribute("content");
 
-    const stripe = await loadStripe(stripeKey);
-    let elements;
+  if (!stripeKey) {
+    errorBox.textContent = "Stripe configuration error.";
+    errorBox.classList.remove("hidden");
+    return;
+  }
 
-    //Create PaymentIntent
+  const stripe = await loadStripe(stripeKey);
+  let elements;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorBox.classList.add("hidden");
+
+    const payload = {
+      address: document.getElementById("address").value,
+      city: document.getElementById("city").value,
+      postal_code: document.getElementById("postal_code").value,
+      country: document.getElementById("country").value,
+    };
+
     try {
-        const response = await fetch('/checkout/pay', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document
-                    .querySelector('meta[name="csrf-token"]')
-                    .getAttribute('content'),
-            },
-            body: JSON.stringify({
-                address: 'pending',
-                city: 'pending',
-                postal_code: 'pending',
-                country: 'pending',
-            }),
-        });
+      const res = await fetch("/checkout/pay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": document
+            .querySelector('meta[name="csrf-token"]')
+            .content,
+        },
+        body: JSON.stringify(payload),
+      });
 
-        if (!response.ok) {
-            throw new Error('Payment initialization failed');
-        }
+      const data = await res.json();
 
-        const { client_secret } = await response.json();
+      if (!res.ok || !data.client_secret) {
+        throw new Error(data.error || "Payment initialization failed.");
+      }
 
-        elements = stripe.elements({ clientSecret: client_secret });
+      elements = stripe.elements({
+        clientSecret: data.client_secret,
+      });
 
-        const paymentElement = elements.create('payment');
-        paymentElement.mount('#payment-element');
+      const paymentElement = elements.create("payment");
+      paymentElement.mount("#payment-element");
+
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout/success`,
+        },
+      });
+
+      if (error) throw error;
 
     } catch (err) {
-        errorBox.textContent = err.message;
-        errorBox.classList.remove('hidden');
-        return;
+      errorBox.textContent = err.message || "Payment failed.";
+      errorBox.classList.remove("hidden");
     }
-
-    // Confirm payment on submit
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        payButton.disabled = true;
-        payButton.textContent = 'Processing…';
-
-        const { error } = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-                return_url: `${window.location.origin}/checkout/success`,
-            },
-        });
-
-        if (error) {
-            errorBox.textContent = error.message;
-            errorBox.classList.remove('hidden');
-            payButton.disabled = false;
-            payButton.textContent = 'Pay again';
-        }
-    });
+  });
 });
