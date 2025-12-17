@@ -12,55 +12,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const stripe = await loadStripe(stripeKey);
   let elements;
+  let orderId;
+
+  try {
+    // 🔥 CREATE PAYMENT INTENTS ON PAGE LOAD
+    const res = await fetch("/checkout/pay", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": document
+          .querySelector('meta[name="csrf-token"]').content,
+      },
+      body: JSON.stringify({
+        address: "pending",
+        city: "pending",
+        postal_code: "pending",
+        country: "pending",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.payment_intents?.length) {
+      throw new Error(data.error || "Payment initialization failed.");
+    }
+
+    orderId = data.order_id;
+
+    elements = stripe.elements({
+      clientSecret: data.payment_intents[0].client_secret,
+    });
+
+    const paymentElement = elements.create("payment");
+    paymentElement.mount("#payment-element");
+
+  } catch (err) {
+    errorBox.textContent = err.message || "Failed to load payment form.";
+    errorBox.classList.remove("hidden");
+    return;
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorBox.classList.add("hidden");
 
-    const payload = {
-      address: document.getElementById("address").value,
-      city: document.getElementById("city").value,
-      postal_code: document.getElementById("postal_code").value,
-      country: document.getElementById("country").value,
-    };
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/checkout/success?order_id=${encodeURIComponent(orderId)}`,
+      },
+    });
 
-    try {
-      const res = await fetch("/checkout/pay", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": document
-            .querySelector('meta[name="csrf-token"]').content,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.payment_intents) {
-        throw new Error(data.error || "Payment initialization failed.");
-      }
-
-      if (!elements) {
-        elements = stripe.elements({
-          clientSecret: data.payment_intents[0].client_secret,
-        });
-
-        const paymentElement = elements.create("payment");
-        paymentElement.mount("#payment-element");
-      }
-
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/checkout/success?order_id=${encodeURIComponent(data.order_id)}`,
-        },
-      });
-
-      if (error) throw error;
-
-    } catch (err) {
-      errorBox.textContent = err.message || "Payment failed.";
+    if (error) {
+      errorBox.textContent = error.message || "Payment failed.";
       errorBox.classList.remove("hidden");
     }
   });
