@@ -254,6 +254,13 @@
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 You can now receive payments and post listings.
             </p>
+             @if(auth()->user()->role === 'seller' && auth()->user()->stripe_onboarded)
+    <a href="{{ route('stripe.dashboard') }}"
+       class="btn btn-outline-primary"
+       target="_blank">
+        View Stripe earnings
+    </a>
+@endif
         @endif
 
     </div>
