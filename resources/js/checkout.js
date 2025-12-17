@@ -10,62 +10,57 @@ document.addEventListener("DOMContentLoaded", async () => {
     .querySelector('meta[name="stripe-key"]')
     ?.getAttribute("content");
 
-  if (!stripeKey) {
-    errorBox.textContent = "Stripe configuration error.";
-    errorBox.classList.remove("hidden");
-    return;
-  }
-
   const stripe = await loadStripe(stripeKey);
   let elements;
-
-  try {
-
-    const res = await fetch("/checkout/pay", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-TOKEN": document
-          .querySelector('meta[name="csrf-token"]')
-          .content,
-      },
-      body: JSON.stringify({
-        address: "__pending__",
-        city: "__pending__",
-        postal_code: "__pending__",
-        country: "__pending__",
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || !data.client_secret) {
-      throw new Error(data.error || "Payment initialization failed.");
-    }
-    
-    elements = stripe.elements({ clientSecret: data.client_secret });
-    const paymentElement = elements.create("payment");
-    paymentElement.mount("#payment-element");
-
-  } catch (err) {
-    errorBox.textContent = err.message || "Payment initialization failed.";
-    errorBox.classList.remove("hidden");
-    return;
-  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorBox.classList.add("hidden");
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/checkout/success`,
-      },
-    });
+    const payload = {
+      address: document.getElementById("address").value,
+      city: document.getElementById("city").value,
+      postal_code: document.getElementById("postal_code").value,
+      country: document.getElementById("country").value,
+    };
 
-    if (error) {
-      errorBox.textContent = error.message;
+    try {
+      const res = await fetch("/checkout/pay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": document
+            .querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.payment_intents) {
+        throw new Error(data.error || "Payment initialization failed.");
+      }
+
+      if (!elements) {
+        elements = stripe.elements({
+          clientSecret: data.payment_intents[0].client_secret,
+        });
+
+        const paymentElement = elements.create("payment");
+        paymentElement.mount("#payment-element");
+      }
+
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout/success?order_id=${encodeURIComponent(data.order_id)}`,
+        },
+      });
+
+      if (error) throw error;
+
+    } catch (err) {
+      errorBox.textContent = err.message || "Payment failed.";
       errorBox.classList.remove("hidden");
     }
   });
