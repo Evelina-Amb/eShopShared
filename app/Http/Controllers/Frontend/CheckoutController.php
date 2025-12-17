@@ -111,36 +111,53 @@ class CheckoutController extends Controller
         return view('frontend.checkout.success');
     }
 
-    public function intent(OrderService $orderService)
+   public function intent(OrderService $orderService)
 {
-    $order = $orderService->createPendingFromCart(auth()->id(), []);
+    try {
+        $placeholder = [
+            'address' => '__pending__',
+            'city' => '__pending__',
+            'postal_code' => '__pending__',
+            'country' => '__pending__',
+        ];
 
-    Stripe::setApiKey(config('services.stripe.secret'));
+        $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
 
-    $amountCents = (int) round($order->bendra_suma * 100);
-    $platformFeeCents = (int) round($order->bendra_suma * 0.10 * 100);
+        Stripe::setApiKey(config('services.stripe.secret'));
 
-    $intent = PaymentIntent::create([
-        'amount' => $amountCents,
-        'currency' => 'eur',
-        'payment_method_types' => ['card'],
-        'application_fee_amount' => $platformFeeCents,
-        'metadata' => [
+        $amountCents = (int) round($order->bendra_suma * 100);
+        $platformFeeCents = (int) round($order->bendra_suma * 0.10 * 100);
+
+        $intent = PaymentIntent::create([
+            'amount' => $amountCents,
+            'currency' => 'eur',
+            'payment_method_types' => ['card'],
+            'application_fee_amount' => $platformFeeCents,
+            'metadata' => ['order_id' => $order->id],
+        ]);
+
+        $order->update([
+            'payment_provider' => 'stripe',
+            'payment_intent_id' => $intent->id,
+            'amount_charged_cents' => $amountCents,
+            'platform_fee_cents' => $platformFeeCents,
+        ]);
+
+        return response()->json([
             'order_id' => $order->id,
-        ],
-    ]);
+            'client_secret' => $intent->client_secret,
+        ]);
+    } catch (\Throwable $e) {
+        logger()->error('checkout.intent failed', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
 
-    $order->update([
-        'payment_provider' => 'stripe',
-        'payment_intent_id' => $intent->id,
-        'amount_charged_cents' => $amountCents,
-        'platform_fee_cents' => $platformFeeCents,
-    ]);
-
-    return response()->json([
-        'order_id' => $order->id,
-        'client_secret' => $intent->client_secret,
-    ]);
+        return response()->json([
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 }
+
 
 }
