@@ -6,21 +6,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (!form) return;
 
-  const stripeKey = document
-    .querySelector('meta[name="stripe-key"]')
-    ?.getAttribute("content");
-
+  const stripeKey = document.querySelector('meta[name="stripe-key"]').content;
   const stripe = await loadStripe(stripeKey);
+
   let elements;
-  let orderId;
 
   try {
     const res = await fetch("/checkout/pay", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRF-TOKEN": document
-          .querySelector('meta[name="csrf-token"]').content,
+        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
       },
       body: JSON.stringify({
         address: "pending",
@@ -31,40 +27,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const data = await res.json();
+    if (!data.client_secret) throw new Error("Payment init failed");
 
-    if (!res.ok || !data.payment_intents?.length) {
-      throw new Error(data.error || "Payment initialization failed.");
-    }
+    elements = stripe.elements({ clientSecret: data.client_secret });
+    elements.create("payment").mount("#payment-element");
 
-    orderId = data.order_id;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    elements = stripe.elements({
-      clientSecret: data.payment_intents[0].client_secret,
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `/checkout/success?order_id=${data.order_id}`,
+        },
+      });
+
+      if (error) {
+        errorBox.textContent = error.message;
+        errorBox.classList.remove("hidden");
+      }
     });
-
-    const paymentElement = elements.create("payment");
-    paymentElement.mount("#payment-element");
-
   } catch (err) {
-    errorBox.textContent = err.message || "Failed to load payment form.";
+    errorBox.textContent = err.message;
     errorBox.classList.remove("hidden");
-    return;
   }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    errorBox.classList.add("hidden");
-
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/checkout/success?order_id=${encodeURIComponent(orderId)}`,
-      },
-    });
-
-    if (error) {
-      errorBox.textContent = error.message || "Payment failed.";
-      errorBox.classList.remove("hidden");
-    }
-  });
 });
