@@ -75,9 +75,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])
         ->name('checkout.index');
 
-     Route::post('/checkout/intent', [CheckoutController::class, 'intent'])
-        ->name('checkout.intent');
-
     Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
         ->name('checkout.pay');
 
