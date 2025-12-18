@@ -12,20 +12,13 @@ use App\Http\Controllers\Frontend\ReviewController;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\StripeConnectController;
+use App\Http\Controllers\StripeWebhookController;
 
-Route::get('/_intent-debug', function () {
-    try {
-        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-        $pi = \Stripe\PaymentIntent::create([
-            'amount' => 500,
-            'currency' => 'eur',
-            'payment_method_types' => ['card'],
-        ]);
-        return ['ok' => true, 'client_secret_prefix' => substr($pi->client_secret, 0, 12)];
-    } catch (\Throwable $e) {
-        return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);
-    }
-})->middleware('auth');
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
+
+Route::post('/checkout/shipping', [\App\Http\Controllers\Frontend\CheckoutController::class, 'shipping'])
+    ->middleware('auth')
+    ->name('checkout.shipping');
 
 
 Route::post('/checkout/intent', [CheckoutController::class, 'intent'])
