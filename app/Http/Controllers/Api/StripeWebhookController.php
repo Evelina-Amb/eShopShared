@@ -7,60 +7,94 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Stripe\Stripe;
 use Stripe\Webhook;
+use Stripe\Transfer;
 
 class StripeWebhookController extends Controller
 {
     public function handle(Request $request, OrderService $orderService)
     {
+        Stripe::setApiKey(config('services.stripe.secret'));
+
         $payload = $request->getContent();
         $sigHeader = $request->header('Stripe-Signature');
-
         $secret = config('services.stripe.webhook_secret');
 
         try {
-            if ($secret) {
-                $event = Webhook::constructEvent($payload, $sigHeader, $secret);
-            } else {
-                $event = json_decode($payload);
-            }
+            $event = $secret
+                ? Webhook::constructEvent($payload, $sigHeader, $secret)
+                : json_decode($payload);
         } catch (\Throwable $e) {
-            Log::warning('Stripe webhook signature verification failed: '.$e->getMessage());
+            Log::warning('Stripe webhook signature verification failed: ' . $e->getMessage());
             return response()->json(['error' => 'Invalid signature'], 400);
         }
 
-        if ($event->type === 'payment_intent.succeeded') {
-            $intent = $event->data->object;
+        if ($event->type !== 'payment_intent.succeeded') {
+            return response()->json(['status' => 'ignored']);
+        }
 
-            $order = Order::where('payment_intent_id', $intent->id)->first();
+        $intent = $event->data->object;
 
-            if (!$order) {
-                Log::warning("Stripe webhook: order not found for intent {$intent->id}");
-                return response()->json(['status' => 'ok']);
-            }
+        $order = Order::with('orderItem.Listing.user')
+            ->where('payment_intent_id', $intent->id)
+            ->first();
 
-            if ($order->statusas === Order::STATUS_PAID) {
-                return response()->json(['status' => 'ok']);
-            }
-
-           $orderService->markPaidAndFinalize($order);
-
+        if (!$order) {
+            Log::warning("Stripe webhook: order not found for intent {$intent->id}");
             return response()->json(['status' => 'ok']);
         }
 
-        if ($event->type === 'payment_intent.payment_failed') {
-            $intent = $event->data->object;
+        if ($order->statusas === Order::STATUS_PAID) {
+            return response()->json(['status' => 'ok']);
+        }
 
-            $order = Order::where('payment_intent_id', $intent->id)->first();
-            if ($order && $order->statusas !== Order::STATUS_PAID) {
-                $order->update([
-                    'statusas' => Order::STATUS_FAILED,
+        $splits = $order->payment_intents ?? [];
+
+        if (!is_array($splits) || empty($splits)) {
+            Log::error("Order {$order->id} missing split data");
+            return response()->json(['status' => 'error'], 500);
+        }
+
+        $transferGroup = 'order_' . $order->id;
+
+        foreach ($splits as $index => $split) {
+            if (!empty($split['transfer_id'])) {
+                continue; 
+            }
+
+            try {
+                $transfer = Transfer::create([
+                    'amount' => (int) $split['seller_amount_cents'],
+                    'currency' => 'eur',
+                    'destination' => $split['stripe_account_id'],
+                    'transfer_group' => $transferGroup,
+                    'metadata' => [
+                        'order_id' => $order->id,
+                        'seller_id' => $split['seller_id'],
+                    ],
+                ], [
+                    // prevents duplicate payouts on webhook retries
+                    'idempotency_key' => "order_{$order->id}_seller_{$split['seller_id']}",
                 ]);
-            }
 
-            return response()->json(['status' => 'ok']);
+                $splits[$index]['transfer_id'] = $transfer->id;
+            } catch (\Throwable $e) {
+                Log::error("Transfer failed for order {$order->id}", [
+                    'error' => $e->getMessage(),
+                ]);
+                return response()->json(['status' => 'error'], 500);
+            }
         }
 
-        return response()->json(['status' => 'ignored']);
+        $order->update([
+            'payment_reference' => $intent->latest_charge ?? null,
+            'payment_intents' => $splits,
+            'statusas' => Order::STATUS_PAID,
+        ]);
+
+        $orderService->markPaidAndFinalize($order);
+
+        return response()->json(['status' => 'ok']);
     }
 }
