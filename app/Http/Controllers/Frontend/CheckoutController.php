@@ -119,7 +119,8 @@ class CheckoutController extends Controller
         'total_cents' => $totalChargedCents,
     ],
 ]);
-
+]);
+        
     public function shipping(Request $request)
     {
         $data = $request->validate([
