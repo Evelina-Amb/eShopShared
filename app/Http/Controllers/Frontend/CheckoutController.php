@@ -71,7 +71,7 @@ $smallOrderFeeCents = $applySmallOrderFee
 
             $platformFee = round($sellerSubtotal * $platformPercent, 2);
 
-            $buyerPays = $sellerSubtotal + $extraFee;
+           $buyerPays = $sellerSubtotal;
             $sellerReceives = $sellerSubtotal - $platformFee;
 
             $sellerSubtotalCents = (int) round($sellerSubtotal * 100);
@@ -90,9 +90,10 @@ $smallOrderFeeCents = $applySmallOrderFee
                 'transfer_id' => null,
             ];
 
-            $totalChargedCents += $buyerPaysCents;
+            $totalChargedCents += $smallOrderFeeCents;
+            $totalSmallOrderFeeCents = $smallOrderFeeCents;
             $totalPlatformFeeCents += $platformFeeCents;
-            $totalSmallOrderFeeCents += $extraFeeCents;
+
         }
 
         Stripe::setApiKey(config('services.stripe.secret'));
