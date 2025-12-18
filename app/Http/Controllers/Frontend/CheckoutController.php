@@ -109,17 +109,16 @@ class CheckoutController extends Controller
             'small_order_fee_cents' => $totalSmallOrderFeeCents,
         ]);
 
-        return response()->json([
-            'order_id' => $order->id,
-            'client_secret' => $intent->client_secret,
+       return response()->json([
+    'order_id' => $order->id,
+    'client_secret' => $intent->client_secret,
 
-            'breakdown' => [
-        'items_total_cents' => $order->bendra_suma * 100,
+    'breakdown' => [
+        'items_total_cents' => (int) round($order->bendra_suma * 100),
         'small_order_fee_cents' => $totalSmallOrderFeeCents,
         'total_cents' => $totalChargedCents,
     ],
-        ]);
-    }
+]);
 
     public function shipping(Request $request)
     {
