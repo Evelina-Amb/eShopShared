@@ -245,6 +245,7 @@
             <a href="{{ route('stripe.connect') }}"
                class="inline-block mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                 Connect Stripe
+                <br>(platform fee is 10%)
             </a>
         @else
             <h3 class="text-md font-semibold text-green-700">
@@ -252,13 +253,13 @@
             </h3>
 
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                You can now receive payments and post listings.
+                You can now receive payments and post listings. (platform fee is 10%)
             </p>
              @if(auth()->user()->role === 'seller' && auth()->user()->stripe_onboarded)
     <a href="{{ route('stripe.dashboard') }}"
        class="btn btn-outline-primary"
        target="_blank">
-        View Stripe earnings  (platform fee is 10%)
+        View Stripe earnings
     </a>
 @endif
         @endif
