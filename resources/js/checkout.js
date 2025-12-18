@@ -93,3 +93,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
+const breakdown = data.breakdown;
+
+if (breakdown) {
+  const format = (cents) => `€${(cents / 100).toFixed(2)}`;
+
+  document.getElementById("items-total").textContent =
+    format(breakdown.items_total_cents);
+
+  if (breakdown.small_order_fee_cents > 0) {
+    document.getElementById("small-order-fee").textContent =
+      format(breakdown.small_order_fee_cents);
+
+    document.getElementById("small-order-row").classList.remove("hidden");
+  }
+
+  document.getElementById("order-total").textContent =
+    format(breakdown.total_cents);
+}
+
