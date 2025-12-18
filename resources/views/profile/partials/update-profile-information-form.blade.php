@@ -258,7 +258,7 @@
     <a href="{{ route('stripe.dashboard') }}"
        class="btn btn-outline-primary"
        target="_blank">
-        View Stripe earnings
+        View Stripe earnings  (platform fee is 10%)
     </a>
 @endif
         @endif
