@@ -240,12 +240,12 @@
 
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 To receive payments from buyers, you must connect your Stripe account.
+                  <br>(platform fee is 10%)
             </p>
 
             <a href="{{ route('stripe.connect') }}"
                class="inline-block mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                 Connect Stripe
-                <br>(platform fee is 10%)
             </a>
         @else
             <h3 class="text-md font-semibold text-green-700">
