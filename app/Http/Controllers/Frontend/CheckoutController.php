@@ -112,6 +112,12 @@ class CheckoutController extends Controller
         return response()->json([
             'order_id' => $order->id,
             'client_secret' => $intent->client_secret,
+
+            'breakdown' => [
+        'items_total_cents' => $order->bendra_suma * 100,
+        'small_order_fee_cents' => $totalSmallOrderFeeCents,
+        'total_cents' => $totalChargedCents,
+    ],
         ]);
     }
 
