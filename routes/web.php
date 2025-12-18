@@ -12,7 +12,7 @@ use App\Http\Controllers\Frontend\ReviewController;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\StripeConnectController;
-use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\Api\StripeWebhookController;
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
