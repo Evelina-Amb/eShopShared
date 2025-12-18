@@ -248,7 +248,7 @@
             </a>
         @else
             <h3 class="text-md font-semibold text-green-700">
-                Stripe connected ✔
+                Stripe connected
             </h3>
 
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
