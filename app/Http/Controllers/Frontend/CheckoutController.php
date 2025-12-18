@@ -27,106 +27,102 @@ class CheckoutController extends Controller
         return view('frontend.checkout.index', compact('cartItems', 'total'));
     }
 
-    public function intent(OrderService $orderService)
-    {
-        $placeholder = [
-            'address' => '__pending__',
-            'city' => '__pending__',
-            'postal_code' => '__pending__',
-            'country' => '__pending__',
-        ];
+   public function intent(OrderService $orderService)
+{
+    $placeholder = [
+        'address' => '__pending__',
+        'city' => '__pending__',
+        'postal_code' => '__pending__',
+        'country' => '__pending__',
+    ];
 
-        $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
-        $order->load('orderItem.Listing.user');
+    $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
+    $order->load('orderItem.Listing.user');
 
-        $groups = $order->orderItem->groupBy(fn ($item) => $item->Listing->user->id);
+    $groups = $order->orderItem->groupBy(fn ($item) => $item->Listing->user->id);
 
-        $platformPercent = 0.10;
-        $smallOrderThreshold = 5.00;
-        $smallOrderFee = 0.30;
+    $platformPercent = 0.10;
+    $smallOrderThreshold = 5.00;
+    $smallOrderFee = 0.30;
 
-        $splits = [];
-        $totalChargedCents = 0;
-        $totalPlatformFeeCents = 0;
-        $totalSmallOrderFeeCents = 0;
+    $splits = [];
+    $totalChargedCents = 0;
+    $totalPlatformFeeCents = 0;
 
-        $cartTotal = round($order->bendra_suma, 2);
+    $cartTotal = round($order->bendra_suma, 2);
+    $applySmallOrderFee = $cartTotal < $smallOrderThreshold;
+    $smallOrderFeeCents = $applySmallOrderFee
+        ? (int) round($smallOrderFee * 100)
+        : 0;
 
-$applySmallOrderFee = $cartTotal < $smallOrderThreshold;
-$smallOrderFeeCents = $applySmallOrderFee
-    ? (int) round($smallOrderFee * 100)
-    : 0;
+    foreach ($groups as $items) {
+        $seller = $items->first()->Listing->user;
 
-        foreach ($groups as $sellerId => $items) {
-            $seller = $items->first()->Listing->user;
-
-            if (!$seller->stripe_account_id || !$seller->stripe_onboarded) {
-                return response()->json([
-                    'error' => "Seller {$seller->id} is not ready to receive payments."
-                ], 400);
-            }
-
-            $sellerSubtotal = (float) $items->sum(fn ($i) => $i->kaina * $i->kiekis);
-            $sellerSubtotal = round($sellerSubtotal, 2);
-
-            $platformFee = round($sellerSubtotal * $platformPercent, 2);
-
-           $buyerPays = $sellerSubtotal;
-            $sellerReceives = $sellerSubtotal - $platformFee;
-
-            $sellerSubtotalCents = (int) round($sellerSubtotal * 100);
-            $platformFeeCents = (int) round($platformFee * 100);
-            $extraFeeCents = (int) round($extraFee * 100);
-            $buyerPaysCents = (int) round($buyerPays * 100);
-            $sellerReceivesCents = (int) round($sellerReceives * 100);
-
-            $splits[] = [
-                'seller_id' => (int) $seller->id,
-                'stripe_account_id' => (string) $seller->stripe_account_id,
-                'seller_subtotal_cents' => $sellerSubtotalCents,
-                'platform_fee_cents' => $platformFeeCents,
-                'small_order_fee_cents' => $extraFeeCents,
-                'seller_amount_cents' => $sellerReceivesCents,
-                'transfer_id' => null,
-            ];
-
-            $totalChargedCents += $smallOrderFeeCents;
-            $totalSmallOrderFeeCents = $smallOrderFeeCents;
-            $totalPlatformFeeCents += $platformFeeCents;
-
+        if (!$seller->stripe_account_id || !$seller->stripe_onboarded) {
+            return response()->json([
+                'error' => "Seller {$seller->id} is not ready to receive payments."
+            ], 400);
         }
 
-        Stripe::setApiKey(config('services.stripe.secret'));
+        $sellerSubtotal = round(
+            $items->sum(fn ($i) => $i->kaina * $i->kiekis),
+            2
+        );
 
-        $intent = PaymentIntent::create([
-            'amount' => $totalChargedCents,
-            'currency' => 'eur',
-            'automatic_payment_methods' => ['enabled' => true],
-            'metadata' => [
-                'order_id' => (string) $order->id,
-            ],
-        ]);
+        $platformFee = round($sellerSubtotal * $platformPercent, 2);
+        $sellerReceives = $sellerSubtotal - $platformFee;
 
-        $order->update([
-            'payment_provider' => 'stripe',
-            'payment_intent_id' => $intent->id,
-            'payment_intents' => $splits,
-            'amount_charged_cents' => $totalChargedCents,
-            'platform_fee_cents' => $totalPlatformFeeCents,
-            'small_order_fee_cents' => $totalSmallOrderFeeCents,
-        ]);
+        $sellerSubtotalCents = (int) round($sellerSubtotal * 100);
+        $platformFeeCents = (int) round($platformFee * 100);
+        $sellerReceivesCents = (int) round($sellerReceives * 100);
 
-       return response()->json([
-    'order_id' => $order->id,
-    'client_secret' => $intent->client_secret,
+        $splits[] = [
+            'seller_id' => (int) $seller->id,
+            'stripe_account_id' => (string) $seller->stripe_account_id,
+            'seller_subtotal_cents' => $sellerSubtotalCents,
+            'platform_fee_cents' => $platformFeeCents,
+            'small_order_fee_cents' => 0,
+            'seller_amount_cents' => $sellerReceivesCents,
+            'transfer_id' => null,
+        ];
 
-    'breakdown' => [
-        'items_total_cents' => (int) round($order->bendra_suma * 100),
-        'small_order_fee_cents' => $totalSmallOrderFeeCents,
-        'total_cents' => $totalChargedCents,
-    ],
-]);
+        $totalChargedCents += $sellerSubtotalCents;
+        $totalPlatformFeeCents += $platformFeeCents;
     }
+
+    $totalChargedCents += $smallOrderFeeCents;
+
+    Stripe::setApiKey(config('services.stripe.secret'));
+
+    $intent = PaymentIntent::create([
+        'amount' => $totalChargedCents,
+        'currency' => 'eur',
+        'automatic_payment_methods' => ['enabled' => true],
+        'metadata' => [
+            'order_id' => (string) $order->id,
+        ],
+    ]);
+
+    $order->update([
+        'payment_provider' => 'stripe',
+        'payment_intent_id' => $intent->id,
+        'payment_intents' => $splits,
+        'amount_charged_cents' => $totalChargedCents,
+        'platform_fee_cents' => $totalPlatformFeeCents,
+        'small_order_fee_cents' => $smallOrderFeeCents,
+    ]);
+
+    return response()->json([
+        'order_id' => $order->id,
+        'client_secret' => $intent->client_secret,
+        'breakdown' => [
+            'items_total_cents' => (int) round($order->bendra_suma * 100),
+            'small_order_fee_cents' => $smallOrderFeeCents,
+            'total_cents' => $totalChargedCents,
+        ],
+    ]);
+}
+
         
     public function shipping(Request $request)
     {
