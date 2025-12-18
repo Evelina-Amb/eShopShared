@@ -3,13 +3,21 @@ import { loadStripe } from "@stripe/stripe-js";
 document.addEventListener("DOMContentLoaded", async () => {
   const form = document.getElementById("checkout-form");
   const errorBox = document.getElementById("checkout-error");
+  const payButton = document.getElementById("pay-button");
 
   if (!form) return;
 
-  const stripeKey = document.querySelector('meta[name="stripe-key"]')?.content;
-  if (!stripeKey) return;
+  const stripeKey = document.querySelector('meta[name="stripe-key"]')?.getAttribute("content");
+  const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+
+  if (!stripeKey || !csrf) {
+    errorBox.textContent = "Stripe configuration error.";
+    errorBox.classList.remove("hidden");
+    return;
+  }
 
   const stripe = await loadStripe(stripeKey);
+
   let elements;
   let orderId;
 
@@ -17,42 +25,71 @@ document.addEventListener("DOMContentLoaded", async () => {
     const res = await fetch("/checkout/intent", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         "Accept": "application/json",
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+        "X-CSRF-TOKEN": csrf,
       },
-      body: JSON.stringify({}),
     });
 
     const data = await res.json();
-    if (!res.ok || !data.client_secret) {
-      throw new Error(data.error || "Failed to initialize payment");
+    if (!res.ok || !data.client_secret || !data.order_id) {
+      throw new Error(data?.error || "Failed to initialize payment");
     }
 
     orderId = data.order_id;
 
     elements = stripe.elements({ clientSecret: data.client_secret });
     elements.create("payment").mount("#payment-element");
-
   } catch (err) {
-    errorBox.textContent = err.message;
+    errorBox.textContent = err.message || "Failed to initialize payment";
     errorBox.classList.remove("hidden");
     return;
   }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    errorBox.classList.add("hidden");
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/checkout/success?order_id=${orderId}`,
-      },
-    });
+    if (payButton) {
+      payButton.disabled = true;
+      payButton.textContent = "Processing…";
+    }
 
-    if (error) {
-      errorBox.textContent = error.message;
+    try {
+      const address = document.getElementById("address").value;
+      const city = document.getElementById("city").value;
+      const postal_code = document.getElementById("postal_code").value;
+      const country = document.getElementById("country").value;
+
+      const shipRes = await fetch("/checkout/shipping", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CSRF-TOKEN": csrf,
+        },
+        body: JSON.stringify({ order_id: orderId, address, city, postal_code, country }),
+      });
+
+      const shipData = await shipRes.json().catch(() => ({}));
+      if (!shipRes.ok) {
+        throw new Error(shipData?.error || "Failed to save shipping address.");
+      }
+
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout/success?order_id=${encodeURIComponent(orderId)}`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (err) {
+      errorBox.textContent = err.message || "Payment failed.";
       errorBox.classList.remove("hidden");
+      if (payButton) {
+        payButton.disabled = false;
+        payButton.textContent = "Pay again";
+      }
     }
   });
 });
