@@ -63,9 +63,6 @@ class OrderService
             ->lockForUpdate()
             ->findOrFail($order->id);
 
-        if ($order->statusas === Order::STATUS_PAID) {
-            return;
-        }
 
         $order->update([
             'statusas' => Order::STATUS_PAID,
