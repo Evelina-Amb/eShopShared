@@ -50,6 +50,13 @@ class CheckoutController extends Controller
         $totalPlatformFeeCents = 0;
         $totalSmallOrderFeeCents = 0;
 
+        $cartTotal = round($order->bendra_suma, 2);
+
+$applySmallOrderFee = $cartTotal < $smallOrderThreshold;
+$smallOrderFeeCents = $applySmallOrderFee
+    ? (int) round($smallOrderFee * 100)
+    : 0;
+
         foreach ($groups as $sellerId => $items) {
             $seller = $items->first()->Listing->user;
 
@@ -63,7 +70,6 @@ class CheckoutController extends Controller
             $sellerSubtotal = round($sellerSubtotal, 2);
 
             $platformFee = round($sellerSubtotal * $platformPercent, 2);
-            $extraFee = $sellerSubtotal < $smallOrderThreshold ? $smallOrderFee : 0.00;
 
             $buyerPays = $sellerSubtotal + $extraFee;
             $sellerReceives = $sellerSubtotal - $platformFee;
