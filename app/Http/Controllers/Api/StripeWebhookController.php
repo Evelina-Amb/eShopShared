@@ -90,7 +90,6 @@ class StripeWebhookController extends Controller
         $order->update([
             'payment_reference' => $intent->latest_charge ?? null,
             'payment_intents' => $splits,
-            'statusas' => Order::STATUS_PAID,
         ]);
 
         $orderService->markPaidAndFinalize($order);
