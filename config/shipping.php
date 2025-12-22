@@ -2,41 +2,33 @@
 
 return [
 
-    // LT only Prices in CENTS.
+    // Lithuania only  ALL VALUES IN CENTS
     'carriers' => [
         'omniva' => [
             'label' => 'Omniva',
             'prices_cents' => [
-         'XS' => 2.50,
-        'S'  => 3.00,
-        'M'  => 3.50,
-        'L'  => 4.50,
+                'XS' => 250,
+                'S'  => 300,
+                'M'  => 350,
+                'L'  => 450,
             ],
         ],
+
         'venipak' => [
             'label' => 'Venipak',
             'prices_cents' => [
-        'XS' => 2.00,
-        'S'  => 2.80,
-        'M'  => 3.30,
-        'L'  => 4.00,
-            ],
-        ],
-        'lpexpress' => [
-            'label' => 'LP Express',
-            'prices_cents' => [
-                'XS' => 2.00,
-                'S' => 249,
-                'M' => 349,
-                'L' => 449,
+                'XS' => 200,
+                'S'  => 280,
+                'M'  => 330,
+                'L'  => 400,
             ],
         ],
     ],
 
     'size_rank' => [
         'XS' => 1,
-        'S' => 2,
-        'M' => 3,
-        'L' => 4,
+        'S'  => 2,
+        'M'  => 3,
+        'L'  => 4,
     ],
 ];
