@@ -38,7 +38,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     orderId = data.order_id;
 
-    /* ---------- RENDER BREAKDOWN ---------- */
     if (data.breakdown) {
       const format = (cents) => `€${(cents / 100).toFixed(2)}`;
 
@@ -52,11 +51,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("small-order-row").classList.remove("hidden");
       }
 
+      if (data.breakdown.shipping_total_cents > 0) {
+        document.getElementById("shipping-fee").textContent =
+          format(data.breakdown.shipping_total_cents);
+
+        document.getElementById("shipping-row").classList.remove("hidden");
+      }
+
       document.getElementById("order-total").textContent =
         format(data.breakdown.total_cents);
     }
 
-    /* ---------- STRIPE ELEMENT ---------- */
     elements = stripe.elements({ clientSecret: data.client_secret });
     elements.create("payment").mount("#payment-element");
 
@@ -66,7 +71,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  /* ---------- SUBMIT ---------- */
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorBox.classList.add("hidden");
@@ -79,6 +83,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       const city = document.getElementById("city").value;
       const postal_code = document.getElementById("postal_code").value;
       const country = document.getElementById("country").value;
+
+      const shippingSelections = {};
+      document.querySelectorAll('input[name^="shipping["]:checked').forEach(el => {
+        const sellerId = el.name.match(/\d+/)?.[0];
+        if (sellerId) {
+          shippingSelections[sellerId] = el.value;
+        }
+      });
 
       const shipRes = await fetch("/checkout/shipping", {
         method: "POST",
@@ -93,6 +105,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           city,
           postal_code,
           country,
+          shipping: shippingSelections,
         }),
       });
 
