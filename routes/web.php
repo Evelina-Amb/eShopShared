@@ -19,6 +19,10 @@ Route::middleware('auth')->get('/dev/shipments', function () {
     return OrderShipment::all();
 });
 
+Route::post('/dev/approve-shipment/{shipment}', function (OrderShipment $shipment) {
+    $shipment->update(['status' => 'approved']);
+    return ['ok' => true];
+})->middleware('auth');
 
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
