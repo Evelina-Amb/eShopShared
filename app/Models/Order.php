@@ -28,6 +28,7 @@ class Order extends Model
         'amount_charged_cents',
         'platform_fee_cents',
         'small_order_fee_cents',
+        'shipping_total_cents',
     ];
 
     protected $casts = [
@@ -37,6 +38,7 @@ class Order extends Model
         'amount_charged_cents' => 'integer',
         'platform_fee_cents' => 'integer',
         'small_order_fee_cents' => 'integer',
+        'shipping_total_cents' => 'integer',
     ];
 
     public function user()
@@ -47,5 +49,10 @@ class Order extends Model
     public function orderItem()
     {
         return $this->hasMany(OrderItem::class, 'order_id');
+    }
+
+    public function shipments()
+    {
+        return $this->hasMany(OrderShipment::class, 'order_id');
     }
 }
