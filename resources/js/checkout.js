@@ -7,8 +7,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (!form) return;
 
-  const stripeKey = document.querySelector('meta[name="stripe-key"]')?.getAttribute("content");
-  const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+  const stripeKey = document
+    .querySelector('meta[name="stripe-key"]')
+    ?.getAttribute("content");
+  const csrf = document
+    .querySelector('meta[name="csrf-token"]')
+    ?.getAttribute("content");
 
   if (!stripeKey || !csrf) {
     errorBox.textContent = "Stripe configuration error.";
@@ -25,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const res = await fetch("/checkout/intent", {
       method: "POST",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
         "X-CSRF-TOKEN": csrf,
       },
     });
@@ -38,33 +42,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     orderId = data.order_id;
 
-    if (data.breakdown) {
-      const format = (cents) => `€${(cents / 100).toFixed(2)}`;
+    const format = (cents) => `€${(cents / 100).toFixed(2)}`;
 
-      document.getElementById("items-total").textContent =
-        format(data.breakdown.items_total_cents);
+    // Fill initial totals
+    document.getElementById("items-total").textContent =
+      format(data.breakdown.items_total_cents);
 
-      if (data.breakdown.small_order_fee_cents > 0) {
-        document.getElementById("small-order-fee").textContent =
-          format(data.breakdown.small_order_fee_cents);
-
-        document.getElementById("small-order-row").classList.remove("hidden");
-      }
-
-      if (data.breakdown.shipping_total_cents > 0) {
-        document.getElementById("shipping-fee").textContent =
-          format(data.breakdown.shipping_total_cents);
-
-        document.getElementById("shipping-row").classList.remove("hidden");
-      }
-
-      document.getElementById("order-total").textContent =
-        format(data.breakdown.total_cents);
+    if (data.breakdown.small_order_fee_cents > 0) {
+      document.getElementById("small-order-fee").textContent =
+        format(data.breakdown.small_order_fee_cents);
+      document.getElementById("small-order-row").classList.remove("hidden");
     }
+
+    document.getElementById("shipping-total").textContent = "—";
+    document.getElementById("order-total").textContent =
+      format(data.breakdown.total_cents);
 
     elements = stripe.elements({ clientSecret: data.client_secret });
     elements.create("payment").mount("#payment-element");
-
   } catch (err) {
     errorBox.textContent = err.message || "Failed to initialize payment";
     errorBox.classList.remove("hidden");
@@ -83,20 +78,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       const city = document.getElementById("city").value;
       const postal_code = document.getElementById("postal_code").value;
       const country = document.getElementById("country").value;
+      const carrier = document.getElementById("shipping-carrier").value;
 
-      const shippingSelections = {};
-      document.querySelectorAll('input[name^="shipping["]:checked').forEach(el => {
-        const sellerId = el.name.match(/\d+/)?.[0];
-        if (sellerId) {
-          shippingSelections[sellerId] = el.value;
-        }
-      });
-
+      // Save shipping + update Stripe amount
       const shipRes = await fetch("/checkout/shipping", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
           "X-CSRF-TOKEN": csrf,
         },
         body: JSON.stringify({
@@ -105,24 +94,33 @@ document.addEventListener("DOMContentLoaded", async () => {
           city,
           postal_code,
           country,
-          shipping: shippingSelections,
+          carrier,
         }),
       });
 
+      const shipData = await shipRes.json().catch(() => ({}));
       if (!shipRes.ok) {
-        const d = await shipRes.json().catch(() => ({}));
-        throw new Error(d?.error || "Failed to save shipping");
+        throw new Error(shipData?.error || "Failed to save shipping");
       }
 
+      const format = (cents) => `€${(cents / 100).toFixed(2)}`;
+
+      document.getElementById("shipping-total").textContent =
+        format(shipData.shipping_total_cents);
+      document.getElementById("order-total").textContent =
+        format(shipData.total_cents);
+
+      // Confirm payment
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/checkout/success?order_id=${encodeURIComponent(orderId)}`,
+          return_url: `${window.location.origin}/checkout/success?order_id=${encodeURIComponent(
+            orderId
+          )}`,
         },
       });
 
       if (error) throw error;
-
     } catch (err) {
       errorBox.textContent = err.message || "Payment failed.";
       errorBox.classList.remove("hidden");
