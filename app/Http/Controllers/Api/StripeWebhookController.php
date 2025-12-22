@@ -26,7 +26,9 @@ class StripeWebhookController extends Controller
                 ? Webhook::constructEvent($payload, $sigHeader, $secret)
                 : json_decode($payload);
         } catch (\Throwable $e) {
-            Log::warning('Stripe webhook signature verification failed: ' . $e->getMessage());
+            Log::warning('Stripe webhook signature verification failed', [
+                'error' => $e->getMessage(),
+            ]);
             return response()->json(['error' => 'Invalid signature'], 400);
         }
 
@@ -38,10 +40,13 @@ class StripeWebhookController extends Controller
 
         $order = Order::with('orderItem.Listing.user')
             ->where('payment_intent_id', $intent->id)
+            ->lockForUpdate()
             ->first();
 
         if (!$order) {
-            Log::warning("Stripe webhook: order not found for intent {$intent->id}");
+            Log::warning('Stripe webhook: order not found', [
+                'payment_intent' => $intent->id,
+            ]);
             return response()->json(['status' => 'ok']);
         }
 
@@ -52,15 +57,17 @@ class StripeWebhookController extends Controller
         $splits = $order->payment_intents ?? [];
 
         if (!is_array($splits) || empty($splits)) {
-            Log::error("Order {$order->id} missing split data");
-            return response()->json(['status' => 'error'], 500);
+            Log::error('Stripe webhook: missing payment split data', [
+                'order_id' => $order->id,
+            ]);
+            return response()->json(['error' => 'Missing split data'], 500);
         }
 
         $transferGroup = 'order_' . $order->id;
 
         foreach ($splits as $index => $split) {
             if (!empty($split['transfer_id'])) {
-                continue; 
+                continue;
             }
 
             try {
@@ -70,26 +77,30 @@ class StripeWebhookController extends Controller
                     'destination' => $split['stripe_account_id'],
                     'transfer_group' => $transferGroup,
                     'metadata' => [
-                        'order_id' => $order->id,
+                        'order_id'  => $order->id,
                         'seller_id' => $split['seller_id'],
                     ],
                 ], [
-                    // prevents duplicate payouts on webhook retries
                     'idempotency_key' => "order_{$order->id}_seller_{$split['seller_id']}",
                 ]);
 
                 $splits[$index]['transfer_id'] = $transfer->id;
+
             } catch (\Throwable $e) {
-                Log::error("Transfer failed for order {$order->id}", [
+                Log::error('Stripe transfer failed', [
+                    'order_id' => $order->id,
+                    'seller_id' => $split['seller_id'],
                     'error' => $e->getMessage(),
                 ]);
-                return response()->json(['status' => 'error'], 500);
+
+                return response()->json(['error' => 'Transfer failed'], 500);
             }
         }
 
         $order->update([
             'payment_reference' => $intent->latest_charge ?? null,
-            'payment_intents' => $splits,
+            'payment_intents'   => $splits,
+            'transfer_group'    => $transferGroup,
         ]);
 
         $orderService->markPaidAndFinalize($order);
