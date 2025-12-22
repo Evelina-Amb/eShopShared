@@ -9,20 +9,36 @@ return new class extends Migration {
     {
         Schema::create('order_shipments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('seller_id');
 
-            $table->string('carrier', 30)->default('omniva');     // omniva / venipak / lpexpress
-            $table->string('package_size', 2)->default('S');      // S/M/L
-            $table->integer('price_cents')->default(0);
+            $table->foreignId('order_id')
+                ->constrained('order')
+                ->cascadeOnDelete();
 
-            $table->string('status', 20)->default('pending');     // pending/shipped/delivered
+            $table->foreignId('seller_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
+            $table->string('carrier', 20);        
+            $table->string('package_size', 2);     
+
+        
+            $table->integer('shipping_cents');      // what buyer paid & seller will be reimbursed
+
+            // Shipment lifecycle
+            $table->enum('status', [
+                'pending',      // waiting for seller to ship
+                'shipped',      // seller uploaded tracking/proof
+                'approved',     // admin or auto-approved
+                'reimbursed'    // shipping money sent to seller
+            ])->default('pending');
+
             $table->string('tracking_number')->nullable();
+            $table->string('proof_path')->nullable(); // image/pdf receipt
+
+            // Stripe reimbursement
+            $table->string('reimbursement_transfer_id')->nullable();
 
             $table->timestamps();
-
-            $table->foreign('order_id')->references('id')->on('order')->onDelete('cascade');
-            $table->foreign('seller_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->index(['order_id', 'seller_id']);
         });
