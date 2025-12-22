@@ -54,6 +54,11 @@
                     <span>Small order fee</span>
                     <span id="small-order-fee">—</span>
                 </div>
+                
+                <div class="flex justify-between text-sm">
+                    <span>Shipping total</span>
+                    <span id="shipping-total">—</span>
+                </div>
 
                 <hr class="my-3">
 
