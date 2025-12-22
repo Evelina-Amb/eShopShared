@@ -87,6 +87,19 @@
         {{-- PRODUCT ONLY FIELDS --}}
         <div x-show="type === 'preke'" x-transition>
 
+               {{-- PACKAGE SIZE --}}
+            <div class="mb-4">
+                <label class="block font-semibold">Package size</label>
+                <select name="package_size" class="w-full border rounded p-2" required>
+                    <option value="S">S — Small (fits locker)</option>
+                    <option value="M">M — Medium</option>
+                    <option value="L">L — Large</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">
+                    Used to calculate shipping price. Seller ships manually.
+                </p>
+            </div>
+             
             {{-- QUANTITY --}}
             <div class="mb-4">
                 <label class="font-semibold">Available Quantity</label>
