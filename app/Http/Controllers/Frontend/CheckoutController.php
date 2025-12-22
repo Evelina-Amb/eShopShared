@@ -70,7 +70,6 @@ class CheckoutController extends Controller
         $splits = [];
         $totalChargedCents = 0;
         $totalPlatformFeeCents = 0;
-        $totalShippingCents = 0;
 
         $cartTotal = round($order->bendra_suma, 2);
         $applySmallOrderFee = $cartTotal < $smallOrderThreshold;
@@ -135,6 +134,7 @@ class CheckoutController extends Controller
             'amount_charged_cents' => $totalChargedCents,
             'platform_fee_cents' => $totalPlatformFeeCents,
             'small_order_fee_cents' => $smallOrderFeeCents,
+            'shipping_total_cents' => 0,
         ]);
 
         return response()->json([
@@ -143,7 +143,7 @@ class CheckoutController extends Controller
             'breakdown' => [
                 'items_total_cents' => (int) round($order->bendra_suma * 100),
                 'small_order_fee_cents' => $smallOrderFeeCents,
-                'shipping_cents' => 0,
+                'shipping_total_cents' => 0,
                 'total_cents' => $totalChargedCents,
             ],
         ]);
@@ -153,7 +153,7 @@ class CheckoutController extends Controller
     {
         $data = $request->validate([
             'order_id' => 'required|integer',
-            'carrier' => 'required|string',
+            'carrier'  => 'required|in:omniva,venipak',
         ]);
 
         $order = Order::with('orderItem.Listing.user')
@@ -166,25 +166,38 @@ class CheckoutController extends Controller
         }
 
         $splits = $order->payment_intents ?? [];
+        if (!is_array($splits) || empty($splits)) {
+            return response()->json(['error' => 'Missing split data.'], 500);
+        }
+
         $shippingTotalCents = 0;
 
         foreach ($splits as &$split) {
-            $price = $this->carrierPriceCents(
-                $data['carrier'],
-                $split['package_size']
-            );
+            $size = $split['package_size'] ?? 'S';
 
-            $split['shipping_cents'] = $price;
-            $shippingTotalCents += $price;
+            $priceCents = $this->carrierPriceCents($data['carrier'], $size);
+
+            $split['shipping_cents'] = (int) $priceCents;
+            $shippingTotalCents += (int) $priceCents;
         }
+        unset($split);
+
+        $newTotalCents = (int) $order->amount_charged_cents + (int) $shippingTotalCents;
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+        PaymentIntent::update($order->payment_intent_id, [
+            'amount' => $newTotalCents,
+        ]);
 
         $order->update([
             'payment_intents' => $splits,
-            'amount_charged_cents' => $order->amount_charged_cents + $shippingTotalCents,
+            'shipping_total_cents' => $shippingTotalCents,
+            'amount_charged_cents' => $newTotalCents,
         ]);
 
         return response()->json([
-            'shipping_cents' => $shippingTotalCents,
+            'shipping_total_cents' => $shippingTotalCents,
+            'total_cents' => $newTotalCents,
         ]);
     }
 
