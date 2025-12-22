@@ -15,35 +15,45 @@ class ReimburseShippingJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $shipmentId;
+
+    public function __construct(int $shipmentId)
+    {
+        $this->shipmentId = $shipmentId;
+    }
+
     public function handle(): void
     {
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $shipments = OrderShipment::where('status', 'approved')
+        $shipment = OrderShipment::where('id', $this->shipmentId)
+            ->where('status', 'approved')
             ->whereNull('reimbursement_transfer_id')
-            ->get();
+            ->first();
 
-        foreach ($shipments as $shipment) {
-            $seller = $shipment->seller;
-
-            if (!$seller || !$seller->stripe_account_id) {
-                continue;
-            }
-
-            $transfer = Transfer::create([
-                'amount' => $shipment->shipping_cents,
-                'currency' => 'eur',
-                'destination' => $seller->stripe_account_id,
-                'metadata' => [
-                    'order_id' => $shipment->order_id,
-                    'shipment_id' => $shipment->id,
-                ],
-            ]);
-
-            $shipment->update([
-                'status' => 'reimbursed',
-                'reimbursement_transfer_id' => $transfer->id,
-            ]);
+        if (!$shipment) {
+            return;
         }
+
+        $seller = $shipment->seller;
+
+        if (!$seller || !$seller->stripe_account_id) {
+            return;
+        }
+
+        $transfer = Transfer::create([
+            'amount' => $shipment->price_cents,
+            'currency' => 'eur',
+            'destination' => $seller->stripe_account_id,
+            'metadata' => [
+                'order_id' => $shipment->order_id,
+                'shipment_id' => $shipment->id,
+            ],
+        ]);
+
+        $shipment->update([
+            'status' => 'reimbursed',
+            'reimbursement_transfer_id' => $transfer->id,
+        ]);
     }
 }
