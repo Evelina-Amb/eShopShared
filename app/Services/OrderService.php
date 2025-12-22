@@ -88,6 +88,16 @@ class OrderService
 
             $listing->save();
         }
+         foreach ($order->payment_intents as $split) {
+            OrderShipment::create([
+                'order_id'     => $order->id,
+                'seller_id'    => $split['seller_id'],
+                'carrier'      => $order->shipping_address['carrier'] ?? 'omniva',
+                'package_size' => $split['package_size'] ?? 'S',
+                'price_cents'  => $split['shipping_cents'] ?? 0,
+                'status'       => 'pending',
+            ]);
+        }
         Cart::where('user_id', $order->user_id)->delete();
     });
 }
