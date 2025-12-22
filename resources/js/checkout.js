@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   let elements;
   let orderId;
 
+  const format = (cents) => `€${(cents / 100).toFixed(2)}`;
+
   try {
     const res = await fetch("/checkout/intent", {
       method: "POST",
@@ -42,9 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     orderId = data.order_id;
 
-    const format = (cents) => `€${(cents / 100).toFixed(2)}`;
-
-    // Fill initial totals
+    // Initial totals
     document.getElementById("items-total").textContent =
       format(data.breakdown.items_total_cents);
 
@@ -66,6 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorBox.classList.add("hidden");
@@ -74,10 +75,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     payButton.textContent = "Processing…";
 
     try {
-      const address = document.getElementById("address").value;
-      const city = document.getElementById("city").value;
-      const postal_code = document.getElementById("postal_code").value;
-      const country = document.getElementById("country").value;
       const carrier = document.getElementById("shipping-carrier").value;
 
       // Save shipping + update Stripe amount
@@ -90,27 +87,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
         body: JSON.stringify({
           order_id: orderId,
-          address,
-          city,
-          postal_code,
-          country,
           carrier,
         }),
       });
 
       const shipData = await shipRes.json().catch(() => ({}));
+
       if (!shipRes.ok) {
         throw new Error(shipData?.error || "Failed to save shipping");
       }
 
-      const format = (cents) => `€${(cents / 100).toFixed(2)}`;
-
+      // Update totals
       document.getElementById("shipping-total").textContent =
         format(shipData.shipping_total_cents);
+
       document.getElementById("order-total").textContent =
         format(shipData.total_cents);
 
-      // Confirm payment
+      // 2️⃣ Confirm payment
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
