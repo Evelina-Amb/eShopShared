@@ -36,7 +36,7 @@ class ListingCreateController extends Controller
             'photos.*'      => 'nullable|image|max:4096',
             'kiekis'        => 'required|integer|min:1',
             'is_renewable'  => 'nullable|boolean',
-            'package_size'  => 'required|in:S,M,L',
+            'package_size' => 'required_if:tipas,preke|in:XS,S,M,L',
         ]);
 
         $data['user_id']      = auth()->id();
@@ -94,7 +94,7 @@ class ListingCreateController extends Controller
             'kiekis'        => 'required|integer|min:1',
             'is_renewable'  => 'nullable|boolean',
             'photos.*'      => 'nullable|image|max:4096',
-            'package_size'  => 'required|in:S,M,L',
+            'package_size' => 'required_if:tipas,preke|in:XS,S,M,L',
         ]);
 
         $data['is_renewable'] = $request->has('is_renewable') ? 1 : 0;
