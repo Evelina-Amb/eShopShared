@@ -21,12 +21,13 @@
                     <h2 class="font-semibold mb-2">Shipping method</h2>
 
                     <select id="shipping-carrier" class="w-full border p-2 rounded mb-4">
+                        <option value="omniva">Chose a shipping method</option>
                         <option value="omniva">Omniva (parcel locker)</option>
                         <option value="venipak">Venipak (courier)</option>
                     </select>
 
                     <p class="text-sm text-gray-600 mb-4">
-                        Each seller ships separately. Shipping is paid by the buyer.
+                        Each seller ships separately.
                     </p>
 
                     <h2 class="font-semibold mb-2">Payment</h2>
