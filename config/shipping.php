@@ -7,22 +7,25 @@ return [
         'omniva' => [
             'label' => 'Omniva',
             'prices_cents' => [
-                'S' => 299,
-                'M' => 399,
-                'L' => 499,
+         'XS' => 2.50,
+        'S'  => 3.00,
+        'M'  => 3.50,
+        'L'  => 4.50,
             ],
         ],
         'venipak' => [
             'label' => 'Venipak',
             'prices_cents' => [
-                'S' => 279,
-                'M' => 379,
-                'L' => 479,
+        'XS' => 2.00,
+        'S'  => 2.80,
+        'M'  => 3.30,
+        'L'  => 4.00,
             ],
         ],
         'lpexpress' => [
             'label' => 'LP Express',
             'prices_cents' => [
+                'XS' => 2.00,
                 'S' => 249,
                 'M' => 349,
                 'L' => 449,
@@ -31,8 +34,9 @@ return [
     ],
 
     'size_rank' => [
-        'S' => 1,
-        'M' => 2,
-        'L' => 3,
+        'XS' => 1,
+        'S' => 2,
+        'M' => 3,
+        'L' => 4,
     ],
 ];
