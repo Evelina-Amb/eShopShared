@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\OrderShipment;
+use App\Jobs\ReimburseShippingJob;
 use Illuminate\Http\Request;
 
-class SellerShipmentController extends Controller
+class SellerShipment extends Controller
 {
     public function ship(Request $request, OrderShipment $shipment)
     {
@@ -19,23 +21,17 @@ class SellerShipmentController extends Controller
         ]);
 
         if ($request->hasFile('proof')) {
-            $shipment->proof_path = $request
-                ->file('proof')
+            $shipment->proof_path = $request->file('proof')
                 ->store('shipment_proofs', 'public');
         }
 
-        if (!empty($data['tracking_number'])) {
-            $shipment->tracking_number = $data['tracking_number'];
-        }
+        $shipment->tracking_number = $data['tracking_number'] ?? null;
 
-        if ($shipment->tracking_number || $shipment->proof_path) {
-            $shipment->status = 'approved';
-        } else {
-            $shipment->status = 'pending';
-        }
-
+        $shipment->status = 'approved';
         $shipment->save();
 
-        return back()->with('success', 'Shipment submitted successfully.');
+        ReimburseShippingJob::dispatch($shipment->id);
+
+        return back()->with('success', 'Shipment approved and reimbursement queued.');
     }
 }
