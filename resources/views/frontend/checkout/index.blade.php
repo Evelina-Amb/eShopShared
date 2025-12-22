@@ -30,7 +30,6 @@
 
                     <p class="text-sm text-gray-600 mb-4">
                         Each seller ships separately using the selected carrier.
-                        Shipping cost is paid by the buyer.
                     </p>
 
                     {{-- PAYMENT --}}
