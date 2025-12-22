@@ -89,16 +89,15 @@
 
                {{-- PACKAGE SIZE --}}
             <div class="mb-4">
-                <label class="block font-semibold">Package size</label>
-                <select name="package_size" class="w-full border rounded p-2" required>
-                    <option value="S">S — Small (fits locker)</option>
-                    <option value="M">M — Medium</option>
-                    <option value="L">L — Large</option>
-                </select>
-                <p class="text-xs text-gray-500 mt-1">
-                    Used to calculate shipping price. Seller ships manually.
-                </p>
-            </div>
+    <label class="font-semibold">Package size</label>
+    <select name="package_size" class="w-full border p-2 rounded" required>
+        <option value="">Select size</option>
+        <option value="XS">XS – Envelope</option>
+        <option value="S">S – Small box</option>
+        <option value="M">M – Medium box</option>
+        <option value="L">L – Large box</option>
+    </select>
+</div>
              
             {{-- QUANTITY --}}
             <div class="mb-4">
