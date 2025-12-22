@@ -49,6 +49,45 @@ class CheckoutController extends Controller
         return (int) ($prices[$size] ?? 0);
     }
 
+public function previewShipping(Request $request)
+{
+    $data = $request->validate([
+        'order_id' => 'required|integer',
+        'carrier'  => 'required|in:omniva,venipak',
+    ]);
+
+    $order = Order::with('orderItem.Listing.user')
+        ->where('id', $data['order_id'])
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+    if ($order->statusas !== Order::STATUS_PENDING) {
+        return response()->json(['error' => 'Order not pending'], 400);
+    }
+
+    $splits = $order->payment_intents;
+    $shippingTotalCents = 0;
+
+    foreach ($splits as &$split) {
+        $size = $split['package_size'] ?? 'S';
+        $price = $this->carrierPriceCents($data['carrier'], $size);
+        $split['shipping_cents'] = $price;
+        $shippingTotalCents += $price;
+    }
+
+    $newTotal = $order->amount_charged_cents + $shippingTotalCents;
+
+    $order->update([
+        'payment_intents' => $splits,
+        'shipping_total_cents' => $shippingTotalCents,
+    ]);
+
+    return response()->json([
+        'shipping_total_cents' => $shippingTotalCents,
+        'total_cents' => $newTotal,
+    ]);
+}
+    
     public function intent(OrderService $orderService)
     {
         $placeholder = [
