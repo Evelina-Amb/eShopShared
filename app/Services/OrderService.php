@@ -6,6 +6,7 @@ use App\Models\OrderItem;
 use App\Models\Listing;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\OrderShipment;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
