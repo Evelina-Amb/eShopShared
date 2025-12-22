@@ -16,6 +16,10 @@ use App\Http\Controllers\Api\StripeWebhookController;
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
+Route::post('/checkout/shipment', [\App\Http\Controllers\Frontend\CheckoutController::class, 'shipment'])
+    ->middleware('auth')
+    ->name('checkout.shipment');
+
 Route::post('/checkout/shipping', [\App\Http\Controllers\Frontend\CheckoutController::class, 'shipping'])
     ->middleware('auth')
     ->name('checkout.shipping');
