@@ -26,7 +26,10 @@ class SellerShipment extends Controller
         'tracking_number' => $data['tracking_number'] ?? null,
         'status' => 'shipped',
     ]);
-
+    
+if ($shipment->tracking_number || $shipment->proof_path) {
+            $shipment->update(['status' => 'approved']);
+        }
     return back()->with('success', 'Shipment marked as shipped.');
 }
 
