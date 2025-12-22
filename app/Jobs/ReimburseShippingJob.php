@@ -10,6 +10,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Stripe\Stripe;
 use Stripe\Transfer;
+use Illuminate\Support\Facades\Log;
+
 
 class ReimburseShippingJob implements ShouldQueue
 {
@@ -24,6 +26,10 @@ class ReimburseShippingJob implements ShouldQueue
 
     public function handle(): void
     {
+        Log::info('ReimburseShippingJob started', [
+        'shipment_id' => $this->shipmentId,
+    ]);
+        
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $shipment = OrderShipment::where('id', $this->shipmentId)
