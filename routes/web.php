@@ -24,6 +24,9 @@ Route::post('/checkout/shipping', [\App\Http\Controllers\Frontend\CheckoutContro
     ->middleware('auth')
     ->name('checkout.shipping');
 
+Route::post('/checkout/shipping/preview',
+    [CheckoutController::class, 'previewShipping']
+)->middleware('auth');
 
 Route::post('/checkout/intent', [CheckoutController::class, 'intent'])
     ->middleware('auth')
