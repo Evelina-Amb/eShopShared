@@ -87,6 +87,18 @@
                 </select>
             </div>
 
+              {{-- SIZE --}}
+            <div class="mb-4">
+    <label class="font-semibold">Package size</label>
+    <select name="package_size" class="w-full border p-2 rounded" required>
+        <option value="">Select size</option>
+        <option value="XS">XS – Envelope</option>
+        <option value="S">S – Small box</option>
+        <option value="M">M – Medium box</option>
+        <option value="L">L – Large box</option>
+    </select>
+</div>
+
             {{-- QUANTITY --}}
             <div class="mb-4">
                 <label class="font-semibold">Available Quantity</label>
