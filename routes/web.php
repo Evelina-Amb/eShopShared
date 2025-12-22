@@ -19,9 +19,9 @@ Route::middleware('auth')->get('/dev/shipments', function () {
     return OrderShipment::all();
 });
 
-Route::post('/dev/approve-shipment/{shipment}', function (OrderShipment $shipment) {
+Route::match(['get', 'post'], '/dev/approve-shipment/{shipment}', function (OrderShipment $shipment) {
     $shipment->update(['status' => 'approved']);
-    return ['ok' => true];
+    return "Shipment {$shipment->id} approved";
 })->middleware('auth');
 
 
