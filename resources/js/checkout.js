@@ -4,12 +4,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const form = document.getElementById("checkout-form");
   const errorBox = document.getElementById("checkout-error");
   const payButton = document.getElementById("pay-button");
+  const carrierSelect = document.getElementById("shipping-carrier");
 
-  if (!form) return;
+  if (!form || !carrierSelect) return;
 
   const stripeKey = document
     .querySelector('meta[name="stripe-key"]')
     ?.getAttribute("content");
+
   const csrf = document
     .querySelector('meta[name="csrf-token"]')
     ?.getAttribute("content");
@@ -44,7 +46,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     orderId = data.order_id;
 
-    // Initial totals
+    // Initial totals (items + small order fee only)
     document.getElementById("items-total").textContent =
       format(data.breakdown.items_total_cents);
 
@@ -66,6 +68,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  carrierSelect.addEventListener("change", async () => {
+    try {
+      const res = await fetch("/checkout/shipping/preview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-CSRF-TOKEN": csrf,
+        },
+        body: JSON.stringify({
+          order_id: orderId,
+          carrier: carrierSelect.value,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to preview shipping");
+      }
+
+      document.getElementById("shipping-total").textContent =
+        format(data.shipping_total_cents);
+
+      document.getElementById("order-total").textContent =
+        format(data.total_cents);
+
+    } catch (err) {
+      errorBox.textContent = err.message;
+      errorBox.classList.remove("hidden");
+    }
+  });
+
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -75,9 +110,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     payButton.textContent = "Processing…";
 
     try {
-      const carrier = document.getElementById("shipping-carrier").value;
+      const carrier = carrierSelect.value;
 
-      // Save shipping + update Stripe amount
+      // Finalize shipping + update PaymentIntent amount
       const shipRes = await fetch("/checkout/shipping", {
         method: "POST",
         headers: {
@@ -91,20 +126,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }),
       });
 
-      const shipData = await shipRes.json().catch(() => ({}));
+      const shipData = await shipRes.json();
 
       if (!shipRes.ok) {
-        throw new Error(shipData?.error || "Failed to save shipping");
+        throw new Error(shipData?.error || "Failed to finalize shipping");
       }
 
-      // Update totals
       document.getElementById("shipping-total").textContent =
         format(shipData.shipping_total_cents);
 
       document.getElementById("order-total").textContent =
         format(shipData.total_cents);
 
-      // 2️⃣ Confirm payment
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -115,6 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       if (error) throw error;
+
     } catch (err) {
       errorBox.textContent = err.message || "Payment failed.";
       errorBox.classList.remove("hidden");
