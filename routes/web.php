@@ -19,9 +19,12 @@ Route::middleware('auth')->get('/dev/shipments', function () {
     return OrderShipment::all();
 });
 
-Route::match(['get', 'post'], '/dev/approve-shipment/{shipment}', function (OrderShipment $shipment) {
+Route::post('/dev/approve-shipment/{shipment}', function (OrderShipment $shipment) {
     $shipment->update(['status' => 'approved']);
-    return "Shipment {$shipment->id} approved";
+
+    \App\Jobs\ReimburseShippingJob::dispatch($shipment->id);
+
+    return 'Shipment '.$shipment->id.' approved & reimbursement dispatched';
 })->middleware('auth');
 
 
