@@ -13,6 +13,30 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\StripeConnectController;
 use App\Http\Controllers\Api\StripeWebhookController;
+use App\Models\OrderShipment;
+
+Route::middleware('auth')->post(
+    '/dev/approve-shipment/{shipment}',
+    function (OrderShipment $shipment) {
+
+        // Only allow approving own shipment (extra safety)
+        if ($shipment->seller_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Mark approved
+        $shipment->update([
+            'status' => 'approved',
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'shipment_id' => $shipment->id,
+            'status' => $shipment->status,
+        ]);
+    }
+)->name('dev.shipment.approve');
+
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
