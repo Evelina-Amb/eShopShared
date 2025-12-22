@@ -58,7 +58,7 @@
                             </span>
                         </div>
                         <div class="text-sm text-gray-500">
-                            Seller: {{ $item->listing->user->name }}
+                            Seller: {{ $item->listing->user->vardas}}
                         </div>
                     </div>
                 @endforeach
