@@ -90,10 +90,20 @@ public function previewShipping(Request $request)
     
     public function intent(OrderService $orderService)
     {
-       $user = auth()->user()->load('address.city');
+      $user = auth()->user()->load('address.city');
+
+$address = $user->address
+    ? trim(collect([
+        $user->address->street,
+        $user->address->house_number,
+        $user->address->flat_number
+            ? 'Flat ' . $user->address->flat_number
+            : null,
+    ])->filter()->implode(', '))
+    : '';
 
 $placeholder = [
-    'address'     => $user->address->address ?? '',
+    'address'     => $address,
     'city'        => $user->address->city->pavadinimas ?? '',
     'postal_code' => $user->address->postal_code ?? '',
     'country'     => $user->address->country ?? '',
