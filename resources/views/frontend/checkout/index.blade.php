@@ -65,13 +65,6 @@
                     <div id="checkout-error"
                          class="hidden bg-red-100 text-red-700 p-3 mb-3 rounded">
                     </div>
-<div
-    id="shipping-warning"
-    class="hidden bg-red-100 text-red-700 p-3 mb-3 rounded text-sm"
->
-    Please choose a shipping method before proceeding to payment.
-</div>
-
                     <button id="pay-button"
                             class="bg-green-600 text-white w-full py-3 rounded font-semibold">
                         Pay
