@@ -241,8 +241,16 @@ public function previewShipping(Request $request)
     }
 
     public function success(Request $request)
-    {
+{
+    $order = Order::where('user_id', auth()->id())
+        ->latest()
+        ->first();
+
+    if ($order && $order->statusas === Order::STATUS_PAID) {
         Cart::where('user_id', auth()->id())->delete();
-        return view('frontend.checkout.success');
     }
+
+    return view('frontend.checkout.success');
+}
+
 }
