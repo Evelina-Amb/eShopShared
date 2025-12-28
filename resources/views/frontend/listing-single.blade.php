@@ -160,7 +160,7 @@ input[type=number] {
 
     </div>
 
-@endif
+@end
 
                     @if($listing->tipas === 'paslauga')
 
