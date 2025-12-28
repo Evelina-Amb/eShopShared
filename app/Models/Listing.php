@@ -46,4 +46,10 @@ class Listing extends Model
     {
         return $this->review()->avg('ivertinimas');
     }
+
+    public function orderItems()
+{
+    return $this->hasMany(\App\Models\OrderItem::class);
+}
+
 }
