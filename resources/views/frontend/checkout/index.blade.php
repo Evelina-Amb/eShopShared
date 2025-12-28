@@ -16,11 +16,15 @@
                     <input
     type="text"
     name="address"
-    value="{{ old('address', $user->address ? trim(collect([
-        $user->address->street,
-        $user->address->house_number,
-        $user->address->flat_number ? 'Flat '.$user->address->flat_number : null
-    ])->filter()->implode(', ')) : '') }}"
+    value="{{ old('address',
+        $user->address
+            ? trim(collect([
+                $user->address->street_name ?? $user->address->street ?? null,
+                $user->address->house_number ?? null,
+                $user->address->flat_number ? 'Flat '.$user->address->flat_number : null,
+            ])->filter()->implode(' '))
+            : ''
+    ) }}"
     class="w-full border rounded px-3 py-2"
     required
 >
