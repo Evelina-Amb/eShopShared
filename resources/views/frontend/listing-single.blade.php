@@ -193,8 +193,6 @@ input[type=number] {
                                 Add to cart
                             </button>
                         </form>
-
-                    @endif
                 @endif
 
                 {{-- SELLER INFO --}}
