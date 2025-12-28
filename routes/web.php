@@ -14,17 +14,12 @@ use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\StripeConnectController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Models\OrderShipment;
+use App\Http\Controllers\Frontend\ListingController;
 
-Route::middleware('auth')->get('/dev/shipments', function () {
-    return OrderShipment::all();
+Route::middleware('auth')->group(function () {
+    Route::delete('/listing/{listing}', [ListingController::class, 'destroy'])
+        ->name('listing.destroy');
 });
-
-Route::get('/dev/approve-shipment/{shipment}', function (OrderShipment $shipment) {
-    $shipment->update(['status' => 'approved']);
-    \App\Jobs\ReimburseShippingJob::dispatch($shipment->id);
-    return 'Shipment '.$shipment->id.' approved & reimbursement dispatched';
-})->middleware('auth');
-
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
