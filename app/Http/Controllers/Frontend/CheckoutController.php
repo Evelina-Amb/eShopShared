@@ -242,6 +242,7 @@ public function previewShipping(Request $request)
 
     public function success(Request $request)
     {
+        Cart::where('user_id', auth()->id())->delete();
         return view('frontend.checkout.success');
     }
 }
