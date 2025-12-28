@@ -13,10 +13,35 @@
 
                     <h2 class="font-semibold mb-3">Shipping address</h2>
 
-                    <input id="address" class="w-full border p-2 mb-2" placeholder="Address" required>
-                    <input id="city" class="w-full border p-2 mb-2" placeholder="City" required>
+                    <input
+    type="text"
+    name="address"
+    value="{{ old('address', $user->address ? trim(collect([
+        $user->address->street,
+        $user->address->house_number,
+        $user->address->flat_number ? 'Flat '.$user->address->flat_number : null
+    ])->filter()->implode(', ')) : '') }}"
+    class="w-full border rounded px-3 py-2"
+    required
+>
+
+<input
+    type="text"
+    name="city"
+    value="{{ old('city', $user->address->city->pavadinimas ?? '') }}"
+    class="w-full border rounded px-3 py-2"
+    required
+>
+
+<input
+    type="text"
+    name="country"
+    value="{{ old('country', $user->address->country ?? 'Lithuania') }}"
+    class="w-full border rounded px-3 py-2"
+    required
+>                   
                     <input id="postal_code" class="w-full border p-2 mb-2" placeholder="Postal code" required>
-                    <input id="country" class="w-full border p-2 mb-4" placeholder="Country" required>
+                    
 
                     <h2 class="font-semibold mb-2">Shipping method</h2>
 
