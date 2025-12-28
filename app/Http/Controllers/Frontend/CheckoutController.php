@@ -23,7 +23,7 @@ class CheckoutController extends Controller
         }
 
         $total = $cartItems->sum(fn ($i) => $i->listing->kaina * $i->kiekis);
-
+ $user = auth()->user()->load('address.city');
         return view('frontend.checkout.index', compact('cartItems', 'total', 'user'));
     }
 
