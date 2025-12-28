@@ -24,7 +24,7 @@ class CheckoutController extends Controller
 
         $total = $cartItems->sum(fn ($i) => $i->listing->kaina * $i->kiekis);
 
-        return view('frontend.checkout.index', compact('cartItems', 'total'));
+        return view('frontend.checkout.index', compact('cartItems', 'total', 'user'));
     }
 
     private function maxPackageSizeForItems($items): string
@@ -90,12 +90,14 @@ public function previewShipping(Request $request)
     
     public function intent(OrderService $orderService)
     {
-        $placeholder = [
-            'address' => '__pending__',
-            'city' => '__pending__',
-            'postal_code' => '__pending__',
-            'country' => '__pending__',
-        ];
+       $user = auth()->user()->load('address.city');
+
+$placeholder = [
+    'address'     => $user->address->address ?? '',
+    'city'        => $user->address->city->pavadinimas ?? '',
+    'postal_code' => $user->address->postal_code ?? '',
+    'country'     => $user->address->country ?? '',
+];
 
         $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
         $order->load('orderItem.Listing.user');
