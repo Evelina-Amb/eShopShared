@@ -137,12 +137,30 @@ input[type=number] {
                 {{-- CART OR EDIT --}}
                 @if(auth()->check() && auth()->id() === $listing->user_id)
 
-                    <a href="{{ route('listing.edit', $listing->id) }}" 
-                       class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center w-40">
-                        Edit listing
-                    </a>
+    <div class="flex gap-4 mt-4">
 
-                @else
+        {{-- EDIT --}}
+        <a href="{{ route('listing.edit', $listing->id) }}" 
+           class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center w-40">
+            Edit listing
+        </a>
+
+        {{-- DELETE --}}
+        <form method="POST"
+              action="{{ route('listing.destroy', $listing->id) }}"
+              onsubmit="return confirm('Are you sure you want to delete this listing? This action cannot be undone.');">
+            @csrf
+            @method('DELETE')
+
+            <button type="submit"
+                class="px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700 transition text-center w-40">
+                Delete listing
+            </button>
+        </form>
+
+    </div>
+
+@endif
 
                     @if($listing->tipas === 'paslauga')
 
