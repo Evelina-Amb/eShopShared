@@ -92,10 +92,22 @@
     <label class="font-semibold">Package size</label>
     <select name="package_size" class="w-full border p-2 rounded" required>
         <option value="">Select size</option>
-        <option value="XS">XS – Envelope</option>
-        <option value="S">S – Small box</option>
-        <option value="M">M – Medium box</option>
-        <option value="L">L – Large box</option>
+
+        <option value="XS" @selected(old('package_size', $listing->package_size) === 'XS')>
+            XS – Envelope
+        </option>
+
+        <option value="S" @selected(old('package_size', $listing->package_size) === 'S')>
+            S – Small box
+        </option>
+
+        <option value="M" @selected(old('package_size', $listing->package_size) === 'M')>
+            M – Medium box
+        </option>
+
+        <option value="L" @selected(old('package_size', $listing->package_size) === 'L')>
+            L – Large box
+        </option>
     </select>
 </div>
 
