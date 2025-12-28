@@ -14,10 +14,12 @@ class ListingService
         $this->listingRepository = $listingRepository;
     }
 
-    public function getAll()
-    {
-        return $this->listingRepository->getPublic();
-    }
+   public function getAll()
+{
+    return $this->listingRepository->search([
+        'sort' => request('sort')
+    ]);
+}
 
     public function getMine(int $userId)
     {
