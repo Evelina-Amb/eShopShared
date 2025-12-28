@@ -135,18 +135,15 @@ input[type=number] {
                 @endif
 
                 {{-- CART OR EDIT --}}
-                @if(auth()->check() && auth()->id() === $listing->user_id)
+               @if(auth()->check() && auth()->id() === $listing->user_id)
 
+    {{-- OWNER: EDIT / DELETE --}}
     <div class="flex gap-4 mt-4">
-
-        {{-- EDIT --}}
         <a href="{{ route('listing.edit', $listing->id) }}" 
            class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center w-40">
             Edit listing
         </a>
-
-        {{-- DELETE --}}
-        <form method="POST"
+<form method="POST"
               action="{{ route('listing.destroy', $listing->id) }}"
               onsubmit="return confirm('Are you sure you want to delete this listing? This action cannot be undone.');">
             @csrf
@@ -157,19 +154,15 @@ input[type=number] {
                 Delete listing
             </button>
         </form>
-
     </div>
-
-@endif
-
-                    @if($listing->tipas === 'paslauga')
+                    @elseif($listing->tipas === 'paslauga')
 
                         <div class="mt-4 text-gray-700 font-semibold">
                             This is a service listing. Contact the seller to arrange details.
                         </div>
 
                     @else
-
+                      {{-- ADD TO CART --}}
                         <form method="POST" action="{{ route('cart.add', $listing->id) }}" class="flex items-center gap-4">
                             @csrf
 
