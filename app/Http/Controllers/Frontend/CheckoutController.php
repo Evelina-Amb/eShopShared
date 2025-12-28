@@ -240,7 +240,7 @@ public function previewShipping(Request $request)
         ]);
     }
 
-    public function success(Request $request)
+public function success(Request $request)
 {
     $order = Order::where('user_id', auth()->id())
         ->latest()
@@ -248,9 +248,12 @@ public function previewShipping(Request $request)
 
     if ($order && $order->statusas === Order::STATUS_PAID) {
         Cart::where('user_id', auth()->id())->delete();
+
+        session()->put('cart_count', 0);
     }
 
     return view('frontend.checkout.success');
 }
+
 
 }
