@@ -101,7 +101,11 @@
             </div>
         </div>
     </div>
+@php
+    $showSearchNav = request()->routeIs('home', 'search.listings');
+@endphp
 
+@if($showSearchNav)
     <!-- BOTTOM BAR — Search + Filters -->
     <div class="bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center space-x-4">
@@ -149,4 +153,5 @@
 
         </div>
     </div>
+    @endif
 </nav>
