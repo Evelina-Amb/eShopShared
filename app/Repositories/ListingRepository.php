@@ -141,7 +141,28 @@ class ListingRepository implements ListingRepositoryInterface
                 $q->where('city_id', $filters['city_id']);
             });
         }
+        
+switch ($filters['sort'] ?? null) {
+    case 'newest':
+        $query->orderBy('created_at', 'desc');
+        break;
 
+    case 'oldest':
+        $query->orderBy('created_at', 'asc');
+        break;
+
+    case 'price_asc':
+        $query->orderBy('kaina', 'asc');
+        break;
+
+    case 'price_desc':
+        $query->orderBy('kaina', 'desc');
+        break;
+
+    default:
+        $query->orderBy('created_at', 'desc');
+        break;
+}
         return $query->get();
     }
 }
