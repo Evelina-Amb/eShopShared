@@ -94,12 +94,12 @@ public function previewShipping(Request $request)
 
 $address = $user->address
     ? trim(collect([
-        $user->address->street,
-        $user->address->house_number,
+        $user->address->street_name ?? $user->address->street ?? null,
+        $user->address->house_number ?? null,
         $user->address->flat_number
             ? 'Flat ' . $user->address->flat_number
             : null,
-    ])->filter()->implode(', '))
+    ])->filter()->implode(' '))
     : '';
 
 $placeholder = [
@@ -108,7 +108,6 @@ $placeholder = [
     'postal_code' => $user->address->postal_code ?? '',
     'country'     => $user->address->country ?? '',
 ];
-
         $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
         $order->load('orderItem.Listing.user');
 
