@@ -80,6 +80,7 @@ class ListingService
             'category_id',
             'kiekis',
             'is_renewable',
+            'package_size', 
         ];
 
         $updateData = array_intersect_key($data, array_flip($allowedFields));
