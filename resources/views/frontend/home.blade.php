@@ -30,7 +30,7 @@
                             <button
                                 type="button"
                                 @click.prevent="Alpine.store('favorites').toggle({{ $item->id }})"
-                                class="absolute top-2 right-2 z-50 w-8 h-8 text-2xl"
+                                class="absolute top-2 right-2 z-50 w-8 h-8  flex items-center justify-center overflow-hidden"
                                 aria-label="Toggle favorite"
                             >
                                 <span
