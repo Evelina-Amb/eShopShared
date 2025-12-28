@@ -35,14 +35,14 @@
 >
     <span
         x-show="Alpine.store('favorites').has({{ $item->id }})"
-        class="text-red-500 leading-none"
+        class="text-red-500 text-2xl leading-none"
     >
         ♥️
     </span>
 
     <span
         x-show="!Alpine.store('favorites').has({{ $item->id }})"
-        class="text-gray-200 drop-shadow-lg leading-none"
+        class="text-gray-200 drop-shadow-lg text-2xl leading-none"
     >
         🤍
     </span>
