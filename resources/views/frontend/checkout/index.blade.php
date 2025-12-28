@@ -13,15 +13,15 @@
 
                     <h2 class="font-semibold mb-3">Shipping address</h2>
 
-                    <input
+                   <input
     type="text"
     name="address"
     value="{{ old('address',
         $user->address
             ? trim(collect([
-                $user->address->street_name ?? $user->address->street ?? null,
-                $user->address->house_number ?? null,
-                $user->address->flat_number ? 'Flat '.$user->address->flat_number : null,
+                $user->address->gatve ?? null,
+                $user->address->namo_nr ?? null,
+                $user->address->buto_nr ? 'Butas '.$user->address->buto_nr : null,
             ])->filter()->implode(' '))
             : ''
     ) }}"
