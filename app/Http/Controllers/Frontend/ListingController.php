@@ -14,7 +14,7 @@ class ListingController extends Controller
             abort(403);
         }
 
-        $result = $listingService->deleteWithRules($listing);
+        $result = $listingService->delete($listing);
 
         return redirect()
             ->route('my.listings')
