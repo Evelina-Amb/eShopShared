@@ -23,7 +23,7 @@
             <span>
                 {{ $item->Listing->pavadinimas }}
                 <span class="text-gray-500">
-                    (Seller: {{ $item->Listing->user->name }})
+                    (Seller: {{ $item->Listing->user->vardas }})
                 </span>
             </span>
             <span>
