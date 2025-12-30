@@ -17,7 +17,7 @@
                         <th class="p-3 text-left">Items</th>
                         <th class="p-3 text-left">Shipping</th>
                         <th class="p-3 text-left">Status</th>
-                        <th class="p-3 text-left">Action</th>
+                        <th class="p-3 text-left">Upload shippment proof</th>
                     </tr>
                 </thead>
 
