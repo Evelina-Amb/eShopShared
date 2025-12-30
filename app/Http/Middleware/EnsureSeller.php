@@ -30,16 +30,12 @@ class EnsureSeller
                 ->with('error', 'Please add at least one public contact method.');
         }
 
-        // Must have address (country + city)
-        if (
-            !$user->address ||
-            !$user->address->country_id ||
-            !$user->address->city_id
-        ) {
-            return redirect()
-                ->route('profile.edit')
-                ->with('error', 'Please select your country and city.');
-        }
+        // Must have address country
+       if (!$user->address || !$user->address->city_id) {
+    return redirect()
+        ->route('profile.edit')
+        ->with('error', 'Please select your city.');
+}
 
         if (!$user->stripe_account_id) {
             return redirect()
