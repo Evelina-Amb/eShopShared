@@ -111,6 +111,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/listing/{listing}/review', [ReviewController::class, 'store'])
         ->name('review.store');
+   
+    Route::get('/my/purchases', [BuyerOrderController::class, 'index'])
+  ->middleware('auth')
+  ->name('buyer.orders');
 
     Route::middleware('seller')->group(function () {
 
