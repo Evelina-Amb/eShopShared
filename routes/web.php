@@ -16,11 +16,16 @@ use App\Http\Controllers\Api\StripeWebhookController;
 use App\Models\OrderShipment;
 use App\Http\Controllers\Frontend\ListingController;
 use App\Http\Controllers\Frontend\SellerOrderController;
+use App\Http\Controllers\Frontend\BuyerOrderController;
 
 Route::middleware('auth')->group(function () {
     Route::delete('/listing/{listing}', [ListingController::class, 'destroy'])
         ->name('listing.destroy');
 });
+
+Route::get('/my/purchases', [BuyerOrderController::class, 'index'])
+    ->middleware('auth')
+    ->name('buyer.orders');
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
