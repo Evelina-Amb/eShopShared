@@ -11,39 +11,52 @@
             <div class="bg-white p-6 rounded shadow">
                 <form id="checkout-form">
 
-                    <h2 class="font-semibold mb-3">Shipping address</h2>
+                  <h2 class="font-semibold mb-3">Shipping address</h2>
 
-                   <input
-    type="text"
-    name="address"
-    value="{{ old('address',
-        $user->address
-            ? trim(collect([
-                $user->address->gatve ?? null,
-                $user->address->namo_nr ?? null,
-                $user->address->buto_nr ? 'Butas '.$user->address->buto_nr : null,
-            ])->filter()->implode(' '))
-            : ''
-    ) }}"
-    class="w-full border rounded px-3 py-2"
-    required
->
+<div class="space-y-3">
+    <input
+        type="text"
+        name="address"
+        value="{{ old('address',
+            $user->address
+                ? trim(collect([
+                    $user->address->gatve,
+                    $user->address->namo_nr,
+                    $user->address->buto_nr ? 'Flat '.$user->address->buto_nr : null,
+                ])->filter()->implode(' '))
+                : ''
+        ) }}"
+        class="w-full border rounded px-3 py-2"
+        placeholder="Address"
+        required
+    >
 
-<input
-    type="text"
-    name="city"
-    value="{{ old('city', $user->address->city->pavadinimas ?? '') }}"
-    class="w-full border rounded px-3 py-2"
-    required
->
+    <input
+        type="text"
+        name="city"
+        value="{{ old('city', $user->address->city->pavadinimas ?? '') }}"
+        class="w-full border rounded px-3 py-2"
+        placeholder="City"
+        required
+    >
 
-<input
-    type="text"
-    name="country"
-    value="{{ old('country', $user->address->country ?? 'Lithuania') }}"
-    class="w-full border rounded px-3 py-2"
-    required
->                   
+    <input
+        type="text"
+        name="country"
+        value="{{ old('country', 'Lithuania') }}"
+        class="w-full border rounded px-3 py-2"
+        placeholder="Country"
+        required
+    >
+
+    <input
+        id="postal_code"
+        class="w-full border rounded px-3 py-2"
+        placeholder="Postal code"
+        required
+    >
+</div>
+               
                     <input id="postal_code" class="w-full border p-2 mb-2" placeholder="Postal code" required>
                     
 
