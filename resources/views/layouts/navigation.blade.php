@@ -47,6 +47,14 @@
                             Post a Listing
                         </a>
                     @endauth
+@auth
+  <a href="{{ route('buyer.orders') }}">My purchases</a>
+
+  @if(auth()->user()->is_seller)
+    <a href="{{ route('seller.orders') }}">Seller orders</a>
+    <a href="{{ route('seller.shipments.index') }}">Shipments</a>
+  @endif
+@endauth
 
                 </div>
             </div>
