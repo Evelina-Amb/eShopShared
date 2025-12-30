@@ -47,15 +47,23 @@
                             €{{ number_format($s->price_cents / 100, 2) }}
                         </td>
 
-                        <td class="p-3">
-                            @if($s->status === 'pending')
-                                <span class="text-gray-500">Waiting to ship</span>
-                            @elseif($s->status === 'approved')
-                                <span class="text-orange-600">Processing reimbursement</span>
-                            @elseif($s->status === 'reimbursed')
-                                <span class="text-green-600">Completed</span>
-                            @endif
-                        </td>
+                       <td class="p-3">
+    @if($s->status === 'pending')
+        <span class="text-gray-500">Waiting to ship</span>
+
+    @elseif($s->status === 'needs_review')
+        <span class="text-purple-600 font-medium">Waiting for approval</span>
+
+    @elseif($s->status === 'approved')
+        <span class="text-orange-600">Processing reimbursement</span>
+
+    @elseif($s->status === 'reimbursed')
+        <span class="text-green-600">Completed</span>
+
+    @else
+        <span class="text-gray-400">Unknown</span>
+    @endif
+</td>
 
                         <td class="p-3">
                             @if($s->status === 'pending')
