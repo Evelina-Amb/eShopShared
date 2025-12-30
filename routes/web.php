@@ -17,19 +17,22 @@ use App\Models\OrderShipment;
 use App\Http\Controllers\Frontend\ListingController;
 use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
-use App\Models\User;
+use App\Http\Controllers\Admin\ShipmentModerationController;
 
-Route::get('/make-admin', function () {
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-    $userId = 4;
+        Route::get('/shipments', [ShipmentModerationController::class, 'index'])
+            ->name('shipments.index');
 
-    $user = User::findOrFail($userId);
-    $user->role = 'admin';
-    $user->save();
+        Route::post('/shipments/{shipment}/approve', [ShipmentModerationController::class, 'approve'])
+            ->name('shipments.approve');
 
-    return "User {$user->id} is now ADMIN. DELETE THIS ROUTE.";
-});
-
+        Route::post('/shipments/{shipment}/reject', [ShipmentModerationController::class, 'reject'])
+            ->name('shipments.reject');
+    });
 
 
 Route::middleware('auth')->group(function () {
