@@ -9,13 +9,13 @@ class BuyerOrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with([
-            'orderItem.listing.user',
-            'shipments'
-        ])
-        ->where('user_id', auth()->id())
-        ->latest()
-        ->paginate(10);
+       $orders = Order::with([
+    'orderItem.Listing.user',
+    'shipments.seller'
+])
+->where('user_id', auth()->id())
+->latest()
+->paginate(10);
 
         return view('frontend.buyer.orders.index', compact('orders'));
     }
