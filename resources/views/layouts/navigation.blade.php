@@ -50,7 +50,7 @@
 @auth
     @if(auth()->user()->role === 'seller')
         <a href="{{ route('seller.orders') }}"
-           class="px-3 py-2 hover:underline">
+           class="hover:text-blue-600">
             My sales
         </a>
     @endif
