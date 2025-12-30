@@ -4,11 +4,10 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class EnsureSeller
 {
-  public function handle($request, Closure $next)
+    public function handle($request, Closure $next)
     {
         $user = auth()->user();
 
@@ -16,34 +15,40 @@ class EnsureSeller
             return redirect()->route('login');
         }
 
-        // Must be seller
+        // must be seller
         if ($user->role !== 'seller') {
             return redirect()
                 ->route('profile.edit')
-                ->with('error', 'Please complete your seller information before posting listings.');
+                ->with('error', 'Please complete your seller information.');
         }
 
-        // Must have at least one public contact method
+        // must have at least one public contact
         if (!$user->business_email && !$user->telefonas) {
             return redirect()
                 ->route('profile.edit')
                 ->with('error', 'Please add at least one public contact method.');
         }
 
-        // Must have address country
-       if (!$user->address || !$user->address->city_id) {
-    return redirect()
-        ->route('profile.edit')
-        ->with('error', 'Please select your city.');
-}
-
-        if (!$user->stripe_account_id) {
+        // must have address
+        if (
+            !$user->address ||
+            !$user->address->city_id
+        ) {
             return redirect()
-                ->route('stripe.connect')
-                ->with('error', 'You must connect Stripe before posting listings.');
+                ->route('profile.edit')
+                ->with('error', 'Please select your city and address.');
+        }
+
+        // must have Stripe connected and onboarded
+        if (
+            !$user->stripe_account_id ||
+            !$user->stripe_onboarded
+        ) {
+            return redirect()
+                ->route('profile.edit')
+                ->with('error', 'Please finish Stripe onboarding before posting listings.');
         }
 
         return $next($request);
     }
-
 }
