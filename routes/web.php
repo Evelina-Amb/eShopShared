@@ -15,6 +15,7 @@ use App\Http\Controllers\Frontend\StripeConnectController;
 use App\Http\Controllers\Api\StripeWebhookController;
 use App\Models\OrderShipment;
 use App\Http\Controllers\Frontend\ListingController;
+use App\Http\Controllers\Frontend\SellerOrderController;
 
 Route::middleware('auth')->group(function () {
     Route::delete('/listing/{listing}', [ListingController::class, 'destroy'])
@@ -132,6 +133,13 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/my-listings', [MyListingsController::class, 'index'])
             ->name('my.listings');
+   
+    Route::get('/seller/orders', [SellerOrderController::class, 'index'])
+        ->name('seller.orders');
+
+    Route::post('/seller/shipments/{shipment}', [SellerOrderController::class, 'ship'])
+        ->name('seller.shipments.update');
+
     });
 });
 
