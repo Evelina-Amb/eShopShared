@@ -41,13 +41,10 @@ class EnsureSeller
                 ->with('error', 'Please select your country and city.');
         }
 
-        if (
-            !$user->stripe_account_id ||
-            !$user->stripe_onboarded
-        ) {
+        if (!$user->stripe_account_id) {
             return redirect()
                 ->route('stripe.connect')
-                ->with('error', 'You must connect and complete Stripe onboarding before posting listings.');
+                ->with('error', 'You must connect Stripe before posting listings.');
         }
 
         return $next($request);
