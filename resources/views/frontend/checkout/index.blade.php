@@ -13,49 +13,71 @@
 
                   <h2 class="font-semibold mb-3">Shipping address</h2>
 
-<div class="space-y-3">
-    <input
-        type="text"
-        name="address"
-        value="{{ old('address',
-            $user->address
-                ? trim(collect([
-                    $user->address->gatve,
-                    $user->address->namo_nr,
-                    $user->address->buto_nr ? 'Flat '.$user->address->buto_nr : null,
-                ])->filter()->implode(' '))
-                : ''
-        ) }}"
-        class="w-full border rounded px-3 py-2"
-        placeholder="Address"
-        required
-    >
+<div class="space-y-4">
 
-    <input
-        type="text"
-        name="city"
-        value="{{ old('city', $user->address->city->pavadinimas ?? '') }}"
-        class="w-full border rounded px-3 py-2"
-        placeholder="City"
-        required
-    >
+    {{-- Address --}}
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+            Address
+        </label>
+        <input
+            type="text"
+            name="address"
+            value="{{ old('address',
+                $user->address
+                    ? trim(collect([
+                        $user->address->gatve,
+                        $user->address->namo_nr,
+                        $user->address->buto_nr ? 'Flat '.$user->address->buto_nr : null,
+                    ])->filter()->implode(' '))
+                    : ''
+            ) }}"
+            class="w-full border rounded px-3 py-2"
+            required
+        >
+    </div>
 
-    <input
-        type="text"
-        name="country"
-        value="{{ old('country', 'Lithuania') }}"
-        class="w-full border rounded px-3 py-2"
-        placeholder="Country"
-        required
-    >
+    {{-- City --}}
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+            City
+        </label>
+        <input
+            type="text"
+            name="city"
+            value="{{ old('city', $user->address->city->pavadinimas ?? '') }}"
+            class="w-full border rounded px-3 py-2"
+            required
+        >
+    </div>
 
-    <input
-        id="postal_code"
-        class="w-full border rounded px-3 py-2"
-        placeholder="Postal code"
-        required
-    >
-</div>                   
+    {{-- Country --}}
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+            Country
+        </label>
+        <input
+            type="text"
+            name="country"
+            value="{{ old('country', 'Lithuania') }}"
+            class="w-full border rounded px-3 py-2"
+            required
+        >
+    </div>
+
+    {{-- Postal code --}}
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+            Postal code
+        </label>
+        <input
+            id="postal_code"
+            class="w-full border rounded px-3 py-2"
+            required
+        >
+    </div>
+
+</div>                  
                     <h2 class="font-semibold mb-2">Shipping method</h2>
 
                     <select id="shipping-carrier" class="w-full border p-2 rounded mb-4">
