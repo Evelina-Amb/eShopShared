@@ -18,6 +18,11 @@ use App\Http\Controllers\Frontend\ListingController;
 use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
 
+Route::get('/dev/whoami', function () {
+    return auth()->user();
+})->middleware('auth');
+
+
 Route::middleware('auth')->group(function () {
     Route::delete('/listing/{listing}', [ListingController::class, 'destroy'])
         ->name('listing.destroy');
