@@ -23,7 +23,7 @@
                             <span>
                                 {{ $item->listing->pavadinimas }}
                                 <span class="text-gray-500">
-                                    (Seller: {{ $item->listing->user->name }})
+                                    (Seller: {{ $item->listing->user->name ?? 'Unknown seller' }})
                                 </span>
                             </span>
                             <span>
