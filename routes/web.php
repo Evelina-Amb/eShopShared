@@ -17,6 +17,36 @@ use App\Models\OrderShipment;
 use App\Http\Controllers\Frontend\ListingController;
 use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
+use App\Models\User;
+
+Route::get('/__bootstrap-admin', function () {
+
+    // 🔒 CONFIG — CHANGE THESE
+    $allowedEmail = 'forgamesandstuff0107@gmail.com'; // ← YOUR ACCOUNT
+    $secret = '1232'; // ← strong random string
+
+    // 🔐 REQUIRE AUTH
+    if (!auth()->check()) {
+        abort(403);
+    }
+
+    // 🔐 REQUIRE EMAIL MATCH
+    if (auth()->user()->email !== $allowedEmail) {
+        abort(403);
+    }
+
+    // 🔐 REQUIRE SECRET QUERY STRING
+    if (request('key') !== $secret) {
+        abort(403);
+    }
+
+    auth()->user()->update([
+        'role' => 'admin',
+    ]);
+
+    return '✅ You are now ADMIN. REMOVE THIS ROUTE.';
+});
+
 
 Route::middleware('auth')->group(function () {
     Route::delete('/listing/{listing}', [ListingController::class, 'destroy'])
