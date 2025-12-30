@@ -17,22 +17,21 @@
                 </div>
 
                 {{-- ITEMS --}}
-                <div class="border-t pt-3">
-                    @foreach($order->orderItem as $item)
-                        <div class="flex justify-between text-sm mb-1">
-                            <span>
-                                {{ $item->listing->pavadinimas }}
-                                <span class="text-gray-500">
-                                    (Seller: {{ $item->Listing->user->name ?? 'Unknown seller' }})
-                                </span>
-                            </span>
-                            <span>
-                                €{{ number_format($item->kaina * $item->kiekis, 2) }}
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
-
+<div class="border-t pt-3">
+    @foreach($order->orderItem as $item)
+        <div class="flex justify-between text-sm mb-1">
+            <span>
+                {{ $item->Listing->pavadinimas }}
+                <span class="text-gray-500">
+                    (Seller: {{ $item->Listing->user->name }})
+                </span>
+            </span>
+            <span>
+                €{{ number_format($item->kaina * $item->kiekis, 2) }}
+            </span>
+        </div>
+    @endforeach
+</div>
                 {{-- SHIPMENTS --}}
                 <div class="border-t mt-3 pt-3 space-y-2">
                     @foreach($order->shipments as $shipment)
