@@ -48,14 +48,20 @@
                         </a>
                     @endauth
 @auth
-  <a href="{{ route('buyer.orders') }}">My purchases</a>
+    {{-- BUYER --}}
+    <a href="{{ route('buyer.orders.index') }}"
+       class="px-3 py-2 hover:underline">
+        My purchases
+    </a>
 
-  @if(auth()->user()->is_seller)
-    <a href="{{ route('seller.orders') }}">Seller orders</a>
-    <a href="{{ route('seller.shipments.index') }}">Shipments</a>
-  @endif
+    {{-- SELLER --}}
+    @if(auth()->user()->is_seller)
+        <a href="{{ route('seller.orders') }}"
+           class="px-3 py-2 hover:underline">
+            My sales
+        </a>
+    @endif
 @endauth
-
                 </div>
             </div>
 
