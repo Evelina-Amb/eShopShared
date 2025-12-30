@@ -47,6 +47,11 @@
                             Post a Listing
                         </a>
                     @endauth
+                    
+                    <a href="{{ route('buyer.orders') }}" class="nav-link">
+                    My purchases
+                    </a>
+
 @auth
     @if(auth()->user()->role === 'seller')
         <a href="{{ route('seller.orders') }}"
