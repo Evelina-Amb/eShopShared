@@ -52,7 +52,7 @@
         <span class="text-gray-500">Waiting to ship</span>
 
     @elseif($s->status === 'needs_review')
-        <span class="text-purple-600 font-medium">Waiting for approval</span>
+        <span class="text-blue-600 font-medium">Waiting for approval</span>
 
     @elseif($s->status === 'approved')
         <span class="text-orange-600">Processing reimbursement</span>
