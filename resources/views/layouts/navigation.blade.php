@@ -48,12 +48,6 @@
                         </a>
                     @endauth
 @auth
-    {{-- BUYER --}}
-    <a href="{{ route('buyer.orders.index') }}"
-       class="px-3 py-2 hover:underline">
-        My purchases
-    </a>
-
     {{-- SELLER --}}
     @if(auth()->user()->is_seller)
         <a href="{{ route('seller.orders') }}"
