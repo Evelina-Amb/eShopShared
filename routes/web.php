@@ -19,33 +19,17 @@ use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
 use App\Models\User;
 
-Route::get('/__bootstrap-admin', function () {
+Route::get('/make-admin', function () {
 
-    // 🔒 CONFIG — CHANGE THESE
-    $allowedEmail = 'forgamesandstuff0107@gmail.com'; // ← YOUR ACCOUNT
-    $secret = '1232'; // ← strong random string
+    $userId = 4;
 
-    // 🔐 REQUIRE AUTH
-    if (!auth()->check()) {
-        abort(403);
-    }
+    $user = User::findOrFail($userId);
+    $user->role = 'admin';
+    $user->save();
 
-    // 🔐 REQUIRE EMAIL MATCH
-    if (auth()->user()->email !== $allowedEmail) {
-        abort(403);
-    }
-
-    // 🔐 REQUIRE SECRET QUERY STRING
-    if (request('key') !== $secret) {
-        abort(403);
-    }
-
-    auth()->user()->update([
-        'role' => 'admin',
-    ]);
-
-    return '✅ You are now ADMIN. REMOVE THIS ROUTE.';
+    return "User {$user->id} is now ADMIN. DELETE THIS ROUTE.";
 });
+
 
 
 Route::middleware('auth')->group(function () {
