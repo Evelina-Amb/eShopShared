@@ -43,7 +43,6 @@ return [
     */
 
     'debug' => (bool) env('APP_DEBUG', false),   
-    'admin_bootstrap_token' => env('ADMIN_BOOTSTRAP_TOKEN'),
 
     /*
     |--------------------------------------------------------------------------
