@@ -26,7 +26,12 @@ class RedirectIfAuthenticated
                     return $next($request);
                 }
 
-                return redirect(RouteServiceProvider::HOME);
+                return redirect(
+    Auth::user()->role === 'admin'
+        ? '/admin/shipments'
+        : RouteServiceProvider::HOME
+);
+
             }
         }
 
