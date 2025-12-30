@@ -17,11 +17,6 @@ use App\Models\OrderShipment;
 use App\Http\Controllers\Frontend\ListingController;
 use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
-use App\Http\Controllers\Dev\AdminBootstrapController;
-
-Route::get('/__bootstrap/admin/{user}', [AdminBootstrapController::class, 'promote'])
-    ->middleware('auth');
-
 
 Route::middleware('auth')->group(function () {
     Route::delete('/listing/{listing}', [ListingController::class, 'destroy'])
