@@ -48,8 +48,8 @@
                         </a>
                     @endauth
                     
-                    <a href="{{ route('buyer.orders') }}" class="nav-link">
-                    My purchases
+                    <a href="{{ route('buyer.orders') }}" class="hover:text-blue-600">
+                        My purchases
                     </a>
 
 @auth
