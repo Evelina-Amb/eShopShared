@@ -48,14 +48,14 @@
                         </a>
                     @endauth
 @auth
-    {{-- SELLER --}}
-    @if(auth()->user()->is_seller)
+    @if(auth()->user()->role === 'seller')
         <a href="{{ route('seller.orders') }}"
            class="px-3 py-2 hover:underline">
             My sales
         </a>
     @endif
 @endauth
+
                 </div>
             </div>
 
