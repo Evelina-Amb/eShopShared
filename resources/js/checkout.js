@@ -24,58 +24,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const stripe = await loadStripe(stripeKey);
 
-  let elements;
-  let orderId;
+  let elements = null;
+  let orderId = null;
 
   const format = (cents) => `€${(cents / 100).toFixed(2)}`;
 
-  try {
-    const res = await fetch("/checkout/intent", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "X-CSRF-TOKEN": csrf,
-  },
-  body: JSON.stringify({
-    address: document.querySelector('input[name="address"]').value,
-    city: document.querySelector('input[name="city"]').value,
-    country: document.querySelector('input[name="country"]').value,
-    postal_code: document.getElementById("postal_code").value,
-  }),
-});
-
-    const data = await res.json();
-
-    if (!res.ok || !data.client_secret || !data.order_id) {
-      throw new Error(data?.error || "Failed to initialize payment");
-    }
-
-    orderId = data.order_id;
-
-    // Initial totals (items + small order fee only)
-    document.getElementById("items-total").textContent =
-      format(data.breakdown.items_total_cents);
-
-    if (data.breakdown.small_order_fee_cents > 0) {
-      document.getElementById("small-order-fee").textContent =
-        format(data.breakdown.small_order_fee_cents);
-      document.getElementById("small-order-row").classList.remove("hidden");
-    }
-
-    document.getElementById("shipping-total").textContent = "—";
-    document.getElementById("order-total").textContent =
-      format(data.breakdown.total_cents);
-
-    elements = stripe.elements({ clientSecret: data.client_secret });
-    elements.create("payment").mount("#payment-element");
-  } catch (err) {
-    errorBox.textContent = err.message || "Failed to initialize payment";
-    errorBox.classList.remove("hidden");
-    return;
-  }
-
   carrierSelect.addEventListener("change", async () => {
+    if (!orderId) return;
+
     try {
       const res = await fetch("/checkout/shipping/preview", {
         method: "POST",
@@ -108,7 +64,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorBox.classList.add("hidden");
@@ -117,9 +72,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     payButton.textContent = "Processing…";
 
     try {
-      const carrier = carrierSelect.value;
+      if (!carrierSelect.value) {
+        throw new Error("Please choose a shipping method.");
+      }
 
-      // Finalize shipping + update PaymentIntent amount
+      const intentRes = await fetch("/checkout/intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-CSRF-TOKEN": csrf,
+        },
+        body: JSON.stringify({
+          address: document.querySelector('input[name="address"]').value,
+          city: document.querySelector('input[name="city"]').value,
+          country: document.querySelector('input[name="country"]').value,
+          postal_code: document.getElementById("postal_code").value,
+        }),
+      });
+
+      const intentData = await intentRes.json();
+
+      if (!intentRes.ok || !intentData.client_secret || !intentData.order_id) {
+        throw new Error(intentData?.error || "Failed to initialize payment");
+      }
+
+      orderId = intentData.order_id;
+
+      document.getElementById("items-total").textContent =
+        format(intentData.breakdown.items_total_cents);
+
+      if (intentData.breakdown.small_order_fee_cents > 0) {
+        document.getElementById("small-order-fee").textContent =
+          format(intentData.breakdown.small_order_fee_cents);
+        document.getElementById("small-order-row").classList.remove("hidden");
+      }
+
+      document.getElementById("shipping-total").textContent = "—";
+      document.getElementById("order-total").textContent =
+        format(intentData.breakdown.total_cents);
+
+      elements = stripe.elements({
+        clientSecret: intentData.client_secret,
+      });
+
+      elements.create("payment").mount("#payment-element");
+
       const shipRes = await fetch("/checkout/shipping", {
         method: "POST",
         headers: {
@@ -129,7 +127,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
         body: JSON.stringify({
           order_id: orderId,
-          carrier,
+          carrier: carrierSelect.value,
         }),
       });
 
