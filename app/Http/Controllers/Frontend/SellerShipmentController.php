@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\OrderShipment;
-use App\Jobs\ReimburseShippingJob;
 use Illuminate\Http\Request;
 
 class SellerShipment extends Controller
@@ -15,10 +14,18 @@ class SellerShipment extends Controller
             abort(403);
         }
 
+        if ($shipment->status !== 'pending') {
+            return back()->with('error', 'Shipment already processed.');
+        }
+
         $data = $request->validate([
             'tracking_number' => 'nullable|string|max:255',
-            'proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            'proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120',
         ]);
+
+        if (!$request->hasFile('proof') && empty($data['tracking_number'])) {
+            return back()->with('error', 'Provide tracking number or proof.');
+        }
 
         if ($request->hasFile('proof')) {
             $shipment->proof_path = $request
@@ -27,16 +34,12 @@ class SellerShipment extends Controller
         }
 
         $shipment->tracking_number = $data['tracking_number'] ?? null;
-        $shipment->status = 'shipped';
+        $shipment->status = 'needs_review';
         $shipment->save();
 
-        if ($shipment->tracking_number || $shipment->proof_path) {
-            $shipment->status = 'approved';
-            $shipment->save();
-
-            ReimburseShippingJob::dispatch($shipment->id);
-        }
-
-        return back()->with('success', 'Shipment marked as shipped.');
+        return back()->with(
+            'success',
+            'Shipment submitted and sent for review.'
+        );
     }
 }
