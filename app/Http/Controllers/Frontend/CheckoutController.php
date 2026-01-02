@@ -88,7 +88,7 @@ public function previewShipping(Request $request)
     ]);
 }
     
-    public function intent(OrderService $orderService)
+    public function intent(Request $request, OrderService $orderService)
     {
 $request->validate([
     'address' => 'required|string',
