@@ -31,12 +31,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     const res = await fetch("/checkout/intent", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "X-CSRF-TOKEN": csrf,
-      },
-    });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    "X-CSRF-TOKEN": csrf,
+  },
+  body: JSON.stringify({
+    address: document.querySelector('input[name="address"]').value,
+    city: document.querySelector('input[name="city"]').value,
+    country: document.querySelector('input[name="country"]').value,
+    postal_code: document.getElementById("postal_code").value,
+  }),
+});
 
     const data = await res.json();
 
