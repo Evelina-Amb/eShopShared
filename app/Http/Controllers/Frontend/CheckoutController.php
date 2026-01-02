@@ -111,7 +111,13 @@ $address = \App\Models\Address::create([
     'city_id' => $city->id,
 ]);
 
-$order = $orderService->createPendingFromCart(auth()->id(), []);
+$order = $orderService->createPendingFromCart(auth()->id(), [
+    'address'     => $request->address,
+    'city'        => $request->city,
+    'postal_code' => $request->postal_code,
+    'country'     => $request->country,
+]);
+
 $order->update([
     'address_id' => $address->id,
 ]);
