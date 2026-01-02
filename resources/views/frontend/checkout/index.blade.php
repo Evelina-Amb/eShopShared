@@ -77,7 +77,7 @@
         >
     </div>
 
-</div>                  
+</div><br>                  
                     <h2 class="font-semibold mb-2">Shipping method</h2>
 
                     <select id="shipping-carrier" class="w-full border p-2 rounded mb-4">
