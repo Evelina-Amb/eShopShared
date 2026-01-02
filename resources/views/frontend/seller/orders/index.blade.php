@@ -13,7 +13,6 @@
                 <thead class="border-b bg-gray-50">
                     <tr>
                         <th class="p-3 text-left">Order</th>
-                        <th class="p-3 text-left">Buyer</th>
                         <th class="p-3 text-left">Items</th>
                         <th class="p-3 text-left">Shipping</th>
                         <th class="p-3 text-left">Status</th>
@@ -25,11 +24,6 @@
                 @forelse($shipments as $s)
                     <tr class="border-b">
                         <td class="p-3">#{{ $s->order_id }}</td>
-
-                        <td class="p-3">
-                            {{ $s->order->user->name ?? 'Buyer' }}
-                        </td>
-
                         <td class="p-3">
                             @foreach($s->order->orderItem as $item)
                                 @if($item->listing->user_id === auth()->id())
