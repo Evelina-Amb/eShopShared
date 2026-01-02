@@ -90,27 +90,31 @@ public function previewShipping(Request $request)
     
     public function intent(OrderService $orderService)
     {
-      $user = auth()->user()->load('address.city');
+      $user = auth()->user()->load('address.city.country');
 
-$address = $user->address
-    ? trim(collect([
-        $user->address->gatve ?? null,
-        $user->address->namo_nr ?? null,
-        $user->address->buto_nr
-            ? 'Butas ' . $user->address->buto_nr
-            : null,
-    ])->filter()->implode(' '))
-    : '';
+ $addressText = $user->address
+        ? trim(collect([
+            $user->address->gatve ?? null,
+            $user->address->namo_nr ?? null,
+            $user->address->buto_nr ? 'Butas ' . $user->address->buto_nr : null,
+        ])->filter()->implode(' '))
+        : '';
 
-$placeholder = [
-    'address'     => $address,
-    'city'        => $user->address->city->pavadinimas ?? '',
-    'postal_code' => $user->address->postal_code ?? '',
-    'country'     => $user->address->country ?? '',
-];
+    $placeholder = [
+        'address'     => $addressText,
+        'city'        => $user->address->city->pavadinimas ?? '',
+        'postal_code' => '',
+        'country'     => $user->address->city->country->pavadinimas ?? '',
+    ];
+        
         $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
         $order->load('orderItem.Listing.user');
 
+         if ($user->address) {
+        $order->update([
+            'address_id' => $user->address->id,
+        ]);
+    }
         $groups = $order->orderItem->groupBy(fn ($item) => $item->Listing->user->id);
 
         $platformPercent = 0.10;
