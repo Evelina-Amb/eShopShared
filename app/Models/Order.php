@@ -17,6 +17,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'address_id',
         'pirkimo_data',
         'bendra_suma',
         'statusas',
@@ -54,5 +55,10 @@ class Order extends Model
     public function shipments()
     {
         return $this->hasMany(OrderShipment::class, 'order_id');
+    }
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
     }
 }
