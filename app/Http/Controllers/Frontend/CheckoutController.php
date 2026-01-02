@@ -90,31 +90,32 @@ public function previewShipping(Request $request)
     
     public function intent(OrderService $orderService)
     {
-      $user = auth()->user()->load('address.city.country');
+$request->validate([
+    'address' => 'required|string',
+    'city' => 'required|string',
+    'country' => 'required|string',
+    'postal_code' => 'required|string',
+]);
 
- $addressText = $user->address
-        ? trim(collect([
-            $user->address->gatve ?? null,
-            $user->address->namo_nr ?? null,
-            $user->address->buto_nr ? 'Butas ' . $user->address->buto_nr : null,
-        ])->filter()->implode(' '))
-        : '';
+$country = \App\Models\Country::firstOrCreate([
+    'pavadinimas' => $request->country,
+]);
 
-    $placeholder = [
-        'address'     => $addressText,
-        'city'        => $user->address->city->pavadinimas ?? '',
-        'postal_code' => '',
-        'country'     => $user->address->city->country->pavadinimas ?? '',
-    ];
-        
-        $order = $orderService->createPendingFromCart(auth()->id(), $placeholder);
-        $order->load('orderItem.Listing.user');
+$city = \App\Models\City::firstOrCreate([
+    'pavadinimas' => $request->city,
+    'country_id' => $country->id,
+]);
 
-         if ($user->address) {
-        $order->update([
-            'address_id' => $user->address->id,
-        ]);
-    }
+$address = \App\Models\Address::create([
+    'gatve' => $request->address,
+    'city_id' => $city->id,
+]);
+
+$order = $orderService->createPendingFromCart(auth()->id(), []);
+$order->update([
+    'address_id' => $address->id,
+]);
+
         $groups = $order->orderItem->groupBy(fn ($item) => $item->Listing->user->id);
 
         $platformPercent = 0.10;
