@@ -26,8 +26,60 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let elements = null;
   let orderId = null;
+  let intentCreated = false;
 
   const format = (cents) => `€${(cents / 100).toFixed(2)}`;
+
+  carrierSelect.addEventListener("change", async () => {
+    errorBox.classList.add("hidden");
+
+    if (intentCreated) return;
+
+    try {
+      const intentRes = await fetch("/checkout/intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-CSRF-TOKEN": csrf,
+        },
+        body: JSON.stringify({
+          address: document.querySelector('input[name="address"]').value,
+          city: document.querySelector('input[name="city"]').value,
+          country: document.querySelector('input[name="country"]').value,
+          postal_code: document.getElementById("postal_code").value,
+        }),
+      });
+
+      const intentData = await intentRes.json();
+
+      if (!intentRes.ok || !intentData.client_secret || !intentData.order_id) {
+        throw new Error(intentData?.error || "Failed to initialize payment");
+      }
+
+      orderId = intentData.order_id;
+      intentCreated = true;
+
+      document.getElementById("items-total").textContent =
+        format(intentData.breakdown.items_total_cents);
+
+      if (intentData.breakdown.small_order_fee_cents > 0) {
+        document.getElementById("small-order-fee").textContent =
+          format(intentData.breakdown.small_order_fee_cents);
+        document.getElementById("small-order-row").classList.remove("hidden");
+      }
+
+      elements = stripe.elements({
+        clientSecret: intentData.client_secret,
+      });
+
+      elements.create("payment").mount("#payment-element");
+
+    } catch (err) {
+      errorBox.textContent = err.message;
+      errorBox.classList.remove("hidden");
+    }
+  });
 
   carrierSelect.addEventListener("change", async () => {
     if (!orderId) return;
@@ -68,56 +120,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     e.preventDefault();
     errorBox.classList.add("hidden");
 
+    if (!orderId || !elements) {
+      errorBox.textContent = "Please choose shipping first.";
+      errorBox.classList.remove("hidden");
+      return;
+    }
+
     payButton.disabled = true;
     payButton.textContent = "Processing…";
 
     try {
-      if (!carrierSelect.value) {
-        throw new Error("Please choose a shipping method.");
-      }
-
-      const intentRes = await fetch("/checkout/intent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-CSRF-TOKEN": csrf,
-        },
-        body: JSON.stringify({
-          address: document.querySelector('input[name="address"]').value,
-          city: document.querySelector('input[name="city"]').value,
-          country: document.querySelector('input[name="country"]').value,
-          postal_code: document.getElementById("postal_code").value,
-        }),
-      });
-
-      const intentData = await intentRes.json();
-
-      if (!intentRes.ok || !intentData.client_secret || !intentData.order_id) {
-        throw new Error(intentData?.error || "Failed to initialize payment");
-      }
-
-      orderId = intentData.order_id;
-
-      document.getElementById("items-total").textContent =
-        format(intentData.breakdown.items_total_cents);
-
-      if (intentData.breakdown.small_order_fee_cents > 0) {
-        document.getElementById("small-order-fee").textContent =
-          format(intentData.breakdown.small_order_fee_cents);
-        document.getElementById("small-order-row").classList.remove("hidden");
-      }
-
-      document.getElementById("shipping-total").textContent = "—";
-      document.getElementById("order-total").textContent =
-        format(intentData.breakdown.total_cents);
-
-      elements = stripe.elements({
-        clientSecret: intentData.client_secret,
-      });
-
-      elements.create("payment").mount("#payment-element");
-
       const shipRes = await fetch("/checkout/shipping", {
         method: "POST",
         headers: {
