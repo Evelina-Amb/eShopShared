@@ -75,7 +75,7 @@
 
                                 @if($daysLeft >= 0)
                                     <div class="text-xs text-orange-600 mt-1">
-                                        ⏱ {{ $daysLeft }} day{{ $daysLeft === 1 ? '' : 's' }} left to ship
+                                        {{ $daysLeft }} day{{ $daysLeft === 1 ? '' : 's' }} left to ship
                                     </div>
                                 @else
                                     <div class="text-xs text-red-600 mt-1">
