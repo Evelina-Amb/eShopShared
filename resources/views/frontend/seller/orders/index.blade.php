@@ -22,14 +22,29 @@
 
                 <tbody>
                 @forelse($shipments as $s)
-                    <tr class="border-b">
+                    <tr class="border-b align-top">
                         <td class="p-3">#{{ $s->order_id }}</td>
+
                         <td class="p-3">
                             @foreach($s->order->orderItem as $item)
                                 @if($item->listing->user_id === auth()->id())
-                                    <div>
-                                        {{ $item->listing->pavadinimas }}
-                                        × {{ $item->kiekis }}
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <img
+                                            src="{{ $item->listing->photos->isNotEmpty()
+                                                ? asset('storage/' . $item->listing->photos->first()->failo_url)
+                                                : 'https://via.placeholder.com/60x60?text=No+Image'
+                                            }}"
+                                            class="w-14 h-14 object-cover rounded border"
+                                        >
+
+                                        <div>
+                                            <div class="font-medium">
+                                                {{ $item->listing->pavadinimas }}
+                                            </div>
+                                            <div class="text-gray-500 text-xs">
+                                                × {{ $item->kiekis }}
+                                            </div>
+                                        </div>
                                     </div>
                                 @endif
                             @endforeach
@@ -39,25 +54,46 @@
                             {{ strtoupper($s->carrier) }}
                             ({{ $s->package_size }})<br>
                             €{{ number_format($s->price_cents / 100, 2) }}
+
+                            @if($s->order->shipping_city)
+                                <div class="text-gray-500 text-xs mt-1">
+                                    Delivery: {{ $s->order->shipping_city }}, {{ $s->order->shipping_country }}
+                                </div>
+                            @endif
                         </td>
 
-                       <td class="p-3">
-    @if($s->status === 'pending')
-        <span class="text-gray-500">Waiting to ship</span>
+                        <td class="p-3">
+                            @php
+                                $deadline = \Carbon\Carbon::parse($s->created_at)->addDays(14);
+                                $daysLeft = now()->diffInDays($deadline, false);
+                            @endphp
 
-    @elseif($s->status === 'needs_review')
-        <span class="text-blue-600 font-medium">Waiting for approval</span>
+                            @if($s->status === 'pending')
+                                <div class="text-gray-500">Waiting to ship</div>
 
-    @elseif($s->status === 'approved')
-        <span class="text-orange-600">Processing reimbursement</span>
+                                @if($daysLeft >= 0)
+                                    <div class="text-xs text-orange-600 mt-1">
+                                        ⏱ {{ $daysLeft }} day{{ $daysLeft === 1 ? '' : 's' }} left to ship
+                                    </div>
+                                @else
+                                    <div class="text-xs text-red-600 mt-1">
+                                        Shipping deadline passed
+                                    </div>
+                                @endif
 
-    @elseif($s->status === 'reimbursed')
-        <span class="text-green-600">Completed</span>
+                            @elseif($s->status === 'needs_review')
+                                <span class="text-blue-600 font-medium">Waiting for approval</span>
 
-    @else
-        <span class="text-gray-400">Unknown</span>
-    @endif
-</td>
+                            @elseif($s->status === 'approved')
+                                <span class="text-orange-600">Processing reimbursement</span>
+
+                            @elseif($s->status === 'reimbursed')
+                                <span class="text-green-600">Completed</span>
+
+                            @else
+                                <span class="text-gray-400">Unknown</span>
+                            @endif
+                        </td>
 
                         <td class="p-3">
                             @if($s->status === 'pending')
