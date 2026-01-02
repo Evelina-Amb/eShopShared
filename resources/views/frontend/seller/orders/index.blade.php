@@ -55,12 +55,14 @@
                             ({{ $s->package_size }})<br>
                             €{{ number_format($s->price_cents / 100, 2) }}
 
-                            @if($s->order->shipping_city)
-                                <div class="text-gray-500 text-xs mt-1">
-                                    Delivery: {{ $s->order->shipping_city }}, {{ $s->order->shipping_country }}
-                                </div>
-                            @endif
-                        </td>
+@if($s->order->address && $s->order->address->city)
+    <div class="text-gray-500 text-xs mt-1">
+        Delivery:
+        {{ $s->order->address->city->pavadinimas }},
+        {{ $s->order->address->city->country->pavadinimas }}
+    </div>
+@endif
+</td>
 
                         <td class="p-3">
                             @php
