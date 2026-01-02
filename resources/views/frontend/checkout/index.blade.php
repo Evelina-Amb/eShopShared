@@ -72,6 +72,7 @@
         </label>
         <input
             id="postal_code"
+            name="postal_code"
             class="w-full border rounded px-3 py-2"
             required
         >
