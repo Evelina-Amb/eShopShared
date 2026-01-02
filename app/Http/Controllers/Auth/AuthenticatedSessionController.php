@@ -37,8 +37,15 @@ public function store(Request $request)
 
     $request->session()->regenerate();
 
+    $user = Auth::user();
+
+    if ($user->role === 'admin') {
+        return redirect()->to('/admin/shipments');
+    }
+
     return redirect()->intended('/');
 }
+
     /**
      * Destroy an authenticated session.
      */
