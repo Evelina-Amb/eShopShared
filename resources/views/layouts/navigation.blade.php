@@ -1,12 +1,12 @@
 <nav x-data="{ open: false }" class="bg-white border-b shadow sticky top-0 z-50">
     <!-- TOP BAR — Logo + Main Links -->
     <div class="bg-white border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center">
+        <div class="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center">
             
             <!-- LEFT: LOGO + MAIN LINKS -->
             <div class="flex items-center space-x-6 lg:space-x-8">
                 
-                <!-- LOGO --> 
+                <!-- LOGO -->
                 <a href="{{ route('home') }}" class="text-2xl font-bold text-blue-600">
                     eShop
                 </a>
@@ -64,10 +64,10 @@
                 </div>
             </div>
 
-            <!-- SPACER -->
+            <!-- GAP THAT GROWS WITH SCREEN SIZE -->
             <div class="flex-1"></div>
 
-            <!-- RIGHT SIDE (ALL SIZES) -->
+            <!-- RIGHT SIDE -->
             <div class="flex items-center space-x-4">
 
                 @auth
@@ -130,7 +130,7 @@
         </div>
     </div>
 
-    <!-- MOBILE MENU (NAV LINKS ONLY) -->
+    <!-- MOBILE MENU -->
     <div x-show="open" x-transition class="md:hidden border-t bg-white">
         <div class="px-4 py-3 space-y-1 text-gray-700 font-medium">
 
@@ -158,7 +158,7 @@
 @if($showSearchNav)
     <!-- BOTTOM BAR — Search + Filters -->
     <div class="bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div class="w-full px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row gap-3 sm:items-center">
 
             <!-- SEARCH BAR -->
             <form action="{{ route('search.listings') }}" method="GET" class="flex flex-grow max-w-3xl">
@@ -174,32 +174,33 @@
                 </button>
             </form>
 
-            <!-- FILTERS BUTTON -->
-            <button 
-                @click="$dispatch('toggle-filters')"
-                class="border px-4 py-2 rounded hover:bg-gray-100"
-            >
-                Filters
-            </button>
-
-            <!-- SORT -->
-            <form method="GET" action="{{ url()->current() }}">
-                @foreach(request()->except('sort') as $key => $value)
-                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                @endforeach
-
-                <select 
-                    name="sort" 
-                    onchange="this.form.submit()" 
-                    class="border px-3 py-2 rounded"
+            <!-- FILTERS + SORT -->
+            <div class="grid grid-cols-2 gap-3 sm:flex sm:gap-3">
+                <button 
+                    @click="$dispatch('toggle-filters')"
+                    class="border px-4 py-2 rounded hover:bg-gray-100 w-full"
                 >
-                    <option value="">Sort</option>
-                    <option value="newest" @selected(request('sort')=='newest')>Newest first</option>
-                    <option value="oldest" @selected(request('sort')=='oldest')>Oldest first</option>
-                    <option value="price_asc" @selected(request('sort')=='price_asc')>Price: Low to High</option>
-                    <option value="price_desc" @selected(request('sort')=='price_desc')>Price: High to Low</option>
-                </select>
-            </form>
+                    Filters
+                </button>
+
+                <form method="GET" action="{{ url()->current() }}" class="w-full">
+                    @foreach(request()->except('sort') as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+
+                    <select 
+                        name="sort" 
+                        onchange="this.form.submit()" 
+                        class="border px-3 py-2 rounded w-full"
+                    >
+                        <option value="">Sort</option>
+                        <option value="newest" @selected(request('sort')=='newest')>Newest first</option>
+                        <option value="oldest" @selected(request('sort')=='oldest')>Oldest first</option>
+                        <option value="price_asc" @selected(request('sort')=='price_asc')>Price: Low to High</option>
+                        <option value="price_desc" @selected(request('sort')=='price_desc')>Price: High to Low</option>
+                    </select>
+                </form>
+            </div>
 
         </div>
     </div>
