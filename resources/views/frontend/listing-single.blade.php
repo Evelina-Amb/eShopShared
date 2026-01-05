@@ -292,7 +292,7 @@ input[type=number] {
 {{-- OWNER OR REVIEWS DISABLED = FULL WIDTH --}}
 @if($isOwner || !$reviewsAllowed)
 
-    <div class="border rounded p-4 bg-gray-50 space-y-4">
+ <div class="border rounded p-4 bg-gray-50 space-y-4">
         @forelse($sortedReviews as $review)
             <div class="bg-white p-4 rounded border shadow-sm">
                 <div class="flex items-center gap-2">
