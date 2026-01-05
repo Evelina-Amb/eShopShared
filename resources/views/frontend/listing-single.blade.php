@@ -214,7 +214,193 @@ input[type=number] {
 
     {{-- REVIEWS SECTION --}}
 <div class="mt-16 border-t-4 border-blue-100 pt-8">
+@php
+    $user = auth()->user();
+    $isOwner = $user && $user->id === $listing->user_id;
 
+    // REVIEW ELIGIBILITY RULES
+    $reviewsAllowed = $listing->is_renewable || $listing->kiekis >= 1;
+
+    // SORT OPTION
+    $sort = request('sort', 'newest');
+
+    $sortedReviews = match($sort) {
+        'oldest'  => $listing->review->sortBy('created_at'),
+        'highest' => $listing->review->sortByDesc('ivertinimas'),
+        'lowest'  => $listing->review->sortBy('ivertinimas'),
+        default   => $listing->review->sortByDesc('created_at'),
+    };
+
+    // AVG + COUNT
+    $avgRating = round($listing->review->avg('ivertinimas'), 1);
+    $totalReviews = $listing->review->count();
+
+    // USER'S OWN REVIEW
+    $userReview = (!$isOwner && $user && $reviewsAllowed)
+        ? $listing->review->where('user_id', $user->id)->first()
+        : null;
+
+    $otherReviews = $sortedReviews->filter(fn($r) => !$user || $r->user_id !== $user->id);
+@endphp
+
+{{-- HEADER --}}
+<h3 class="font-semibold text-gray-800 mb-4 text-xl">Reviews</h3>
+
+{{-- IF REVIEWS NOT ALLOWED --}}
+@if(!$reviewsAllowed)
+    <p class="text-gray-600 italic">
+        Reviews are only available for renewable items or non-renewable items with quantity ≥ 1.
+    </p>
+    @if($totalReviews > 0)
+        <p class="text-sm text-gray-500 mt-2">
+            (Existing reviews below are visible but no new reviews can be posted.)
+        </p>
+    @endif
+@endif
+
+{{-- SHOW AVERAGE IF ANY REVIEWS EXIST --}}
+@if($totalReviews > 0)
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="text-3xl text-yellow-500">
+                {{ str_repeat('⭐', floor($avgRating)) }}
+                @if($avgRating - floor($avgRating) >= 0.5) ⭐ @endif
+            </div>
+
+            <div class="text-gray-700 text-lg">
+                <strong>{{ $avgRating }}</strong> / 5
+                <span class="text-gray-500">({{ $totalReviews }} reviews)</span>
+            </div>
+        </div>
+
+        {{-- SORT DROPDOWN --}}
+        <form method="GET">
+            <select
+                name="sort"
+                onchange="this.form.submit()"
+                class="border rounded px-2 py-1 text-sm"
+            >
+                <option value="newest" @selected($sort === 'newest')>Newest</option>
+                <option value="oldest" @selected($sort === 'oldest')>Oldest</option>
+                <option value="highest" @selected($sort === 'highest')>Highest rated</option>
+                <option value="lowest" @selected($sort === 'lowest')>Lowest rated</option>
+            </select>
+        </form>
+    </div>
+@endif
+
+{{-- OWNER OR REVIEWS DISABLED = FULL WIDTH --}}
+@if($isOwner || !$reviewsAllowed)
+
+    <div class="border rounded p-4 bg-gray-50 space-y-4">
+        @forelse($sortedReviews as $review)
+            <div class="bg-white p-4 rounded border shadow-sm">
+                <div class="flex items-center gap-2">
+                    <strong>{{ $review->user->vardas }}</strong>
+                    <span class="text-yellow-500">{{ str_repeat('⭐', $review->ivertinimas) }}</span>
+                </div>
+
+                @if($review->komentaras)
+                    <p class="text-gray-700 mt-2">{{ $review->komentaras }}</p>
+                @endif
+
+                <p class="text-gray-400 text-xs mt-1">
+                    {{ $review->created_at->diffForHumans() }}
+                </p>
+            </div>
+        @empty
+            <p class="text-gray-600 italic">No reviews yet.</p>
+        @endforelse
+    </div>
+
+@else
+{{-- IF USER CAN REVIEW = TWO COLUMN LAYOUT --}}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+    {{-- LEFT: OTHER REVIEWS --}}
+    <div class="border rounded p-4 bg-gray-50 max-h-96 overflow-y-auto space-y-4">
+        @forelse($otherReviews as $review)
+            <div class="bg-white p-4 rounded border shadow-sm">
+                <div class="flex items-center gap-2">
+                    <strong>{{ $review->user->vardas }}</strong>
+                    <span class="text-yellow-500">{{ str_repeat('⭐', $review->ivertinimas) }}</span>
+                </div>
+
+                @if($review->komentaras)
+                    <p class="text-gray-700 mt-2">{{ $review->komentaras }}</p>
+                @endif
+
+                <p class="text-gray-400 text-xs mt-1">
+                    {{ $review->created_at->diffForHumans() }}
+                </p>
+            </div>
+        @empty
+            <p class="text-gray-600 italic">No reviews yet.</p>
+        @endforelse
+    </div>
+
+    {{-- RIGHT: USER REVIEW FORM --}}
+    <div>
+
+        {{-- USER HAS ALREADY REWIEVED--}}
+        @if($userReview)
+
+            <h4 class="text-lg font-semibold mb-2">Your review</h4>
+
+            <div class="bg-white border rounded p-4 shadow-sm">
+                <div class="flex items-center gap-2">
+                    <strong>{{ $userReview->user->vardas }}</strong>
+                    <span class="text-yellow-500">
+                        {{ str_repeat('⭐', $userReview->ivertinimas) }}
+                    </span>
+                </div>
+
+                @if($userReview->komentaras)
+                    <p class="text-gray-700 mt-2">{{ $userReview->komentaras }}</p>
+                @endif
+
+                <p class="text-gray-400 text-xs mt-1">
+                    {{ $userReview->created_at->diffForHumans() }}
+                </p>
+            </div>
+
+        {{-- Form to leave a review --}}
+        @else
+
+            <h4 class="text-lg font-semibold mb-2">Leave a review</h4>
+
+            <form method="POST" action="{{ route('review.store', $listing->id) }}">
+                @csrf
+
+                <label class="block mb-2">
+                    Rating:
+                    <select name="ivertinimas" class="border rounded w-16 h-9 text-center">
+                        @foreach([1,2,3,4,5] as $n)
+                            <option value="{{ $n }}">{{ $n }}</option>
+                        @endforeach
+                    </select>
+                </label>
+
+                <textarea
+                    name="komentaras"
+                    rows="4"
+                    class="w-full border rounded p-2"
+                    placeholder="Write a review..."
+                ></textarea>
+
+                <button
+                    class="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Submit Review
+                </button>
+            </form>
+
+        @endif
+
+    </div>
+
+</div>
+@endif
+    
     {{-- OTHER PRODUCTS --}}
     @if($similar->count() > 0)
         <div class="mt-14">
