@@ -35,18 +35,19 @@
         >
             <!-- Filters Panel -->
             <div 
-                x-show="filtersOpen"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 -translate-y-4"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 -translate-y-4"
-                class="bg-gray-50 border-b p-6 shadow z-20"
-            >
-                @include('frontend.partials.filters')
-            </div>
-
+    x-show="filtersOpen"
+    x-cloak
+    x-collapse
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 -translate-y-4"
+    x-transition:enter-end="opacity-100 translate-y-0"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100 translate-y-0"
+    x-transition:leave-end="opacity-0 -translate-y-4"
+    class="bg-gray-50 border-b p-6 shadow z-20"
+>
+    @include('frontend.partials.filters')
+</div>
             <!-- Page actual content -->
             {{ $slot }}
         </main>
