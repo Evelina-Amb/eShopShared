@@ -1,7 +1,7 @@
 <nav x-data="{ open: false }" class="bg-white border-b shadow sticky top-0 z-50">
     <!-- TOP BAR — Logo + Main Links -->
     <div class="bg-white border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center">
             
             <!-- LEFT: LOGO + MAIN LINKS -->
             <div class="flex items-center space-x-6 lg:space-x-8">
@@ -64,10 +64,23 @@
                 </div>
             </div>
 
-            <!-- RIGHT SIDE -->
-            <div class="hidden md:flex items-center space-x-4 lg:space-x-6">
+            <!-- SPACER -->
+            <div class="flex-1"></div>
+
+            <!-- RIGHT SIDE (ALL SIZES) -->
+            <div class="flex items-center space-x-4">
 
                 @auth
+                    <!-- CART LINK -->
+                    <a href="{{ route('cart.index') }}" class="relative text-gray-700 hover:text-blue-600">
+                        Cart
+                        @if(session('cart_count', 0) > 0)
+                            <span class="absolute -top-2 -right-3 bg-red-600 text-white text-xs rounded-full px-1">
+                                {{ session('cart_count') }}
+                            </span>
+                        @endif
+                    </a>
+
                     <!-- USER DROPDOWN -->
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
@@ -96,38 +109,28 @@
                         </x-slot>
                     </x-dropdown>
 
-                    <!-- CART LINK -->
-                    <a href="{{ route('cart.index') }}" class="relative text-gray-700 hover:text-blue-600">
-                        Cart
-                        @if(session('cart_count', 0) > 0)
-                            <span class="absolute -top-2 -right-3 bg-red-600 text-white text-xs rounded-full px-1">
-                                {{ session('cart_count') }}
-                            </span>
-                        @endif
-                    </a>
-
                 @else
                     <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900">Log in</a>
                     <a href="{{ route('register') }}" class="text-blue-600 font-medium">Register</a>
                 @endauth
 
-            </div>
+                <!-- MOBILE MENU BUTTON -->
+                <button
+                    @click="open = !open"
+                    class="md:hidden inline-flex items-center justify-center p-2 rounded text-gray-700 hover:bg-gray-100"
+                >
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
 
-            <!-- MOBILE MENU BUTTON -->
-            <button
-                @click="open = !open"
-                class="md:hidden inline-flex items-center justify-center p-2 rounded text-gray-700 hover:bg-gray-100"
-            >
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-            </button>
+            </div>
 
         </div>
     </div>
 
-    <!-- MOBILE MENU -->
+    <!-- MOBILE MENU (NAV LINKS ONLY) -->
     <div x-show="open" x-transition class="md:hidden border-t bg-white">
         <div class="px-4 py-3 space-y-1 text-gray-700 font-medium">
 
@@ -143,19 +146,6 @@
                 @if(auth()->user()->role === 'seller')
                     <a href="{{ route('seller.orders') }}" class="block px-2 py-2 rounded hover:bg-gray-100">My sales</a>
                 @endif
-
-                <a href="{{ route('cart.index') }}" class="block px-2 py-2 rounded hover:bg-gray-100">Cart</a>
-                <a href="{{ route('profile.edit') }}" class="block px-2 py-2 rounded hover:bg-gray-100">Profile</a>
-
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="block w-full text-left px-2 py-2 rounded hover:bg-gray-100">
-                        Log out
-                    </button>
-                </form>
-            @else
-                <a href="{{ route('login') }}" class="block px-2 py-2 rounded hover:bg-gray-100">Log in</a>
-                <a href="{{ route('register') }}" class="block px-2 py-2 rounded hover:bg-gray-100 text-blue-600">Register</a>
             @endauth
 
         </div>
