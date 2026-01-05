@@ -112,8 +112,53 @@
                 @endauth
 
             </div>
+
+            <!-- MOBILE MENU BUTTON -->
+            <button
+                @click="open = !open"
+                class="md:hidden inline-flex items-center justify-center p-2 rounded text-gray-700 hover:bg-gray-100"
+            >
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
         </div>
     </div>
+
+    <!-- MOBILE MENU -->
+    <div x-show="open" x-transition class="md:hidden border-t bg-white">
+        <div class="px-4 py-3 space-y-2 text-gray-700 font-medium">
+
+            <a href="{{ route('home', ['tipas' => 'preke']) }}" class="block">Products</a>
+            <a href="{{ route('home', ['tipas' => 'paslauga']) }}" class="block">Services</a>
+            <a href="{{ route('favorites.page') }}" class="block">My Favorites</a>
+
+            @auth
+                <a href="{{ route('my.listings') }}" class="block">My Listings</a>
+                <a href="{{ route('listing.create') }}" class="block">Post a Listing</a>
+                <a href="{{ route('buyer.orders') }}" class="block">My purchases</a>
+
+                @if(auth()->user()->role === 'seller')
+                    <a href="{{ route('seller.orders') }}" class="block">My sales</a>
+                @endif
+
+                <a href="{{ route('cart.index') }}" class="block">Cart</a>
+                <a href="{{ route('profile.edit') }}" class="block">Profile</a>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="block w-full text-left">Log out</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="block">Log in</a>
+                <a href="{{ route('register') }}" class="block text-blue-600">Register</a>
+            @endauth
+
+        </div>
+    </div>
+
 @php
     $showSearchNav = request()->routeIs('home', 'search.listings');
 @endphp
@@ -121,7 +166,7 @@
 @if($showSearchNav)
     <!-- BOTTOM BAR — Search + Filters -->
     <div class="bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center space-x-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row gap-3 sm:h-16 sm:items-center sm:space-x-4">
 
             <!-- SEARCH BAR -->
             <form action="{{ route('search.listings') }}" method="GET" class="flex flex-grow max-w-3xl">
@@ -166,5 +211,5 @@
 
         </div>
     </div>
-    @endif
+@endif
 </nav>
