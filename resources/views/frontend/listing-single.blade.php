@@ -84,7 +84,7 @@ input[type=number] {
                             @click.prevent="toggle({{ $listing->id }})"
                             class="text-3xl"
                         >
-                            <span x-show="isFavorite({{ $listing->id }})" class="text-red-500">❤️</span>
+                            <span x-show="isFavorite({{ $listing->id }})" class="text-red-500">♥️</span>
                             <span x-show="!isFavorite({{ $listing->id }})" class="text-gray-300">🤍</span>
                         </button>
                     @endif
