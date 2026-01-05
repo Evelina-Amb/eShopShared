@@ -299,11 +299,16 @@ input[type=number] {
     </div>
 @endif
 
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start">
 
         {{-- LEFT: REVIEWS --}}
         <div class="space-y-4">
+
+            {{-- spacer to align with "Leave a review" heading --}}
+            <div class="font-semibold mb-2 invisible">
+                Leave a review
+            </div>
+
             @forelse($otherReviews as $review)
                 <div class="bg-white p-4 rounded border">
                     <div class="flex items-center gap-2 mb-1">
@@ -357,8 +362,6 @@ input[type=number] {
 
     </div>
 </section>
-
-    
 
 </div>
 </x-app-layout>
