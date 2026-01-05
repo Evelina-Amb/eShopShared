@@ -5,7 +5,7 @@
     x-init="Alpine.store('favorites').load()"
     class="container mx-auto px-3 sm:px-4 mt-6 sm:mt-8"
 >
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-8 gap-4 sm:gap-6">
 
         @forelse ($listings as $item)
             <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition flex flex-col">
