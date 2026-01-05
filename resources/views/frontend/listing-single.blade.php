@@ -270,34 +270,35 @@ input[type=number] {
 
     <h3 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Reviews</h3>
 
-    @if($totalReviews > 0)
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div class="flex items-center gap-3">
-                <div class="text-2xl sm:text-3xl text-yellow-500">
-                    {{ str_repeat('⭐', floor($avgRating)) }}
-                </div>
-                <div>
-                    <strong>{{ $avgRating }}</strong> / 5
-                    <span class="text-gray-500 text-sm">
-                        ({{ $totalReviews }} reviews)
-                    </span>
-                </div>
+@if($totalReviews > 0)
+    <div class="mb-6">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="text-2xl sm:text-3xl text-yellow-500">
+                {{ str_repeat('⭐', floor($avgRating)) }}
             </div>
-
-            <form method="GET" class="w-full sm:w-auto">
-                <select
-                    name="sort"
-                    onchange="this.form.submit()"
-                    class="border rounded px-3 py-2 w-full sm:w-auto"
-                >
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="highest">Highest</option>
-                    <option value="lowest">Lowest</option>
-                </select>
-            </form>
+            <div>
+                <strong>{{ $avgRating }}</strong> / 5
+                <span class="text-gray-500 text-sm">
+                    ({{ $totalReviews }} reviews)
+                </span>
+            </div>
         </div>
-    @endif
+
+        <form method="GET" class="w-full sm:w-auto">
+            <select
+                name="sort"
+                onchange="this.form.submit()"
+                class="border rounded px-3 py-2 w-full sm:w-48"
+            >
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="highest">Highest</option>
+                <option value="lowest">Lowest</option>
+            </select>
+        </form>
+    </div>
+@endif
+
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
 
