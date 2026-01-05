@@ -261,10 +261,6 @@ input[type=number] {
         $avgRating = round($listing->review->avg('ivertinimas'), 1);
         $totalReviews = $listing->review->count();
 
-        $userReview = (!$isOwner && $user && $reviewsAllowed)
-            ? $listing->review->where('user_id', $user->id)->first()
-            : null;
-
         $otherReviews = $sortedReviews->filter(fn($r) => !$user || $r->user_id !== $user->id);
     @endphp
 
@@ -284,11 +280,11 @@ input[type=number] {
             </div>
         </div>
 
-        <form method="GET" class="w-full sm:w-auto">
+        <form method="GET" class="w-full sm:w-48">
             <select
                 name="sort"
                 onchange="this.form.submit()"
-                class="border rounded px-3 py-2 w-full sm:w-48"
+                class="border rounded px-3 py-2 w-full"
             >
                 <option value="newest">Newest</option>
                 <option value="oldest">Oldest</option>
@@ -303,12 +299,6 @@ input[type=number] {
 
         {{-- LEFT: REVIEWS --}}
         <div class="space-y-4">
-
-            {{-- spacer to align with "Leave a review" heading --}}
-            <div class="font-semibold mb-2 invisible">
-                Leave a review
-            </div>
-
             @forelse($otherReviews as $review)
                 <div class="bg-white p-4 rounded border">
                     <div class="flex items-center gap-2 mb-1">
@@ -328,7 +318,7 @@ input[type=number] {
 
         {{-- RIGHT: REVIEW FORM --}}
         @if(!$isOwner && $reviewsAllowed)
-            <div>
+            <div class="md:-mt-24">
                 <h4 class="font-semibold mb-2">Leave a review</h4>
 
                 <form method="POST" action="{{ route('review.store', $listing->id) }}"
@@ -337,7 +327,7 @@ input[type=number] {
 
                     <select
                         name="ivertinimas"
-                        class="border rounded px-3 py-2 w-full sm:w-auto"
+                        class="border rounded px-3 py-2 w-full"
                     >
                         @foreach([1,2,3,4,5] as $n)
                             <option value="{{ $n }}">{{ $n }}</option>
@@ -352,7 +342,7 @@ input[type=number] {
                     ></textarea>
 
                     <button
-                        class="bg-blue-600 text-white px-4 py-2 rounded w-full sm:w-auto"
+                        class="bg-blue-600 text-white px-4 py-2 rounded w-full"
                     >
                         Submit Review
                     </button>
@@ -362,6 +352,7 @@ input[type=number] {
 
     </div>
 </section>
+
 
 </div>
 </x-app-layout>
