@@ -243,7 +243,7 @@ input[type=number] {
 @endif
 
 {{-- REVIEWS SECTION --}}
-<section class="mt-12 sm:mt-[90px]">
+<section class="mt-12 sm:mt-16">
 
     @php
         $user = auth()->user();
@@ -264,61 +264,63 @@ input[type=number] {
         $otherReviews = $sortedReviews->filter(fn($r) => !$user || $r->user_id !== $user->id);
     @endphp
 
-    <h3 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Reviews</h3>
-
-@if($totalReviews > 0)
-    <div class="mb-6">
-        <div class="flex items-center gap-3 mb-3">
-            <div class="text-2xl sm:text-3xl text-yellow-500">
-                {{ str_repeat('⭐', floor($avgRating)) }}
-            </div>
-            <div>
-                <strong>{{ $avgRating }}</strong> / 5
-                <span class="text-gray-500 text-sm">
-                    ({{ $totalReviews }} reviews)
-                </span>
-            </div>
-        </div>
-
-        <form method="GET" class="w-full sm:w-48">
-            <select
-                name="sort"
-                onchange="this.form.submit()"
-                class="border rounded px-3 py-2 w-full"
-            >
-                <option value="newest">Newest</option>
-                <option value="oldest">Oldest</option>
-                <option value="highest">Highest</option>
-                <option value="lowest">Lowest</option>
-            </select>
-        </form>
-    </div>
-@endif
-
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start">
 
-        {{-- LEFT: REVIEWS --}}
-        <div class="space-y-4">
-            @forelse($otherReviews as $review)
-                <div class="bg-white p-4 rounded border">
-                    <div class="flex items-center gap-2 mb-1">
-                        <strong>{{ $review->user->vardas }}</strong>
-                        <span class="text-yellow-500 text-sm">
-                            {{ str_repeat('⭐', $review->ivertinimas) }}
-                        </span>
+        <div>
+            <h3 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Reviews</h3>
+
+            @if($totalReviews > 0)
+                <div class="mb-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="text-2xl sm:text-3xl text-yellow-500">
+                            {{ str_repeat('⭐', floor($avgRating)) }}
+                        </div>
+                        <div>
+                            <strong>{{ $avgRating }}</strong> / 5
+                            <span class="text-gray-500 text-sm">
+                                ({{ $totalReviews }} reviews)
+                            </span>
+                        </div>
                     </div>
-                    <p class="text-gray-700 text-sm sm:text-base">
-                        {{ $review->komentaras }}
-                    </p>
+
+                    <form method="GET" class="w-full sm:w-48">
+                        <select
+                            name="sort"
+                            onchange="this.form.submit()"
+                            class="border rounded px-3 py-2 w-full"
+                        >
+                            <option value="newest">Newest</option>
+                            <option value="oldest">Oldest</option>
+                            <option value="highest">Highest</option>
+                            <option value="lowest">Lowest</option>
+                        </select>
+                    </form>
                 </div>
-            @empty
-                <p class="text-gray-500 italic">No reviews yet.</p>
-            @endforelse
+            @endif
+
+            {{-- LEFT: REVIEWS --}}
+            <div class="space-y-4">
+                @forelse($otherReviews as $review)
+                    <div class="bg-white p-4 rounded border">
+                        <div class="flex items-center gap-2 mb-1">
+                            <strong>{{ $review->user->vardas }}</strong>
+                            <span class="text-yellow-500 text-sm">
+                                {{ str_repeat('⭐', $review->ivertinimas) }}
+                            </span>
+                        </div>
+                        <p class="text-gray-700 text-sm sm:text-base">
+                            {{ $review->komentaras }}
+                        </p>
+                    </div>
+                @empty
+                    <p class="text-gray-500 italic">No reviews yet.</p>
+                @endforelse
+            </div>
         </div>
 
         {{-- RIGHT: REVIEW FORM --}}
         @if(!$isOwner && $reviewsAllowed)
-            <div class="md:-mt-16">
+            <div>
                 <h4 class="font-semibold mb-2">Leave a review</h4>
 
                 <form method="POST" action="{{ route('review.store', $listing->id) }}"
