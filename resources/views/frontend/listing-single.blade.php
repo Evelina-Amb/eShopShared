@@ -152,7 +152,7 @@ input[type=number] {
                           class="flex items-center gap-4">
                         @csrf
 
-                        {{-- FIXED: square quantity buttons --}}
+                        {{-- FIX: square quantity buttons --}}
                         <div class="flex items-center gap-1">
                             <button type="button"
                                 onclick="let q=this.nextElementSibling; q.value = Math.max(1, (parseInt(q.value)||1)-1);"
@@ -186,33 +186,23 @@ input[type=number] {
                 {{-- SELLER INFO --}}
                 <div class="mt-10 border-t pt-6">
                     <h3 class="font-semibold text-gray-800 mb-2">Seller</h3>
-
                     <div class="bg-gray-50 p-4 rounded border">
                         <div class="text-gray-900 font-semibold text-lg">
                             {{ $listing->user->vardas }} {{ $listing->user->pavarde }}
                         </div>
-
                         @if($listing->user->business_email)
                             <div class="text-gray-600 text-sm mt-1">
                                 Email: {{ $listing->user->business_email }}
                             </div>
                         @endif
-
                         @if($listing->user->telefonas)
                             <div class="text-gray-700 text-sm mt-1">
                                 Tel: {{ $listing->user->telefonas }}
                             </div>
                         @endif
-
                         @if($listing->user->address?->city)
                             <div class="text-gray-700 text-sm mt-1">
                                 City: {{ $listing->user->address->city->pavadinimas }}
-                            </div>
-                        @endif
-
-                        @if(!$listing->user->business_email && !$listing->user->telefonas)
-                            <div class="text-red-600 text-sm mt-2">
-                                No public contact information available.
                             </div>
                         @endif
                     </div>
