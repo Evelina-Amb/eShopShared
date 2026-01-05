@@ -14,11 +14,11 @@ input[type=number] {
 }
 </style>
 
-<div class="max-w-6xl mx-auto py-10 px-4">
+<div class="max-w-6xl mx-auto py-6 sm:py-10 px-3 sm:px-4">
 
     {{-- SUCCESS MESSAGE --}}
     @if(session('success'))
-        <div class="mb-6 px-4">
+        <div class="mb-6 px-0 sm:px-4">
             <div class="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded">
                 {{ session('success') }}
             </div>
@@ -26,7 +26,7 @@ input[type=number] {
     @endif
 
     @if(session('error'))
-        <div class="mb-6 px-4">
+        <div class="mb-6 px-0 sm:px-4">
             <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded">
                 {{ session('error') }}
             </div>
@@ -34,9 +34,9 @@ input[type=number] {
     @endif
 
     {{-- LISTING CARD --}}
-    <div class="bg-white rounded-lg shadow p-6">
+    <div class="bg-white rounded-lg shadow p-4 sm:p-6">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
 
             {{-- LEFT: IMAGE GALLERY --}}
             <div>
@@ -46,15 +46,15 @@ input[type=number] {
                         ? asset('storage/' . $listing->photos->first()->failo_url)
                         : 'https://via.placeholder.com/600x450?text=No+Image'
                     }}"
-                    class="rounded-lg shadow w-full max-h-[450px] object-cover mb-4"
+                    class="rounded-lg shadow w-full max-h-[320px] sm:max-h-[450px] object-cover mb-4"
                 />
 
                 @if($listing->photos->count() > 1)
-                    <div class="flex gap-3">
+                    <div class="flex gap-2 sm:gap-3 overflow-x-auto">
                         @foreach($listing->photos as $photo)
                             <img
                                 src="{{ asset('storage/' . $photo->failo_url) }}"
-                                class="w-20 h-20 rounded object-cover cursor-pointer border hover:ring-2 hover:ring-blue-400"
+                                class="w-16 h-16 sm:w-20 sm:h-20 rounded object-cover cursor-pointer border hover:ring-2 hover:ring-blue-400"
                                 onclick="document.getElementById('mainImage').src=this.src"
                             >
                         @endforeach
@@ -73,15 +73,15 @@ input[type=number] {
                 </div>
 
                 {{-- TITLE + FAVORITE BUTTON --}}
-                <div class="flex items-center justify-between mb-4">
-                    <h1 class="text-3xl font-bold text-gray-900">
+                <div class="flex items-start justify-between mb-4 gap-3">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 leading-snug">
                         {{ $listing->pavadinimas }}
                     </h1>
 
                     @if(auth()->check() && auth()->id() !== $listing->user_id)
                         <button type="button"
                             @click.prevent="toggle({{ $listing->id }})"
-                            class="text-3xl">
+                            class="text-3xl shrink-0">
                             <span x-show="isFavorite({{ $listing->id }})" class="text-red-500">❤️</span>
                             <span x-show="!isFavorite({{ $listing->id }})" class="text-gray-300">🤍</span>
                         </button>
@@ -89,12 +89,12 @@ input[type=number] {
                 </div>
 
                 {{-- DESCRIPTION --}}
-                <div class="text-gray-700 leading-relaxed mb-6 whitespace-pre-line">
+                <div class="text-gray-700 leading-relaxed mb-6 whitespace-pre-line text-sm sm:text-base">
                     {!! nl2br(e($listing->aprasymas)) !!}
                 </div>
 
                 {{-- PRICE --}}
-                <div class="text-2xl font-semibold text-gray-800 mb-2">
+                <div class="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">
                     {{ number_format($listing->kaina, 2, ',', '.') }} €
                     <span class="text-gray-500 text-sm">
                         @if($listing->tipas === 'preke') / vnt @else / Service @endif
@@ -121,9 +121,9 @@ input[type=number] {
                 {{-- CART OR EDIT --}}
                 @if(auth()->check() && auth()->id() === $listing->user_id)
 
-                    <div class="flex gap-4 mt-4">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4">
                         <a href="{{ route('listing.edit', $listing->id) }}"
-                           class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center w-40">
+                           class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center w-full sm:w-40">
                             Edit listing
                         </a>
 
@@ -134,7 +134,7 @@ input[type=number] {
                             @method('DELETE')
 
                             <button type="submit"
-                                class="px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700 transition text-center w-40">
+                                class="px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700 transition text-center w-full sm:w-40">
                                 Delete listing
                             </button>
                         </form>
@@ -149,7 +149,7 @@ input[type=number] {
                 @else
                     {{-- ADD TO CART --}}
                     <form method="POST" action="{{ route('cart.add', $listing->id) }}"
-                          class="flex items-center gap-4">
+                          class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         @csrf
 
                         {{-- FIX: square quantity buttons --}}
@@ -177,31 +177,31 @@ input[type=number] {
                         </div>
 
                         <button type="submit"
-                            class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                            class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition w-full sm:w-auto">
                             Add to cart
                         </button>
                     </form>
                 @endif
 
                 {{-- SELLER INFO --}}
-                <div class="mt-10 border-t pt-6">
+                <div class="mt-8 sm:mt-10 border-t pt-6">
                     <h3 class="font-semibold text-gray-800 mb-2">Seller</h3>
-                    <div class="bg-gray-50 p-4 rounded border">
-                        <div class="text-gray-900 font-semibold text-lg">
+                    <div class="bg-gray-50 p-4 rounded border text-sm">
+                        <div class="text-gray-900 font-semibold text-base sm:text-lg">
                             {{ $listing->user->vardas }} {{ $listing->user->pavarde }}
                         </div>
                         @if($listing->user->business_email)
-                            <div class="text-gray-600 text-sm mt-1">
+                            <div class="text-gray-600 mt-1">
                                 Email: {{ $listing->user->business_email }}
                             </div>
                         @endif
                         @if($listing->user->telefonas)
-                            <div class="text-gray-700 text-sm mt-1">
+                            <div class="text-gray-700 mt-1">
                                 Tel: {{ $listing->user->telefonas }}
                             </div>
                         @endif
                         @if($listing->user->address?->city)
-                            <div class="text-gray-700 text-sm mt-1">
+                            <div class="text-gray-700 mt-1">
                                 City: {{ $listing->user->address->city->pavadinimas }}
                             </div>
                         @endif
@@ -212,11 +212,10 @@ input[type=number] {
         </div>
     </div>
 
-
 {{-- OTHER PRODUCTS --}}
 @if($similar->count() > 0)
-<section class="mt-20">
-    <h2 class="text-2xl font-bold mb-6">Other products from this seller</h2>
+<section class="mt-14 sm:mt-20">
+    <h2 class="text-xl sm:text-2xl font-bold mb-6">Other products from this seller</h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         @foreach($similar as $s)
