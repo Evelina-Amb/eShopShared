@@ -385,7 +385,36 @@ input[type=number] {
     </div>
     @endif
 
-</div>
+{{-- OTHER PRODUCTS --}}
+    @if($similar->count() > 0)
+        <div class="mt-14">
+            <h2 class="text-xl sm:text-2xl font-bold mb-6">Other products from this seller</h2>
+
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
+                @foreach($similar as $s)
+                    @if($s->id !== $listing->id)
+                        <a href="{{ route('listing.single', $s->id) }}"
+                           class="bg-white shadow rounded overflow-hidden hover:shadow-md transition">
+                            <img
+                                src="{{ $s->photos->isNotEmpty()
+                                    ? asset('storage/' . $s->photos->first()->failo_url)
+                                    : 'https://via.placeholder.com/300'
+                                }}"
+                                class="w-full h-40 object-cover"
+                            >
+
+                            <div class="p-4">
+                                <div class="font-semibold mb-1">{{ $s->pavadinimas }}</div>
+                                <div class="text-green-700 font-semibold">
+                                    {{ number_format($s->kaina, 2, ',', '.') }} €
+                                </div>
+                            </div>
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+    @endif
 
 </div>
 </x-app-layout>
