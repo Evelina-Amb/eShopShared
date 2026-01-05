@@ -130,27 +130,6 @@
         </div>
     </div>
 
-    <!-- MOBILE MENU -->
-    <div x-show="open" x-transition class="md:hidden border-t bg-white">
-        <div class="px-4 py-3 space-y-1 text-gray-700 font-medium">
-
-            <a href="{{ route('home', ['tipas' => 'preke']) }}" class="block px-2 py-2 rounded hover:bg-gray-100">Products</a>
-            <a href="{{ route('home', ['tipas' => 'paslauga']) }}" class="block px-2 py-2 rounded hover:bg-gray-100">Services</a>
-            <a href="{{ route('favorites.page') }}" class="block px-2 py-2 rounded hover:bg-gray-100">My Favorites</a>
-
-            @auth
-                <a href="{{ route('my.listings') }}" class="block px-2 py-2 rounded hover:bg-gray-100">My Listings</a>
-                <a href="{{ route('listing.create') }}" class="block px-2 py-2 rounded hover:bg-gray-100">Post a Listing</a>
-                <a href="{{ route('buyer.orders') }}" class="block px-2 py-2 rounded hover:bg-gray-100">My purchases</a>
-
-                @if(auth()->user()->role === 'seller')
-                    <a href="{{ route('seller.orders') }}" class="block px-2 py-2 rounded hover:bg-gray-100">My sales</a>
-                @endif
-            @endauth
-
-        </div>
-    </div>
-
 @php
     $showSearchNav = request()->routeIs('home', 'search.listings');
 @endphp
@@ -158,50 +137,52 @@
 @if($showSearchNav)
     <!-- BOTTOM BAR — Search + Filters -->
     <div class="bg-gray-50">
-        <div class="w-full px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div class="px-4 sm:px-6 lg:px-8 py-3">
+            <div class="max-w-6xl mx-auto flex flex-col sm:flex-row gap-3 sm:items-center justify-center">
 
-            <!-- SEARCH BAR -->
-            <form action="{{ route('search.listings') }}" method="GET" class="flex flex-grow max-w-3xl">
-                <input 
-                    type="text"
-                    name="q"
-                    class="flex-grow border rounded-l px-4 py-2"
-                    placeholder="Search for listing..."
-                    value="{{ request('q') }}"
-                >
-                <button class="bg-blue-600 text-white px-4 py-2 rounded-r">
-                    Search
-                </button>
-            </form>
-
-            <!-- FILTERS + SORT -->
-            <div class="grid grid-cols-2 gap-3 sm:flex sm:gap-3">
-                <button 
-                    @click="$dispatch('toggle-filters')"
-                    class="border px-4 py-2 rounded hover:bg-gray-100 w-full"
-                >
-                    Filters
-                </button>
-
-                <form method="GET" action="{{ url()->current() }}" class="w-full">
-                    @foreach(request()->except('sort') as $key => $value)
-                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                    @endforeach
-
-                    <select 
-                        name="sort" 
-                        onchange="this.form.submit()" 
-                        class="border px-3 py-2 rounded w-full"
+                <!-- SEARCH BAR -->
+                <form action="{{ route('search.listings') }}" method="GET" class="flex flex-grow max-w-3xl mx-auto">
+                    <input 
+                        type="text"
+                        name="q"
+                        class="flex-grow border rounded-l px-4 py-2"
+                        placeholder="Search for listing..."
+                        value="{{ request('q') }}"
                     >
-                        <option value="">Sort</option>
-                        <option value="newest" @selected(request('sort')=='newest')>Newest first</option>
-                        <option value="oldest" @selected(request('sort')=='oldest')>Oldest first</option>
-                        <option value="price_asc" @selected(request('sort')=='price_asc')>Price: Low to High</option>
-                        <option value="price_desc" @selected(request('sort')=='price_desc')>Price: High to Low</option>
-                    </select>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-r">
+                        Search
+                    </button>
                 </form>
-            </div>
 
+                <!-- FILTERS + SORT -->
+                <div class="grid grid-cols-2 gap-3 sm:flex sm:gap-3 justify-center">
+                    <button 
+                        @click="$dispatch('toggle-filters')"
+                        class="border px-4 py-2 rounded hover:bg-gray-100 w-full sm:w-auto"
+                    >
+                        Filters
+                    </button>
+
+                    <form method="GET" action="{{ url()->current() }}" class="w-full sm:w-auto">
+                        @foreach(request()->except('sort') as $key => $value)
+                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                        @endforeach
+
+                        <select 
+                            name="sort" 
+                            onchange="this.form.submit()" 
+                            class="border px-3 py-2 rounded w-full sm:w-auto"
+                        >
+                            <option value="">Sort</option>
+                            <option value="newest" @selected(request('sort')=='newest')>Newest first</option>
+                            <option value="oldest" @selected(request('sort')=='oldest')>Oldest first</option>
+                            <option value="price_asc" @selected(request('sort')=='price_asc')>Price: Low to High</option>
+                            <option value="price_desc" @selected(request('sort')=='price_desc')>Price: High to Low</option>
+                        </select>
+                    </form>
+                </div>
+
+            </div>
         </div>
     </div>
 @endif
