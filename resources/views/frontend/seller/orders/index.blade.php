@@ -1,6 +1,6 @@
 <x-app-layout>
-    <div class="max-w-6xl mx-auto mt-10">
-        <h1 class="text-2xl font-bold mb-6">My Sales & Shipments</h1>
+    <div class="max-w-6xl mx-auto mt-6 sm:mt-10 px-3 sm:px-0">
+        <h1 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">My Sales & Shipments</h1>
 
         @if(session('success'))
             <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
@@ -8,9 +8,9 @@
             </div>
         @endif
 
-        <div class="bg-white shadow rounded">
+        <div class="bg-white shadow rounded overflow-hidden">
             <table class="w-full text-sm">
-                <thead class="border-b bg-gray-50">
+                <thead class="border-b bg-gray-50 hidden sm:table-header-group">
                     <tr>
                         <th class="p-3 text-left">Order</th>
                         <th class="p-3 text-left">Items</th>
@@ -22,13 +22,17 @@
 
                 <tbody>
                 @forelse($shipments as $s)
-                    <tr class="border-b align-top">
-                        <td class="p-3">#{{ $s->order_id }}</td>
+                    <tr class="border-b block sm:table-row align-top">
+                        <td class="p-3 block sm:table-cell">
+                            <span class="font-semibold sm:hidden">Order: </span>
+                            #{{ $s->order_id }}
+                        </td>
 
-                        <td class="p-3">
+                        <td class="p-3 block sm:table-cell">
+                            <span class="font-semibold sm:hidden">Items:</span>
                             @foreach($s->order->orderItem as $item)
                                 @if($item->listing->user_id === auth()->id())
-                                    <div class="flex items-center gap-3 mb-3">
+                                    <div class="flex items-center gap-3 mb-3 mt-2">
                                         <img
                                             src="{{ $item->listing->photos->isNotEmpty()
                                                 ? asset('storage/' . $item->listing->photos->first()->failo_url)
@@ -50,7 +54,8 @@
                             @endforeach
                         </td>
 
-                        <td class="p-3">
+                        <td class="p-3 block sm:table-cell">
+                            <span class="font-semibold sm:hidden">Shipping: </span>
                             {{ strtoupper($s->carrier) }}
                             ({{ $s->package_size }})<br>
                             €{{ number_format($s->price_cents / 100, 2) }}
@@ -62,9 +67,10 @@
         {{ $s->order->address->city->country->pavadinimas }}
     </div>
 @endif
-</td>
+                        </td>
 
-                        <td class="p-3">
+                        <td class="p-3 block sm:table-cell">
+                            <span class="font-semibold sm:hidden">Status: </span>
                             @php
                                 $deadline = \Carbon\Carbon::parse($s->created_at)->addDays(14);
                                 $daysLeft = now()->diffInDays($deadline, false);
@@ -97,29 +103,30 @@
                             @endif
                         </td>
 
-                        <td class="p-3">
+                        <td class="p-3 block sm:table-cell">
+                            <span class="font-semibold sm:hidden">Shipment proof:</span>
                             @if($s->status === 'pending')
                                 <form method="POST"
                                       action="{{ route('seller.shipments.update', $s) }}"
                                       enctype="multipart/form-data"
-                                      class="space-y-2">
+                                      class="space-y-2 mt-2">
 
                                     @csrf
 
                                     <input
                                         name="tracking_number"
-                                        class="border p-1 rounded w-full"
+                                        class="border p-2 rounded w-full"
                                         placeholder="Tracking number (optional)"
                                     >
 
                                     <input
                                         type="file"
                                         name="proof"
-                                        class="border p-1 rounded w-full"
+                                        class="border p-2 rounded w-full"
                                     >
 
                                     <button
-                                        class="bg-blue-600 text-white px-3 py-1 rounded w-full">
+                                        class="bg-blue-600 text-white px-3 py-2 rounded w-full">
                                         Submit shipment
                                     </button>
                                 </form>
