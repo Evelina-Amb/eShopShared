@@ -212,7 +212,7 @@ input[type=number] {
     </div>
 
     {{-- REVIEWS SECTION --}}
-    <div class="mt-16 border-t-4 border-blue-100 pt-8">
+    <div>
 
         @php
             $user = auth()->user();
@@ -305,7 +305,7 @@ input[type=number] {
         </div>
 
     @else
-    {{-- USER CAN REVIEW = TWO COLUMN LAYOUT --}}
+    {{-- IF USER CAN REVIEW = TWO COLUMN LAYOUT --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
         {{-- LEFT: OTHER REVIEWS --}}
