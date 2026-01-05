@@ -6,7 +6,7 @@
             <!-- LEFT: LOGO + MAIN LINKS -->
             <div class="flex items-center space-x-6 lg:space-x-8">
                 
-                <!-- LOGO -->
+                <!-- LOGO --> 
                 <a href="{{ route('home') }}" class="text-2xl font-bold text-blue-600">
                     eShop
                 </a>
