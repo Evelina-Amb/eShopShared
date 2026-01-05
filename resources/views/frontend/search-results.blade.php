@@ -1,6 +1,6 @@
 <x-app-layout>
 
-    <div class="container mx-auto px-4 mt-10">
+    <div class="container mx-auto px-3 sm:px-4 mt-6 sm:mt-10">
 
         {{-- Applied Filters --}}
         @php 
@@ -8,8 +8,8 @@
         @endphp
 
         @if (!empty($filters))
-            <div class="flex flex-wrap gap-2 mb-6">
-                
+            <div class="flex flex-wrap gap-2 mb-4 sm:mb-6">
+
                 @foreach ($filters as $key => $value)
 
                     @php
@@ -56,7 +56,7 @@
 
                     <a
                         href="{{ route('search.listings') }}?{{ $query }}"
-                        class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2"
+                        class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2 text-sm"
                     >
                         <span>{{ $label }}: {{ $value }}</span>
                         <span class="font-bold">✕</span>
@@ -67,7 +67,7 @@
                 {{-- Clear all --}}
                 <a
                     href="{{ route('search.listings') }}"
-                    class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold"
+                    class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold text-sm"
                 >
                     Clear all
                 </a>
@@ -76,22 +76,22 @@
         @endif
 
         <!-- Listings Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4 sm:gap-6">
 
             @forelse ($listings as $item)
-                <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
+                <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition flex flex-col">
 
                     <div class="relative">
 
                         @if($item->photos->isNotEmpty())
                             <img
                                 src="{{ asset('storage/' . $item->photos->first()->failo_url) }}"
-                                class="w-full h-48 object-cover"
+                                class="w-full h-44 sm:h-48 object-cover"
                             >
                         @else
                             <img
                                 src="https://via.placeholder.com/300x200?text=No+Image"
-                                class="w-full h-48 object-cover"
+                                class="w-full h-44 sm:h-48 object-cover"
                             >
                         @endif
 
@@ -101,7 +101,7 @@
                                 <button
                                     type="button"
                                     @click.prevent="Alpine.store('favorites').toggle({{ $item->id }})"
-                                    class="absolute top-2 right-2 z-20 text-2xl"
+                                    class="absolute top-2 right-2 z-20 w-9 h-9 flex items-center justify-center text-2xl"
                                     aria-label="Toggle favorite"
                                 >
                                     <span
@@ -123,21 +123,23 @@
 
                     </div>
 
-                    <div class="p-4">
-                        <h2 class="text-lg font-semibold mb-1">{{ $item['pavadinimas'] }}</h2>
+                    <div class="p-3 sm:p-4 flex flex-col flex-1">
+                        <h2 class="text-base sm:text-lg font-semibold mb-1 leading-snug">
+                            {{ $item['pavadinimas'] }}
+                        </h2>
 
-                        <p class="text-gray-500 text-sm line-clamp-2">
+                        <p class="text-gray-500 text-sm line-clamp-2 flex-1">
                             {{ $item['aprasymas'] }}
                         </p>
 
                         <div class="flex justify-between items-center mt-3">
-                            <span class="text-green-600 font-bold text-lg">
+                            <span class="text-green-600 font-bold text-base sm:text-lg">
                                 {{ $item['kaina'] }} €
                             </span>
 
                             <a
                                 href="/listing/{{ $item['id'] }}"
-                                class="text-blue-600 font-semibold"
+                                class="text-blue-600 font-semibold text-sm sm:text-base"
                             >
                                 More →
                             </a>
@@ -146,7 +148,9 @@
 
                 </div>
             @empty
-                <p class="text-gray-600 text-center w-full">No results found.</p>
+                <p class="text-gray-600 text-center w-full">
+                    No results found.
+                </p>
             @endforelse
 
         </div>
