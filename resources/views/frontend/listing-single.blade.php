@@ -213,7 +213,7 @@ input[type=number] {
     </div>
 
     {{-- REVIEWS SECTION --}}
-<div class="mt-16 border-t-4 border-blue-100 pt-8">
+<div class="mt-16 pt-8">
 @php
     $user = auth()->user();
     $isOwner = $user && $user->id === $listing->user_id;
