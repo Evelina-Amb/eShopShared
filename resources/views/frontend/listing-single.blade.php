@@ -400,7 +400,7 @@ input[type=number] {
 
 </div>
 @endif
-    
+    </div>
     {{-- OTHER PRODUCTS --}}
     @if($similar->count() > 0)
         <div class="mt-14">
