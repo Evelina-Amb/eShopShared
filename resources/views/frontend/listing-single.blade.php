@@ -318,7 +318,7 @@ input[type=number] {
 
         {{-- RIGHT: REVIEW FORM --}}
         @if(!$isOwner && $reviewsAllowed)
-            <div class="md:-mt-24">
+            <div class="md:-mt-16">
                 <h4 class="font-semibold mb-2">Leave a review</h4>
 
                 <form method="POST" action="{{ route('review.store', $listing->id) }}"
