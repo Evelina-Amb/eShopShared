@@ -1,10 +1,10 @@
 <nav x-data="{ open: false }" class="bg-white border-b shadow sticky top-0 z-50">
     <!-- TOP BAR — Logo + Main Links -->
     <div class="bg-white border-b">
-        <div class="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             
             <!-- LEFT: LOGO + MAIN LINKS -->
-            <div class="flex items-center space-x-8">
+            <div class="flex items-center space-x-6 lg:space-x-8">
                 
                 <!-- LOGO -->
                 <a href="{{ route('home') }}" class="text-2xl font-bold text-blue-600">
@@ -12,7 +12,7 @@
                 </a>
 
                 <!-- MAIN NAVIGATION -->
-                <div class="hidden md:flex items-center space-x-6 text-gray-700 font-medium">
+                <div class="hidden md:flex items-center space-x-4 lg:space-x-6 text-gray-700 font-medium">
 
                     <!-- products -->
                     <a href="{{ route('home', ['tipas' => 'preke']) }}" class="hover:text-blue-600">
@@ -65,19 +65,9 @@
             </div>
 
             <!-- RIGHT SIDE -->
-            <div class="hidden md:flex items-center space-x-6">
+            <div class="hidden md:flex items-center space-x-4 lg:space-x-6">
 
                 @auth
-                    <!-- CART LINK -->
-                    <a href="{{ route('cart.index') }}" class="relative text-gray-700 hover:text-blue-600">
-                        Cart
-                        @if(session('cart_count', 0) > 0)
-                            <span class="absolute -top-2 -right-3 bg-red-600 text-white text-xs rounded-full px-1">
-                                {{ session('cart_count') }}
-                            </span>
-                        @endif
-                    </a>
-
                     <!-- USER DROPDOWN -->
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
@@ -106,6 +96,16 @@
                         </x-slot>
                     </x-dropdown>
 
+                    <!-- CART LINK -->
+                    <a href="{{ route('cart.index') }}" class="relative text-gray-700 hover:text-blue-600">
+                        Cart
+                        @if(session('cart_count', 0) > 0)
+                            <span class="absolute -top-2 -right-3 bg-red-600 text-white text-xs rounded-full px-1">
+                                {{ session('cart_count') }}
+                            </span>
+                        @endif
+                    </a>
+
                 @else
                     <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900">Log in</a>
                     <a href="{{ route('register') }}" class="text-blue-600 font-medium">Register</a>
@@ -129,31 +129,33 @@
 
     <!-- MOBILE MENU -->
     <div x-show="open" x-transition class="md:hidden border-t bg-white">
-        <div class="px-4 py-3 space-y-2 text-gray-700 font-medium">
+        <div class="px-4 py-3 space-y-1 text-gray-700 font-medium">
 
-            <a href="{{ route('home', ['tipas' => 'preke']) }}" class="block">Products</a>
-            <a href="{{ route('home', ['tipas' => 'paslauga']) }}" class="block">Services</a>
-            <a href="{{ route('favorites.page') }}" class="block">My Favorites</a>
+            <a href="{{ route('home', ['tipas' => 'preke']) }}" class="block px-2 py-2 rounded hover:bg-gray-100">Products</a>
+            <a href="{{ route('home', ['tipas' => 'paslauga']) }}" class="block px-2 py-2 rounded hover:bg-gray-100">Services</a>
+            <a href="{{ route('favorites.page') }}" class="block px-2 py-2 rounded hover:bg-gray-100">My Favorites</a>
 
             @auth
-                <a href="{{ route('my.listings') }}" class="block">My Listings</a>
-                <a href="{{ route('listing.create') }}" class="block">Post a Listing</a>
-                <a href="{{ route('buyer.orders') }}" class="block">My purchases</a>
+                <a href="{{ route('my.listings') }}" class="block px-2 py-2 rounded hover:bg-gray-100">My Listings</a>
+                <a href="{{ route('listing.create') }}" class="block px-2 py-2 rounded hover:bg-gray-100">Post a Listing</a>
+                <a href="{{ route('buyer.orders') }}" class="block px-2 py-2 rounded hover:bg-gray-100">My purchases</a>
 
                 @if(auth()->user()->role === 'seller')
-                    <a href="{{ route('seller.orders') }}" class="block">My sales</a>
+                    <a href="{{ route('seller.orders') }}" class="block px-2 py-2 rounded hover:bg-gray-100">My sales</a>
                 @endif
 
-                <a href="{{ route('cart.index') }}" class="block">Cart</a>
-                <a href="{{ route('profile.edit') }}" class="block">Profile</a>
+                <a href="{{ route('cart.index') }}" class="block px-2 py-2 rounded hover:bg-gray-100">Cart</a>
+                <a href="{{ route('profile.edit') }}" class="block px-2 py-2 rounded hover:bg-gray-100">Profile</a>
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button class="block w-full text-left">Log out</button>
+                    <button class="block w-full text-left px-2 py-2 rounded hover:bg-gray-100">
+                        Log out
+                    </button>
                 </form>
             @else
-                <a href="{{ route('login') }}" class="block">Log in</a>
-                <a href="{{ route('register') }}" class="block text-blue-600">Register</a>
+                <a href="{{ route('login') }}" class="block px-2 py-2 rounded hover:bg-gray-100">Log in</a>
+                <a href="{{ route('register') }}" class="block px-2 py-2 rounded hover:bg-gray-100 text-blue-600">Register</a>
             @endauth
 
         </div>
@@ -166,7 +168,7 @@
 @if($showSearchNav)
     <!-- BOTTOM BAR — Search + Filters -->
     <div class="bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row gap-3 sm:h-16 sm:items-center sm:space-x-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row gap-3 sm:items-center">
 
             <!-- SEARCH BAR -->
             <form action="{{ route('search.listings') }}" method="GET" class="flex flex-grow max-w-3xl">
