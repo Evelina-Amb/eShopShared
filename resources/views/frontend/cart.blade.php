@@ -1,8 +1,8 @@
 <x-app-layout>
 
-<div class="max-w-4xl mx-auto mt-10">
+<div class="max-w-4xl mx-auto mt-6 sm:mt-10 px-3 sm:px-0">
 
-    <h1 class="text-3xl font-bold mb-6">My Cart</h1>
+    <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">My Cart</h1>
 
     @if(session('error'))
     <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
@@ -29,35 +29,35 @@
             @csrf
             @method('DELETE')
 
-            <button class="mb-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+            <button class="mb-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full sm:w-auto">
                 Clear Cart
             </button>
         </form>
 
 {{-- CART ITEMS --}}
-<div class="bg-white shadow rounded p-4">
+<div class="bg-white shadow rounded p-3 sm:p-4">
 
     {{-- HEADER --}}
-    <div class="grid grid-cols-12 font-semibold text-gray-600 border-b pb-2 mb-4">
+    <div class="hidden sm:grid grid-cols-12 font-semibold text-gray-600 border-b pb-2 mb-4">
         <div class="col-span-6">Item</div>
         <div class="col-span-2 text-right">Price</div>
         <div class="col-span-2 text-center">Quantity</div>
     </div>
 
     @foreach($cartItems as $item)
-        <div class="grid grid-cols-12 items-center border-b py-4">
+        <div class="grid grid-cols-1 sm:grid-cols-12 items-center border-b py-4 gap-4 sm:gap-0">
 
             {{-- IMAGE + TITLE --}}
-            <div class="col-span-6 flex items-center gap-4">
+            <div class="sm:col-span-6 flex items-center gap-4">
                 @if($item->listing->photos->isNotEmpty())
     <img
         src="{{ asset('storage/' . $item->listing->photos->first()->failo_url) }}"
-        class="w-24 h-24 object-cover rounded"
+        class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded"
     >
 @else
     <img
         src="https://via.placeholder.com/150"
-        class="w-24 h-24 object-cover rounded"
+        class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded"
     >
 @endif
 
@@ -68,12 +68,12 @@
             </div>
 
             {{-- PRICE --}}
-            <div class="col-span-2 text-right font-semibold">
+            <div class="sm:col-span-2 text-left sm:text-right font-semibold">
                {{ number_format($item->listing->kaina, 2) }} €
             </div>
 
             {{-- QUANTITY --}}
-            <div class="col-span-2 flex justify-center items-center">
+            <div class="sm:col-span-2 flex justify-start sm:justify-center items-center">
 
 <form method="POST" action="{{ route('cart.decrease', $item->id) }}">
     @csrf
@@ -95,21 +95,24 @@
             </div>
                 
             {{-- REMOVE --}}
-                <form method="POST" action="{{ route('cart.remove', $item->id) }}">
+                <form method="POST" action="{{ route('cart.remove', $item->id) }}"
+                      class="sm:col-span-2 text-left sm:text-right">
                         @csrf
                         @method('DELETE')
-                        <button class="text-red-600 text-xl hover:text-red-800">Remove</button>
+                        <button class="text-red-600 text-sm sm:text-xl hover:text-red-800">
+                            Remove
+                        </button>
                 </form>
             </div>
     @endforeach
 </div>
         {{-- TOTAL SECTION --}}
-        <div class="bg-white shadow rounded p-6 mt-6">
+        <div class="bg-white shadow rounded p-4 sm:p-6 mt-6">
             @php
                 $total = $cartItems->sum(fn($i) => $i->listing->kaina * $i->kiekis);
             @endphp
 
-            <div class="text-xl font-bold mb-4">
+            <div class="text-lg sm:text-xl font-bold mb-4">
                 Total: {{ number_format($total, 2) }} €
             </div>
  {{-- fix --}}
