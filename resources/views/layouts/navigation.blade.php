@@ -141,13 +141,13 @@
                 <!-- SEARCH BAR -->
                <form action="{{ route('search.listings') }}" method="GET" class="grid grid-cols-3 sm:flex w-full sm:flex-grow sm:max-w-3xl mx-auto">
                     <input 
-                        type="text"
-                        name="q"
-                        class="flex-grow border rounded-l px-4 py-2"
-                        placeholder="Search for listing..."
-                        value="{{ request('q') }}"
-                    >
-                    <button class="bg-blue-600 text-white px-4 py-2 rounded-r">
+    type="text"
+    name="q"
+    class="col-span-2 sm:flex-grow border rounded-l px-4 py-2"
+    placeholder="Search for listing..."
+    value="{{ request('q') }}"
+>
+                  <button class="bg-blue-600 text-white px-4 py-2 rounded-r">
                         Search
                     </button>
                 </form>
