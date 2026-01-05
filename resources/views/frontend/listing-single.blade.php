@@ -243,7 +243,7 @@ input[type=number] {
 @endif
 
 {{-- REVIEWS SECTION --}}
-<section class="mt-12 sm:mt-16">
+<section class="mt-12 sm:mt-[90px]">
 
     @php
         $user = auth()->user();
