@@ -64,9 +64,7 @@
                 </div>
             </div>
 
-            <!-- GAP THAT GROWS WITH SCREEN SIZE -->
             <div class="flex-1"></div>
-
             <!-- RIGHT SIDE -->
             <div class="flex items-center space-x-4">
 
@@ -141,7 +139,7 @@
             <div class="max-w-6xl mx-auto flex flex-col sm:flex-row gap-3 sm:items-center justify-center">
 
                 <!-- SEARCH BAR -->
-                <form action="{{ route('search.listings') }}" method="GET" class="flex flex-grow max-w-3xl mx-auto">
+               <form action="{{ route('search.listings') }}" method="GET" class="grid grid-cols-3 sm:flex w-full sm:flex-grow sm:max-w-3xl mx-auto">
                     <input 
                         type="text"
                         name="q"
