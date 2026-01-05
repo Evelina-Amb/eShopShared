@@ -212,7 +212,7 @@ input[type=number] {
     </div>
 
     {{-- REVIEWS SECTION --}}
-    <div>
+    <div  class="mt-16 pt-8">
 
         @php
             $user = auth()->user();
