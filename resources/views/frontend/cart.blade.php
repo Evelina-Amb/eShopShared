@@ -45,84 +45,91 @@
     </div>
 
     @foreach($cartItems as $item)
-        <div class="grid grid-cols-1 sm:grid-cols-12 items-center border-b py-4 gap-4 sm:gap-0">
+        <div class="border-b py-4">
 
-            {{-- IMAGE + TITLE --}}
-            <div class="sm:col-span-6 flex items-center gap-4">
-                @if($item->listing->photos->isNotEmpty())
-    <img
-        src="{{ asset('storage/' . $item->listing->photos->first()->failo_url) }}"
-        class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded"
-    >
-@else
-    <img
-        src="https://via.placeholder.com/150"
-        class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded"
-    >
-@endif
+            <div class="flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-3 sm:gap-0">
 
-                <a href="{{ route('listing.single', $item->listing_id) }}"
-                   class="font-semibold text-blue-600 hover:underline">
-                    {{ $item->listing->pavadinimas }}
-                </a>
-            </div>
+                {{-- IMAGE + TITLE --}}
+                <div class="sm:col-span-6 flex items-center gap-4 justify-center sm:justify-start">
+                    @if($item->listing->photos->isNotEmpty())
+                        <img
+                            src="{{ asset('storage/' . $item->listing->photos->first()->failo_url) }}"
+                            class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded"
+                        >
+                    @else
+                        <img
+                            src="https://via.placeholder.com/150"
+                            class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded"
+                        >
+                    @endif
 
-            {{-- PRICE --}}
-            <div class="sm:col-span-2 text-left sm:text-right font-semibold">
-               {{ number_format($item->listing->kaina, 2) }} €
-            </div>
+                    <a href="{{ route('listing.single', $item->listing_id) }}"
+                       class="font-semibold text-blue-600 hover:underline text-center sm:text-left">
+                        {{ $item->listing->pavadinimas }}
+                    </a>
+                </div>
 
-            {{-- QUANTITY --}}
-            <div class="sm:col-span-2 flex justify-start sm:justify-center items-center">
+                {{-- PRICE --}}
+                <div class="sm:col-span-2 text-center sm:text-right font-semibold">
+                    {{ number_format($item->listing->kaina, 2) }} €
+                </div>
 
-<form method="POST" action="{{ route('cart.decrease', $item->id) }}">
-    @csrf
-    <button 
-        class="px-2 py-1 bg-gray-200 rounded 
-               {{ $item->kiekis <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
-        {{ $item->kiekis <= 1 ? 'disabled' : '' }}
-    >
-        −
-    </button>
-</form>
-                <span class="px-4">{{ $item->kiekis }}</span>
+                {{-- QUANTITY --}}
+                <div class="sm:col-span-2 flex justify-center items-center">
 
-                <form method="POST" action="{{ route('cart.increase', $item->id) }}">
-                    @csrf
-                    <button class="px-2 py-1 bg-gray-200 rounded">+</button>
-                </form>
-
-            </div>
-                
-            {{-- REMOVE --}}
-                <form method="POST" action="{{ route('cart.remove', $item->id) }}"
-                      class="sm:col-span-2 text-left sm:text-right">
+                    <form method="POST" action="{{ route('cart.decrease', $item->id) }}">
                         @csrf
-                        @method('DELETE')
-                        <button class="text-red-600 text-sm sm:text-xl hover:text-red-800">
-                            Remove
+                        <button 
+                            class="px-3 py-1 bg-gray-200 rounded 
+                                   {{ $item->kiekis <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                            {{ $item->kiekis <= 1 ? 'disabled' : '' }}
+                        >
+                            −
                         </button>
+                    </form>
+
+                    <span class="px-4 font-semibold">{{ $item->kiekis }}</span>
+
+                    <form method="POST" action="{{ route('cart.increase', $item->id) }}">
+                        @csrf
+                        <button class="px-3 py-1 bg-gray-200 rounded">+</button>
+                    </form>
+
+                </div>
+
+                {{-- REMOVE --}}
+                <form method="POST" action="{{ route('cart.remove', $item->id) }}"
+                      class="sm:col-span-2 flex justify-center sm:justify-end">
+                    @csrf
+                    @method('DELETE')
+                    <button class="text-red-600 text-sm sm:text-xl hover:text-red-800">
+                        Remove
+                    </button>
                 </form>
+
             </div>
+
+        </div>
     @endforeach
 </div>
+
         {{-- TOTAL SECTION --}}
         <div class="bg-white shadow rounded p-4 sm:p-6 mt-6">
             @php
                 $total = $cartItems->sum(fn($i) => $i->listing->kaina * $i->kiekis);
             @endphp
 
-            <div class="text-lg sm:text-xl font-bold mb-4">
+            <div class="text-lg sm:text-xl font-bold mb-4 text-center sm:text-left">
                 Total: {{ number_format($total, 2) }} €
             </div>
  {{-- fix --}}
             {{-- CHECKOUT --}}
            <form method="GET" action="{{ route('checkout.index') }}">
-    <button type="submit"
-        class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full">
-        Continue to Checkout
-    </button>
-</form>
+                <button type="submit"
+                    class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full">
+                    Continue to Checkout
+                </button>
+            </form>
         </div>
     @endif
 </div>
