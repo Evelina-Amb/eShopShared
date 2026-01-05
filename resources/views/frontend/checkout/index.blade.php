@@ -3,7 +3,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <div class="max-w-5xl mx-auto mt-10">
-        <h1 class="text-3xl font-bold mb-6">  Checkout</h1>
+        <h1 class="text-3xl font-bold mb-6 -ml-1 sm:ml-0">Checkout</h1>
 
         <div class="grid md:grid-cols-2 gap-6">
 
