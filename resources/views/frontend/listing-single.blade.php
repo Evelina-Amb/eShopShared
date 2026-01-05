@@ -213,10 +213,7 @@ input[type=number] {
     </div>
 
     {{-- REVIEWS SECTION --}}
-    <div class="mt-16 border-t-4 border-blue-100 pt-8">
-        {{-- ORIGINAL REVIEWS LOGIC UNCHANGED --}}
-        {!! trim(view()->render()) !!}
-    </div>
+<div class="mt-16 border-t-4 border-blue-100 pt-8">
 
     {{-- OTHER PRODUCTS --}}
     @if($similar->count() > 0)
