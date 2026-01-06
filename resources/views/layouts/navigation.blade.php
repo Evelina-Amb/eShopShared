@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b shadow sticky top-0 z-50">
+<nav x-data="{ open: false }" class="bg-white border-b shadow sticky top-0 z-60">
     <!-- TOP BAR — Logo + Main Links -->
     <div class="bg-white border-b">
         <div class="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center">
