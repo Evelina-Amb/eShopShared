@@ -30,10 +30,47 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const format = (cents) => `€${(cents / 100).toFixed(2)}`;
 
+  async function previewShipping() {
+    if (!orderId || !carrierSelect.value) return;
+
+    const res = await fetch("/checkout/shipping/preview", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "X-CSRF-TOKEN": csrf,
+      },
+      body: JSON.stringify({
+        order_id: orderId,
+        carrier: carrierSelect.value,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Failed to preview shipping");
+    }
+
+    document.getElementById("shipping-total").textContent =
+      format(data.shipping_total_cents);
+
+    document.getElementById("order-total").textContent =
+      format(data.total_cents);
+  }
+
   carrierSelect.addEventListener("change", async () => {
     errorBox.classList.add("hidden");
 
-    if (intentCreated) return;
+    if (intentCreated) {
+      try {
+        await previewShipping();
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.classList.remove("hidden");
+      }
+      return;
+    }
 
     try {
       const intentRes = await fetch("/checkout/intent", {
@@ -75,40 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       elements.create("payment").mount("#payment-element");
 
-    } catch (err) {
-      errorBox.textContent = err.message;
-      errorBox.classList.remove("hidden");
-    }
-  });
-
-  carrierSelect.addEventListener("change", async () => {
-    if (!orderId) return;
-
-    try {
-      const res = await fetch("/checkout/shipping/preview", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-CSRF-TOKEN": csrf,
-        },
-        body: JSON.stringify({
-          order_id: orderId,
-          carrier: carrierSelect.value,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Failed to preview shipping");
-      }
-
-      document.getElementById("shipping-total").textContent =
-        format(data.shipping_total_cents);
-
-      document.getElementById("order-total").textContent =
-        format(data.total_cents);
+      await previewShipping();
 
     } catch (err) {
       errorBox.textContent = err.message;
