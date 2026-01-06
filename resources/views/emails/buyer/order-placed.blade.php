@@ -10,35 +10,19 @@ Your order **#{{ $order->id }}** has been successfully placed.
 
 ## Items in your order
 
-<table width="100%" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
+@component('mail::table')
+|  | Item | Total |
+|:--|:-----|------:|
 @foreach($order->orderItem as $item)
-<tr>
-    <td width="64" valign="top">
-        @if($item->listing->photos->isNotEmpty())
-            <img
-                src="{{ asset('storage/' . $item->listing->photos->first()->failo_url) }}"
-                width="60"
-                height="60"
-                style="object-fit: cover; border-radius: 6px; border: 1px solid #ddd;"
-            >
-        @endif
-    </td>
-
-    <td valign="top">
-        <strong>{{ $item->listing->pavadinimas }}</strong><br>
-        <span style="color:#555;font-size:13px;">
-            €{{ number_format($item->kaina, 2) }} × {{ $item->kiekis }}
-        </span>
-    </td>
-
-    <td align="right" valign="top">
-        <strong>
-            €{{ number_format($item->kaina * $item->kiekis, 2) }}
-        </strong>
-    </td>
-</tr>
+| 
+@if($item->listing->photos->isNotEmpty())
+<img src="{{ asset('storage/' . $item->listing->photos->first()->failo_url) }}" width="60" style="border-radius:6px;border:1px solid #ddd;">
+@endif
+| **{{ $item->listing->pavadinimas }}**  
+€{{ number_format($item->kaina, 2) }} × {{ $item->kiekis }}
+| **€{{ number_format($item->kaina * $item->kiekis, 2) }}**
 @endforeach
-</table>
+@endcomponent
 
 ---
 
