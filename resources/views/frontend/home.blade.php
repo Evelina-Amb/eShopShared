@@ -42,7 +42,7 @@
 
     <span
         x-show="!Alpine.store('favorites').has({{ $item->id }})"
-        class="text-gray-200 drop-shadow-lg text-2xl leading-none"
+        class="text-gray-200 text-2xl leading-none"
     >
         🤍
     </span>
