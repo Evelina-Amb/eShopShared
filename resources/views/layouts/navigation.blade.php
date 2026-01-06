@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b shadow z-50">
+<nav x-data="{ open: false }" class="bg-white border-b shadow sticky top-0 z-50">
     <!-- TOP BAR — Logo + Main Links -->
     <div class="bg-white border-b">
         <div class="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center">
@@ -134,7 +134,7 @@
 
 @if($showSearchNav)
     <!-- BOTTOM BAR — Search + Filters -->
-    <div class="bg-gray-50 sticky top-16 z-40">
+    <div class="bg-gray-50">
         <div class="px-4 sm:px-6 lg:px-8 py-3">
             <div class="max-w-6xl mx-auto flex flex-col sm:flex-row gap-3 sm:items-center justify-center">
 
