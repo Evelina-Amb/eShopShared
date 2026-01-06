@@ -19,27 +19,21 @@ class SellerShipment extends Controller
         }
 
         $data = $request->validate([
-            'tracking_number' => 'nullable|string|max:255',
-            'proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120',
+            'tracking_number' => 'required|string|max:255',
+            'proof' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120',
         ]);
 
-        if (!$request->hasFile('proof') && empty($data['tracking_number'])) {
-            return back()->with('error', 'Provide tracking number or proof.');
-        }
+        $shipment->proof_path = $request
+            ->file('proof')
+            ->store('shipment_proofs', 'public');
 
-        if ($request->hasFile('proof')) {
-            $shipment->proof_path = $request
-                ->file('proof')
-                ->store('shipment_proofs', 'public');
-        }
-
-        $shipment->tracking_number = $data['tracking_number'] ?? null;
+        $shipment->tracking_number = $data['tracking_number'];
         $shipment->status = 'needs_review';
         $shipment->save();
 
         return back()->with(
             'success',
-            'Shipment submitted and sent for review.'
+            'Shipment submitted and sent for admin review.'
         );
     }
 }
