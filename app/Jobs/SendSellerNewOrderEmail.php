@@ -33,6 +33,9 @@ class SendSellerNewOrderEmail implements ShouldQueue
             $items[] = [
                 'title' => $item->listing->pavadinimas,
                 'qty'   => $item->kiekis,
+                 'image' => $item->listing->photos->isNotEmpty()
+        ? asset('storage/' . $item->listing->photos->first()->failo_url)
+        : null,
             ];
         }
 
