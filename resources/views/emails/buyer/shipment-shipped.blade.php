@@ -10,26 +10,27 @@ Good news! One part of your order **#{{ $shipment->order_id }}** has been shippe
 ## Items shipped
 @foreach($shipment->order->orderItem as $item)
 @if($item->listing->user_id === $shipment->seller_id)
+{!! '
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
     <tr>
         <td style="vertical-align:middle;">
-            <strong>{{ $item->listing->pavadinimas }}</strong><br>
-            <span style="color:#6b7280;">Quantity: {{ $item->kiekis }}</span>
+            <strong>'.e($item->listing->pavadinimas).'</strong><br>
+            <span style="color:#6b7280;">Quantity: '.$item->kiekis.'</span>
         </td>
-
         <td align="right" width="70">
-            @if($item->listing->photos->isNotEmpty())
-                <img
-                    src="{{ asset('storage/' . $item->listing->photos->first()->failo_url) }}"
-                    width="60"
-                    height="60"
-                    style="border-radius:6px; object-fit:cover;"
-                    alt="{{ $item->listing->pavadinimas }}"
-                >
-            @endif
+            '.(
+                $item->listing->photos->isNotEmpty()
+                ? '<img src="'.asset('storage/'.$item->listing->photos->first()->failo_url).'"
+                        width="60"
+                        height="60"
+                        style="border-radius:6px; object-fit:cover;"
+                        alt="'.e($item->listing->pavadinimas).'">'
+                : ''
+            ).'
         </td>
     </tr>
 </table>
+' !!}
 @endif
 @endforeach
 
