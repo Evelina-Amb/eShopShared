@@ -33,7 +33,7 @@ class SellerShipmentController extends Controller
 
         return back()->with(
             'success',
-            'Shipment submitted and sent for admin review.'
+            'Shipment submitted for admin review.'
         );
     }
 }
