@@ -34,7 +34,6 @@
             @toggle-filters.window="filtersOpen = !filtersOpen"
         >
             <!-- Filters Panel -->
-           <div class="sticky top-28 z-40">
             <div 
     x-show="filtersOpen"
     x-transition:enter="transition ease-out duration-300"
@@ -43,10 +42,9 @@
     x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100 translate-y-0"
     x-transition:leave-end="opacity-0 -translate-y-4"
-    class="bg-gray-50 border-b p-6 shadow"
+    class="bg-gray-50 border-b p-6 shadow z-40 sticky top-28"
 >
     @include('frontend.partials.filters')
-    </div>
 </div>
             <!-- Page actual content -->
             {{ $slot }}
