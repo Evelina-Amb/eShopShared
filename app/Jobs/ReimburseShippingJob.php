@@ -11,6 +11,8 @@ use Illuminate\Queue\SerializesModels;
 use Stripe\Stripe;
 use Stripe\Transfer;
 use Illuminate\Support\Facades\Log;
+use App\Mail\BuyerShipmentShippedMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class ReimburseShippingJob implements ShouldQueue
@@ -56,6 +58,12 @@ class ReimburseShippingJob implements ShouldQueue
                 'shipment_id' => $shipment->id,
             ],
         ]);
+
+        $shipment = OrderShipment::with(['order.user'])->findOrFail($this->shipmentId);
+
+Mail::to($shipment->order->user->el_pastas)
+    ->queue(new BuyerShipmentShippedMail($shipment));
+
 
         $shipment->update([
             'status' => 'reimbursed',
