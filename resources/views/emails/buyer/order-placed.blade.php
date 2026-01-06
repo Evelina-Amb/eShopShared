@@ -11,6 +11,7 @@ Your order **#{{ $order->id }}** has been successfully placed.
 ## Items in your order
 
 @component('mail::table')
+|  | Item | Total |
 |:--|:-----|------:|
 @foreach($order->orderItem as $item)
 | 
