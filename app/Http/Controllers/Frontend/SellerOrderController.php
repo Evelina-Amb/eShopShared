@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\OrderShipment;
 use Illuminate\Http\Request;
+use App\Mail\AdminShipmentNeedsReviewMail;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class SellerOrderController extends Controller
 {
@@ -50,6 +53,14 @@ class SellerOrderController extends Controller
 
         $shipment->status = 'needs_review';
         $shipment->save();
+
+$admins = User::where('role', 'admin')->pluck('el_pastas');
+
+if ($admins->isNotEmpty()) {
+    Mail::to($admins)->send(
+        new AdminShipmentNeedsReviewMail($shipment)
+    );
+}
 
         return back()->with('success', 'Shipment submitted for admin review.');
     }
