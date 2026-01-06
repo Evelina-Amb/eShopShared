@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderShipment;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\SendSellerNewOrderEmail;
 
 class OrderService
 {
@@ -101,8 +102,14 @@ class OrderService
         }
         Cart::where('user_id', $order->user_id)->delete();
     });
-}
 
+    $order = Order::with('orderItem.listing.user')->findOrFail($order->id);
+    $groups = $order->orderItem->groupBy(fn ($i) => $i->listing->user_id);
+
+foreach ($groups as $sellerId => $items) {
+    SendSellerNewOrderEmail::dispatch($order->id, (int)$sellerId);
+    }
+}
 
     
 }
