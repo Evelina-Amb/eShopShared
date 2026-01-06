@@ -14,8 +14,8 @@ ID: {{ $shipment->seller_id }}
 
 ---
 
-@component('mail::button', ['url' => route('admin.shipments.review')])
-Review Shipment
+@component('mail::button', ['url' => route('admin.shipments.index')])
+Review Shipments
 @endcomponent
 
 This shipment must be approved or rejected before reimbursement.
