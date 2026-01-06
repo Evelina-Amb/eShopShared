@@ -34,7 +34,7 @@
             @toggle-filters.window="filtersOpen = !filtersOpen"
         >
             <!-- Filters Panel -->
-           <div class="sticky top-29 z-40">
+           <div class="sticky top-28 z-40">
             <div 
     x-show="filtersOpen"
     x-transition:enter="transition ease-out duration-300"
