@@ -104,7 +104,9 @@ class StripeWebhookController extends Controller
             ]);
 
             $orderService->markPaidAndFinalize($order);
-
+\Mail::to($order->user->el_pastas)
+    ->queue(new \App\Mail\BuyerOrderPlacedMail($order));
+            
             return response()->json(['status' => 'ok']);
         });
     }
