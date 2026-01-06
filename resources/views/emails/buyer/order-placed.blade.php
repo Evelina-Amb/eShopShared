@@ -1,16 +1,88 @@
 @component('mail::message')
-# Thank you for your purchase 🎉
+# Your order has been placed !
 
 Hi {{ $order->user->vardas }},
 
+Thank you for your purchase!  
 Your order **#{{ $order->id }}** has been successfully placed.
 
 ---
 
 ## Items in your order
+
+<table width="100%" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
 @foreach($order->orderItem as $item)
-- **{{ $item->listing->pavadinimas }}** × {{ $item->kiekis }}
+<tr>
+    <td width="64" valign="top">
+        @if($item->listing->photos->isNotEmpty())
+            <img
+                src="{{ asset('storage/' . $item->listing->photos->first()->failo_url) }}"
+                width="60"
+                height="60"
+                style="object-fit: cover; border-radius: 6px; border: 1px solid #ddd;"
+            >
+        @endif
+    </td>
+
+    <td valign="top">
+        <strong>{{ $item->listing->pavadinimas }}</strong><br>
+        <span style="color:#555;font-size:13px;">
+            €{{ number_format($item->kaina, 2) }} × {{ $item->kiekis }}
+        </span>
+    </td>
+
+    <td align="right" valign="top">
+        <strong>
+            €{{ number_format($item->kaina * $item->kiekis, 2) }}
+        </strong>
+    </td>
+</tr>
 @endforeach
+</table>
+
+---
+
+## Order summary
+
+<table width="100%" cellpadding="4" cellspacing="0">
+<tr>
+    <td>Items total</td>
+    <td align="right">
+        €{{ number_format($order->bendra_suma, 2) }}
+    </td>
+</tr>
+
+@if($order->small_order_fee_cents > 0)
+<tr>
+    <td>Small order fee</td>
+    <td align="right">
+        €{{ number_format($order->small_order_fee_cents / 100, 2) }}
+    </td>
+</tr>
+@endif
+
+@if($order->shipping_total_cents > 0)
+<tr>
+    <td>Shipping</td>
+    <td align="right">
+        €{{ number_format($order->shipping_total_cents / 100, 2) }}
+    </td>
+</tr>
+@endif
+
+<tr>
+    <td colspan="2"><hr></td>
+</tr>
+
+<tr>
+    <td><strong>Total paid</strong></td>
+    <td align="right">
+        <strong>
+            €{{ number_format($order->amount_charged_cents / 100, 2) }}
+        </strong>
+    </td>
+</tr>
+</table>
 
 ---
 
@@ -23,16 +95,7 @@ Your order **#{{ $order->id }}** has been successfully placed.
 
 ---
 
-## Order total  
-**€{{ number_format($order->bendra_suma, 2) }}**
-
----
-
-You’ll receive another email once the seller ships your items.
-
-@component('mail::button', ['url' => route('profile.edit')])
-View your orders
-@endcomponent
+You’ll receive another email when your items are shipped.
 
 Thank you for shopping with us,  
 {{ config('app.name') }}
