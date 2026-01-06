@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OrderShipment;
 use Illuminate\Http\Request;
 
-class SellerShipment extends Controller
+class SellerShipmentController extends Controller
 {
     public function ship(Request $request, OrderShipment $shipment)
     {
