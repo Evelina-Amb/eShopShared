@@ -134,7 +134,7 @@
 
 @if($showSearchNav)
     <!-- BOTTOM BAR — Search + Filters -->
-    <div class="bg-gray-50">
+    <div class="bg-gray-50 sticky top-16 z-40">
         <div class="px-4 sm:px-6 lg:px-8 py-3">
             <div class="max-w-6xl mx-auto flex flex-col sm:flex-row gap-3 sm:items-center justify-center">
 
