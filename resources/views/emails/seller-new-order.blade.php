@@ -1,3 +1,5 @@
+<strong>HTML TEST</strong>
+
 @component('mail::message')
 # New Sale Received 🎉
 
