@@ -21,7 +21,8 @@ class SellerNewOrderMail extends Mailable
 
     public function build()
     {
-        return $this->subject('New sale: Order #' . $this->order->id)
-            ->view('emails.seller-new-order');
+        return $this
+            ->subject('New sale: Order #' . $this->order->id)
+            ->markdown('emails.seller-new-order');
     }
 }
