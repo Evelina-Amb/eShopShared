@@ -42,7 +42,7 @@
     x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100 translate-y-0"
     x-transition:leave-end="opacity-0 -translate-y-4"
-    class="bg-gray-50 border-b p-6 pt-10 shadow z-50 sticky top-28"
+    class="bg-gray-50 border-b p-6 pt-10 shadow z-40 sticky top-28"
 >
     @include('frontend.partials.filters')
 </div>
