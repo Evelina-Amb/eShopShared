@@ -1,26 +1,33 @@
-<p>Hello {{ $seller->vardas }},</p>
+@component('mail::message')
+# New Sale Received 🎉
 
-<p>You have a new sale in order <strong>#{{ $order->id }}</strong>.</p>
+Hello {{ $seller->vardas }},
 
-<p><strong>Items to ship:</strong></p>
-<ul>
+You have a new sale in **Order #{{ $order->id }}**.
+
+---
+
+## Items to ship
 @foreach($items as $it)
-    <li>
-        {{ $it['title'] }} × {{ $it['qty'] }}
-    </li>
+- **{{ $it['title'] }}** × {{ $it['qty'] }}
 @endforeach
-</ul>
 
-<p><strong>Ship to:</strong><br>
-{{ $shipping['address_line'] }}<br>
+---
+
+## Shipping address
+{{ $shipping['address_line'] }}  
 {{ $shipping['city'] }}, {{ $shipping['country'] }} {{ $shipping['postal_code'] }}
-</p>
 
-<p><strong>Shipment deadline:</strong> {{ $shipping['deadline'] }}</p>
+---
 
-<p>
-You can manage this shipment here:<br>
-<a href="{{ $shipping['shipments_url'] }}">{{ $shipping['shipments_url'] }}</a>
-</p>
+## Shipment deadline  **{{ $shipping['deadline'] }}**
 
-<p>Thank you.</p>
+---
+
+@component('mail::button', ['url' => $shipping['shipments_url']])
+Manage Shipment
+@endcomponent
+
+Thank you,  
+{{ config('app.name') }}
+@endcomponent
