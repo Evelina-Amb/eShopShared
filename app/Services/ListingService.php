@@ -41,7 +41,7 @@ class ListingService
         if (empty($data['statusas'])) {
             $data['statusas'] = 'aktyvus';
         }
-            if ($data['tipas'] === 'paslauga') {
+            if (($data['tipas'] ?? null) === 'paslauga') {
                 $data['package_size'] = 'S';
                 $data['kiekis'] = 1;
                 $data['is_renewable'] = false;
