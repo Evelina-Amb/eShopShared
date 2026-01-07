@@ -1,12 +1,12 @@
 <x-app-layout>
     <div class="max-w-6xl mx-auto mt-10">
-        <h1 class="text-2xl font-bold mb-6">My purchases</h1>
+        <h1 class="text-2xl font-bold mb-6">Mano pirkimai</h1>
 
         @forelse($orders as $order)
             <div class="bg-white shadow rounded mb-6 p-5">
                 <div class="flex justify-between mb-3">
                     <div>
-                        <div class="font-semibold">Order #{{ $order->id }}</div>
+                        <div class="font-semibold">Užsakymas #{{ $order->id }}</div>
                         <div class="text-sm text-gray-500">
                             {{ $order->pirkimo_data?->format('Y-m-d H:i') }}
                         </div>
@@ -23,7 +23,7 @@
             <span>
                 {{ $item->Listing->pavadinimas }}
                 <span class="text-gray-500">
-                    (Seller: {{ $item->Listing->user->vardas }})
+                    (Pardavėjas: {{ $item->Listing->user->vardas }})
                 </span>
             </span>
             <span>
@@ -38,7 +38,7 @@
                         <div class="text-sm flex justify-between items-center">
                             <div>
                                 <span class="font-medium">
-                                    Shipment from {{ $shipment->seller->name }}
+                                    Siunta nuo {{ $shipment->seller->name }}
                                 </span>
                                 <span class="text-gray-500">
                                     ({{ strtoupper($shipment->carrier) }})
@@ -48,11 +48,11 @@
                             <div>
                                 @if($shipment->status === 'pending')
                                     <span class="px-2 py-1 text-xs rounded bg-gray-200">
-                                        Waiting to be shipped
+                                        Laukiama išsiuntimo
                                     </span>
                                 @elseif(in_array($shipment->status, ['approved','reimbursed']))
                                     <span class="px-2 py-1 text-xs rounded bg-green-200">
-                                        Shipped
+                                        Išsiųsta
                                     </span>
                                 @endif
                             </div>
@@ -60,7 +60,7 @@
 
                         @if($shipment->tracking_number)
                             <div class="text-xs text-gray-600 ml-2">
-                                Tracking: {{ $shipment->tracking_number }}
+                               Siuntos sekimas: {{ $shipment->tracking_number }}
                             </div>
                         @endif
                     @endforeach
@@ -68,7 +68,7 @@
             </div>
         @empty
             <div class="bg-white shadow rounded p-6 text-center text-gray-600">
-                You haven’t purchased anything yet.
+               Jūs dar nieko nepirkote.
             </div>
         @endforelse
 
