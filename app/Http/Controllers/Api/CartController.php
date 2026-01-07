@@ -22,24 +22,24 @@ class CartController extends BaseController
     public function index()
     {
         $carts = $this->cartService->getAll();
-        return $this->sendResponse(new BaseCollection($carts, CartResource::class), 'Cart items retrieved.');
+        return $this->sendResponse(new BaseCollection($carts, CartResource::class), 'Krepšelio prekės gautos.');
     }
 
     public function show($id)
     {
         $item = $this->cartService->getById($id);
         if (!$item) {
-            return $this->sendError('Cart item not found.', 404);
+            return $this->sendError('Krepšelio prekė nerasta.', 404);
         }
 
-        return $this->sendResponse(new CartResource($item), 'Cart item found.');
+        return $this->sendResponse(new CartResource($item), 'Krepšelio prekė rasta..');
     }
 
     public function store(StoreCartRequest $request)
     {
         try {
             $item = $this->cartService->create($request->validated());
-            return $this->sendResponse(new CartResource($item), 'Cart item created.', 201);
+            return $this->sendResponse(new CartResource($item), 'Krepšelio prekė sukurta.', 201);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), 400);
         }
@@ -53,7 +53,7 @@ class CartController extends BaseController
                 return $this->sendError('Cart item not found.', 404);
             }
 
-            return $this->sendResponse(new CartResource($item), 'Cart item updated.');
+            return $this->sendResponse(new CartResource($item), 'Krepšelio prekė nerasta.');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), 400);
         }
@@ -65,12 +65,12 @@ class CartController extends BaseController
         $listingId = $request->listing_id;
 
         if (!$userId || !$listingId) {
-            return $this->sendError('user_id and listing_id are required', 400);
+            return $this->sendError('Būtini laukai: user_id ir listing_id', 400);
         }
 
         $deleted = $this->cartService->clearItem($userId, $listingId);
 
-        return $this->sendResponse($deleted, 'Item removed from cart.');
+        return $this->sendResponse($deleted, 'Prekė pašalinta iš krepšelio.');
     }
 
     public function clearAll(Request $request)
@@ -78,12 +78,12 @@ class CartController extends BaseController
         $userId = $request->user_id;
 
         if (!$userId) {
-            return $this->sendError('user_id is required', 400);
+            return $this->sendError('Privalomas laukas: user_id', 400);
         }
 
         $deleted = $this->cartService->clearAll($userId);
 
-        return $this->sendResponse($deleted, 'Cart cleared.');
+        return $this->sendResponse($deleted, 'Krepšelis išvalytas.');
     }
 
     public function destroy($id)
@@ -91,10 +91,10 @@ class CartController extends BaseController
         $deleted = $this->cartService->delete($id);
 
         if (!$deleted) {
-            return $this->sendError('Cart item not found.', 404);
+            return $this->sendError('Krepšelio prekė nerasta.', 404);
         }
 
-        return $this->sendResponse(null, 'Cart item deleted.');
+        return $this->sendResponse(null, 'Krepšelio prekė ištrinta.');
     }
 
     public function decrease($id)
@@ -102,18 +102,18 @@ class CartController extends BaseController
     $item = Cart::find($id);
 
     if (!$item) {
-        return back()->with('error', 'Cart item not found.');
+        return back()->with('error', 'Krepšelio prekė nerasta.');
     }
 
     // Prevent going below 1
     if ($item->kiekis <= 1) {
-        return back()->with('error', 'You cannot decrease quantity below 1. Remove the item instead.');
+        return back()->with('error', 'Negalite sumažinti kiekio žemiau 1. Pašalinkite prekę iš krepšelio.');
     }
 
     $item->kiekis -= 1;
     $item->save();
 
-    return back()->with('success', 'Quantity updated.');
+    return back()->with('success', 'Kiekis atnaujintas.');
 }
 
 }
