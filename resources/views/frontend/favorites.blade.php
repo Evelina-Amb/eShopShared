@@ -25,14 +25,14 @@
         class="container mx-auto px-4 mt-10"
     >
 
-        <h1 class="text-3xl font-bold mb-6">My Favorites</h1>
+        <h1 class="text-3xl font-bold mb-6">Mano mėgstamiausi</h1>
 
         <template x-if="loading">
-            <p class="text-gray-500">Loading favorites…</p>
+            <p class="text-gray-500">Kraunami mėgstamiausi…</p>
         </template>
 
         <template x-if="!loading && listings.length === 0">
-            <p class="text-gray-600">You have no favorite listings.</p>
+            <p class="text-gray-600">Neturite mėgstamų skelbimų.</p>
         </template>
 
         <div
@@ -57,7 +57,7 @@
                                 load();
                             "
                             class="absolute top-2 right-2 text-red-500 text-2xl"
-                            title="Remove from favorites"
+                            title="Pašalinti iš mėgstamiausių"
                         >
                             ♥️
                         </button>
@@ -82,7 +82,7 @@
                                 :href="'/listing/' + item.id"
                                 class="text-blue-600"
                             >
-                                More →
+                                Plačiau →
                             </a>
                         </div>
                     </div>
