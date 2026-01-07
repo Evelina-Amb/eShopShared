@@ -71,7 +71,7 @@
                             href="{{ route('listing.single', $item->id) }}"
                             class="text-blue-600 font-semibold text-sm sm:text-base"
                         >
-                           Daugiau →
+                           Plačiau →
                         </a>
                     </div>
                 </div>
