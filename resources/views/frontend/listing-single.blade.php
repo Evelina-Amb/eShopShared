@@ -126,7 +126,7 @@ input[type=number] {
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4">
                         <a href="{{ route('listing.edit', $listing->id) }}"
                            class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center w-full sm:w-40 whitespace-nowrap">
-                            Redaguoti skelbimą
+                            Redaguoti
                         </a>
 
                         <form method="POST"
