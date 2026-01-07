@@ -1,10 +1,10 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <h2 class="text-lg font-medium text-gray-900">
             {{ __('Profile Information') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mt-1 text-sm text-gray-600">
             {{ __("Update your account's profile information.") }}
         </p>
     </header>
@@ -223,7 +223,7 @@
             @if (session('status') === 'profile-updated')
                 <p x-data="{ show: true }" x-show="show" x-transition
                    x-init="setTimeout(() => show = false, 2000)"
-                   class="text-sm text-gray-600 dark:text-gray-400">
+                   class="text-sm text-gray-600">
                     {{ __('Saved.') }}
                 </p>
             @endif
@@ -231,14 +231,14 @@
     </form>
                     {{-- STRIPE CONNECT SECTION --}}
 @if ($user->role === 'seller')
-    <div class="mt-8 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
+    <div class="mt-8 p-4 border rounded-lg bg-gray-50">
 
         @if (!$user->stripe_onboarded)
-            <h3 class="text-md font-semibold text-gray-900 dark:text-gray-100">
+            <h3 class="text-md font-semibold text-gray-900">
                 Stripe payouts not connected
             </h3>
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p class="mt-1 text-sm text-gray-600">
                 To receive payments from buyers, you must connect your Stripe account.
                   <br>(platform fee is 10%)
             </p>
@@ -252,7 +252,7 @@
                 Stripe connected
             </h3>
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p class="mt-1 text-sm text-gray-600">
                 You can now receive payments and post listings. (platform fee is 10%)
             </p>
              @if(auth()->user()->role === 'seller' && auth()->user()->stripe_onboarded)
