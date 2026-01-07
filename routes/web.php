@@ -19,6 +19,10 @@ use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
 use App\Http\Controllers\Admin\ShipmentModerationController;
 
+Route::get('/session/ping', function () {
+    return response()->noContent();
+})->middleware('auth');
+
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
