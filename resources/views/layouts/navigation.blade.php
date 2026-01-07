@@ -46,20 +46,26 @@
                         <a href="{{ route('login') }}" class="hover:text-blue-600">
                            Įkelti skelbimą
                         </a>
-                    @endauth
-                    
-                    <a href="{{ route('buyer.orders') }}" class="hover:text-blue-600">
-                        Mano pirkimai
-                    </a>
-
+                    @endauth                 
 @auth
+    {{-- BUYER --}}
+    <a href="{{ route('buyer.orders') }}" class="hover:text-blue-600">
+        Mano pirkimai
+    </a>
+
+    {{-- SELLER --}}
     @if(auth()->user()->role === 'seller')
-        <a href="{{ route('seller.orders') }}"
-           class="hover:text-blue-600">
-             Mano pardavimai
+        <a href="{{ route('seller.orders') }}" class="hover:text-blue-600 font-semibold">
+            Mano pardavimai
         </a>
     @endif
 @endauth
+                    
+{{-- DEBUG --}}
+<span class="text-xs text-red-600">
+    ROLE: {{ auth()->user()->role ?? 'none' }}
+</span>
+                    
 
                 </div>
             </div>
