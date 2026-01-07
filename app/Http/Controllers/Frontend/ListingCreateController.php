@@ -87,7 +87,17 @@ $data = $request->validate([
             abort(403);
         }
 
-        $data = $request->validated();
+       $data = $request->validate([
+    'pavadinimas'   => 'required|string|max:255',
+    'aprasymas'     => 'required|string',
+    'kaina'         => 'required|numeric|min:0',
+    'tipas'         => 'required|in:preke,paslauga',
+    'category_id'   => 'required|exists:category,id',
+    'kiekis'        => 'required_if:tipas,preke|integer|min:1',
+    'package_size'  => 'required_if:tipas,preke|in:XS,S,M,L',
+    'is_renewable'  => 'nullable|boolean',
+    'photos.*'      => 'nullable|image|max:4096',
+]);
         $data['is_renewable'] = $request->has('is_renewable') ? 1 : 0;
 
          $this->listingService->update($listing->id, $data);
