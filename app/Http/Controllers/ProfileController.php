@@ -63,7 +63,8 @@ class ProfileController extends Controller
         ]);
     }
 
-    $emailChanged = $validated['el_pastas'] !== $user->el_pastas;
+    $emailChanged = $request->filled('el_pastas')
+    && $request->el_pastas !== $user->el_pastas;
 
  $user->update([
     'vardas'         => $validated['vardas'] ?? $user->vardas,
