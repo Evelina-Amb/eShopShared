@@ -2,7 +2,7 @@
 
 <div class="max-w-4xl mx-auto mt-6 sm:mt-10 px-3 sm:px-0">
 
-    <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">My Cart</h1>
+    <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Mano krepšelis</h1>
 
     @if(session('error'))
     <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
@@ -18,19 +18,19 @@
 
     @if($cartItems->isEmpty())
         <div class="bg-white shadow p-6 rounded text-center">
-            <p class="text-gray-600">Your cart is empty.</p>
+            <p class="text-gray-600">Jūsų krepšelis yra tuščias.</p>
         </div>
 
     @else
 
         {{-- CLEAR CART BUTTON --}}
         <form action="{{ route('cart.clear') }}" method="POST"
-              onsubmit="return confirm('Are you sure you want to clear your entire cart?');">
+              onsubmit="return confirm('Ar tikrai norite išvalyti visą krepšelį?');">
             @csrf
             @method('DELETE')
 
             <button class="mb-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full sm:w-auto">
-                Clear Cart
+                Išvalyti krepšelį
             </button>
         </form>
 
@@ -39,9 +39,9 @@
 
     {{-- HEADER --}}
     <div class="hidden sm:grid grid-cols-12 font-semibold text-gray-600 border-b pb-2 mb-4">
-        <div class="col-span-6">Item</div>
-        <div class="col-span-2 text-right">Price</div>
-        <div class="col-span-2 text-center">Quantity</div>
+        <div class="col-span-6">Prekė</div>
+        <div class="col-span-2 text-right">Kaina</div>
+        <div class="col-span-2 text-center">Kiekis</div>
     </div>
 
     @foreach($cartItems as $item)
@@ -103,7 +103,7 @@
                     @csrf
                     @method('DELETE')
                     <button class="text-red-600 text-sm sm:text-xl hover:text-red-800">
-                        Remove
+                        Pašalinti
                     </button>
                 </form>
 
@@ -120,14 +120,14 @@
             @endphp
 
             <div class="text-lg sm:text-xl font-bold mb-4 text-center sm:text-left">
-                Total: {{ number_format($total, 2) }} €
+                Viso: {{ number_format($total, 2) }} €
             </div>
  {{-- fix --}}
             {{-- CHECKOUT --}}
            <form method="GET" action="{{ route('checkout.index') }}">
                 <button type="submit"
                     class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full">
-                    Continue to Checkout
+                    Tęsti atsiskaitymą
                 </button>
             </form>
         </div>
