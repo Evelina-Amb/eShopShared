@@ -19,8 +19,6 @@ use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
 use App\Http\Controllers\Admin\ShipmentModerationController;
 
-use Illuminate\Support\Facades\Route;
-
 Route::middleware('auth')->group(function () {
     Route::get('/_debug/me', function () {
         $u = auth()->user();
