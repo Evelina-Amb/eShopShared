@@ -31,7 +31,7 @@ public function store(Request $request)
 
     if (!Auth::attempt($credentials, $request->boolean('remember'))) {
         return back()->withErrors([
-            'el_pastas' => __('Invalid login credentials.'),
+            'el_pastas' => __('Neteisingi prisijungimo duomenys.'),
         ]);
     }
 
