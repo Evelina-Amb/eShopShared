@@ -76,7 +76,7 @@
         @endif
 
         <!-- Listings Grid -->
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4 sm:gap-6">
+       <div class="grid grid-cols-[repeat(auto-fit,minmax(260px,320px))] gap-4 sm:gap-6 justify-center">
 
             @forelse ($listings as $item)
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition flex flex-col">
