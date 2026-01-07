@@ -10,7 +10,7 @@ class CitySeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('cities')->truncate();
+        DB::table('city')->truncate();
 
         City::insert([
             ['country_id' => 1, 'pavadinimas' => 'Vilnius'],
