@@ -3,14 +3,16 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\City;
 use Illuminate\Support\Facades\DB;
+use App\Models\City;
 
 class CitySeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('city')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        DB::table('city')->delete();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         City::insert([
             ['country_id' => 1, 'pavadinimas' => 'Vilnius'],
