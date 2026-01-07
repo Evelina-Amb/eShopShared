@@ -1,13 +1,13 @@
 @component('mail::message')
-# Your order is on the way
+# Jūsų užsakymas jau pakeliui
 
-Hi {{ $shipment->order->user->vardas }},
+Sveiki, {{ $shipment->order->user->vardas }},
 
-Good news! One part of your order **#{{ $shipment->order_id }}** has been shipped.
+ Gera žinia! Dalis Jūsų užsakymo **#{{ $shipment->order_id }}** buvo išsiųsta.
 
 ---
 
-## Items shipped
+## Išsiųstos prekės
 @foreach($shipment->order->orderItem as $item)
 @if($item->listing->user_id === $shipment->seller_id)
 {!! '
@@ -15,7 +15,7 @@ Good news! One part of your order **#{{ $shipment->order_id }}** has been shippe
     <tr>
         <td style="vertical-align:middle;">
             <strong>'.e($item->listing->pavadinimas).'</strong><br>
-            <span style="color:#6b7280;">Quantity: '.$item->kiekis.'</span>
+            <span style="color:#6b7280;">Kiekis: '.$item->kiekis.'</span>
         </td>
         <td align="right" width="70">
             '.(
@@ -37,13 +37,13 @@ Good news! One part of your order **#{{ $shipment->order_id }}** has been shippe
 ---
 
 @if($shipment->tracking_number)
-## Tracking number
+## Siuntos sekimo numeris
 **{{ $shipment->tracking_number }}**
 @endif
 
 ---
 
-## Delivery address
+## Pristatymo adresas
 @if($shipment->order->address && $shipment->order->address->city)
 {{ $shipment->order->address->gatve ?? '' }}  
 {{ $shipment->order->address->city->pavadinimas }},
@@ -52,8 +52,8 @@ Good news! One part of your order **#{{ $shipment->order_id }}** has been shippe
 
 ---
 
-You’ll receive another update if anything changes.
+Jei kas nors pasikeis, informuosime Jus papildomai.
 
-Thank you for shopping with us,  
+Ačiū, kad apsiperkate pas mus, 
 {{ config('app.name') }}
 @endcomponent
