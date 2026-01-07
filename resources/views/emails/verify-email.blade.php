@@ -1,7 +1,7 @@
-<p>Hello,</p>
+<p>Sveiki,</p>
 
-<p>Please confirm your email to complete your registration.</p>
+<p>Prašome patvirtinti savo el. pašto adresą, kad užbaigtumėte registraciją.</p>
 
 <p>
-    <a href="{{ $url }}">Click here to verify your email</a>
+    <a href="{{ $url }}">Spauskite čia, kad patvirtintumėte savo el. pašto adresą</a>
 </p>
