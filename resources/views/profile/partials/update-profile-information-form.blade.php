@@ -26,7 +26,7 @@
             <x-text-input id="vardas"
                           name="vardas"
                           type="text"
-                          class="mt-1 block w-full"
+                          class="mt-1 block w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           :value="old('vardas', $user->vardas)"
                           autocomplete="given-name" />
             <x-input-error class="mt-2" :messages="$errors->get('vardas')" />
@@ -38,7 +38,7 @@
             <x-text-input id="pavarde"
                           name="pavarde"
                           type="text"
-                          class="mt-1 block w-full"
+                          class="mt-1 block w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           :value="old('pavarde', $user->pavarde)"
                           autocomplete="family-name" />
             <x-input-error class="mt-2" :messages="$errors->get('pavarde')" />
@@ -50,7 +50,7 @@
             <x-text-input id="el_pastas"
                           name="el_pastas"
                           type="email"
-                          class="mt-1 block w-full"
+                         class="mt-1 block w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           :value="old('el_pastas', $user->el_pastas)"
                           autocomplete="email" />
             <x-input-error class="mt-2" :messages="$errors->get('el_pastas')" />
@@ -88,7 +88,7 @@
             <x-text-input id="business_email"
                           name="business_email"
                           type="email"
-                          class="mt-1 block w-full"
+                         class="mt-1 block w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           :value="old('business_email', $user->business_email)" />
             <x-input-error class="mt-2" :messages="$errors->get('business_email')" />
         </div>
@@ -101,7 +101,7 @@
                           type="text"
                           inputmode="numeric"
                           pattern="^\+?[0-9]*$"
-                          class="mt-1 block w-full"
+                         class="mt-1 block w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                           placeholder="+370xxxxxxx"
                           :value="old('telefonas', $user->telefonas)"
                 oninput="this.value = this.value.replace(/[^0-9+]/g, '')"
@@ -189,7 +189,7 @@
                 <x-text-input id="gatve"
                               name="gatve"
                               placeholder="Street name"
-                              class="mt-1 block w-full"
+                              class="mt-1 block w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                               :value="old('gatve', $user->address->gatve ?? '')" />
                 <x-input-error class="mt-1" :messages="$errors->get('gatve')" />
             </div>
@@ -200,7 +200,7 @@
                 <x-text-input id="namo_nr"
                               name="namo_nr"
                               placeholder="e.g. 12A"
-                              class="mt-1 block w-full"
+                             class="mt-1 block w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                               :value="old('namo_nr', $user->address->namo_nr ?? '')" />
                 <x-input-error class="mt-1" :messages="$errors->get('namo_nr')" />
             </div>
@@ -211,7 +211,7 @@
                 <x-text-input id="buto_nr"
                               name="buto_nr"
                               placeholder="e.g. 5"
-                              class="mt-1 block w-full"
+                             class="mt-1 block w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                               :value="old('buto_nr', $user->address->buto_nr ?? '')" />
                 <x-input-error class="mt-1" :messages="$errors->get('buto_nr')" />
             </div>
