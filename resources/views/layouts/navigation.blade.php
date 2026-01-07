@@ -16,47 +16,47 @@
 
                     <!-- products -->
                     <a href="{{ route('home', ['tipas' => 'preke']) }}" class="hover:text-blue-600">
-                        Products
+                        Prekės
                     </a>
 
                     <!-- services -->
                     <a href="{{ route('home', ['tipas' => 'paslauga']) }}" class="hover:text-blue-600">
-                        Services
+                        Paslaugos
                     </a>
 
                     <a href="{{ route('favorites.page') }}" class="hover:text-blue-600">
-                        My Favorites
+                        Išsaugoti
                     </a>
 
                     @auth
                         <a href="{{ route('my.listings') }}" class="hover:text-blue-600">
-                            My Listings
+                           Mano skelbimai
                         </a>
                     @else
                         <a href="{{ route('login') }}" class="hover:text-blue-600">
-                            My Listings
+                            Mano skelbimai
                         </a>
                     @endauth
 
                     @auth
                         <a href="{{ route('listing.create') }}" class="hover:text-blue-600">
-                            Post a Listing
+                           Įkelti skelbimą
                         </a>
                     @else
                         <a href="{{ route('login') }}" class="hover:text-blue-600">
-                            Post a Listing
+                           Įkelti skelbimą
                         </a>
                     @endauth
                     
                     <a href="{{ route('buyer.orders') }}" class="hover:text-blue-600">
-                        My purchases
+                        Mano pirkimai
                     </a>
 
 @auth
     @if(auth()->user()->role === 'seller')
         <a href="{{ route('seller.orders') }}"
            class="hover:text-blue-600">
-            My sales
+             Mano pardavimai
         </a>
     @endif
 @endauth
@@ -71,7 +71,7 @@
                 @auth
                     <!-- CART LINK -->
                     <a href="{{ route('cart.index') }}" class="relative text-gray-700 hover:text-blue-600">
-                        Cart
+                         Krepšelis
                         @if(session('cart_count', 0) > 0)
                             <span class="absolute -top-2 -right-3 bg-red-600 text-white text-xs rounded-full px-1">
                                 {{ session('cart_count') }}
@@ -94,22 +94,22 @@
 
                         <x-slot name="content">
                             <x-dropdown-link :href="route('profile.edit')">
-                                Profile
+                                Profilis
                             </x-dropdown-link>
 
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
                                                  onclick="event.preventDefault(); this.closest('form').submit();">
-                                    Log out
+                                    Atsijungti
                                 </x-dropdown-link>
                             </form>
                         </x-slot>
                     </x-dropdown>
 
                 @else
-                    <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900">Log in</a>
-                    <a href="{{ route('register') }}" class="text-blue-600 font-medium">Register</a>
+                    <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900">Prisijungti</a>
+                    <a href="{{ route('register') }}" class="text-blue-600 font-medium">Registruotis</a>
                 @endauth
 
                 <!-- MOBILE MENU BUTTON -->
@@ -144,11 +144,11 @@
     type="text"
     name="q"
     class="col-span-2 sm:flex-grow border rounded-l px-4 py-2"
-    placeholder="Search for listing..."
+    placeholder="Ieškoti skelbimo..."
     value="{{ request('q') }}"
 >
                   <button class="bg-blue-600 text-white px-4 py-2 rounded-r">
-                        Search
+                        Ieškoti
                     </button>
                 </form>
 
@@ -158,7 +158,7 @@
                         @click="$dispatch('toggle-filters')"
                         class="border px-4 py-2 rounded hover:bg-gray-100 w-full sm:w-auto"
                     >
-                        Filters
+                        Filtrai
                     </button>
 
                     <form method="GET" action="{{ url()->current() }}" class="w-full sm:w-auto">
@@ -171,11 +171,11 @@
                             onchange="this.form.submit()" 
                             class="border px-3 py-2 rounded w-full sm:w-auto"
                         >
-                            <option value="">Sort</option>
-                            <option value="newest" @selected(request('sort')=='newest')>Newest first</option>
-                            <option value="oldest" @selected(request('sort')=='oldest')>Oldest first</option>
-                            <option value="price_asc" @selected(request('sort')=='price_asc')>Price: Low to High</option>
-                            <option value="price_desc" @selected(request('sort')=='price_desc')>Price: High to Low</option>
+                            <option value="">Rūšiuoti</option>
+                            <option value="newest" @selected(request('sort')=='newest')>Naujausi pirmiausia</option>
+                            <option value="oldest" @selected(request('sort')=='oldest')>Seniausi pirmiausia</option>
+                            <option value="price_asc" @selected(request('sort')=='price_asc')>Kaina: nuo mažiausios</option>
+                            <option value="price_desc" @selected(request('sort')=='price_desc')>Kaina: nuo didžiausios</option>
                         </select>
                     </form>
                 </div>
