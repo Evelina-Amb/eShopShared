@@ -1,6 +1,7 @@
 <x-app-layout>
 
-    <div class="max-w-4xl mx-auto mt-10 bg-white shadow p-6 rounded">
+    <div class="max-w-4xl mx-auto mt-10 bg-white shadow p-6 rounded"
+         x-data="{ type: '{{ old('tipas', $listing->tipas) }}' }">
 
         <h1 class="text-2xl font-bold mb-6">Edit Listing</h1>
 
@@ -67,7 +68,7 @@
             {{-- TYPE --}}
             <div class="mb-4">
                 <label class="font-semibold block">Type</label>
-                <select name="tipas" class="w-full border rounded px-3 py-2" required>
+                <select name="tipas" x-model="type" class="w-full border rounded px-3 py-2" required>
                     <option value="preke" @selected($listing->tipas === 'preke')>Product</option>
                     <option value="paslauga" @selected($listing->tipas === 'paslauga')>Service</option>
                 </select>
@@ -90,7 +91,12 @@
               {{-- SIZE --}}
             <div class="mb-4">
     <label class="font-semibold">Package size</label>
-    <select name="package_size" class="w-full border p-2 rounded" required>
+    <select
+        name="package_size"
+        class="w-full border p-2 rounded"
+        x-bind:required="type === 'preke'"
+        x-bind:disabled="type !== 'preke'">
+        
         <option value="">Select size</option>
 
         <option value="XS" @selected(old('package_size', $listing->package_size) === 'XS')>
@@ -120,7 +126,8 @@
                     name="kiekis"
                     value="{{ old('kiekis', $listing->kiekis) }}"
                     class="w-full border rounded px-3 py-2"
-                    required>
+                    x-bind:required="type === 'preke'"
+                    x-bind:disabled="type !== 'preke'">
             </div>
 
             {{-- RENEWABLE --}}
