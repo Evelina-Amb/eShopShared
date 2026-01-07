@@ -19,13 +19,13 @@
 
                         // Convert filter key to readable name:
                         $labels = [
-                            'category_id' => 'Category',
-                            'tipas'       => 'Type',
-                            'min_price'   => 'Min Price',
-                            'max_price'   => 'Max Price',
-                            'q'           => 'Search',
-                            'sort'        => 'Sort',
-                            'city_id'     => 'City',
+                            'category_id' => 'Kategorija',
+                            'tipas'       => 'Tipas',
+                            'min_price'   => 'Min. kaina',
+                            'max_price'   => 'Maks. kaina',
+                            'q'           => 'Paieška',
+                            'sort'        => 'Rūšiavimas',
+                            'city_id'     => 'Miestas',
                         ];
 
                         $label = $labels[$key] ?? ucfirst($key);
@@ -36,7 +36,7 @@
                         }
 
                         if ($key === 'tipas') {
-                            $value = $value === 'preke' ? 'Product' : 'Service';
+                            $value = $value === 'preke' ? 'Prekė' : 'Paslauga';
                         }
 
                         if ($key === 'city_id') {
@@ -45,10 +45,10 @@
 
                         if ($key === 'sort') {
                             $value = match ($value) {
-                                'newest'     => 'Newest first',
-                                'oldest'     => 'Oldest first',
-                                'price_asc'  => 'Price: Low to High',
-                                'price_desc' => 'Price: High to Low',
+                                'newest'     => 'Naujausi pirmiausia',
+                                'oldest'     => 'Seniausi pirmiausia',
+                                'price_asc'  => 'Kaina: nuo mažiausios',
+                                'price_desc' => 'Kaina: nuo didžiausios',
                                 default      => $value,
                             };
                         }
@@ -69,7 +69,7 @@
                     href="{{ route('search.listings') }}"
                     class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold text-sm"
                 >
-                    Clear all
+                   Išvalyti viską
                 </a>
 
             </div>
@@ -102,7 +102,7 @@
                                     type="button"
                                     @click.prevent="Alpine.store('favorites').toggle({{ $item->id }})"
                                     class="absolute top-2 right-2 z-20 w-9 h-9 flex items-center justify-center text-2xl"
-                                    aria-label="Toggle favorite"
+                                    aria-label="Pažymėti kaip mėgstamą"
                                 >
                                     <span
                                         x-show="Alpine.store('favorites').has({{ $item->id }})"
@@ -141,7 +141,7 @@
                                 href="/listing/{{ $item['id'] }}"
                                 class="text-blue-600 font-semibold text-sm sm:text-base"
                             >
-                                More →
+                                Plačiau →
                             </a>
                         </div>
                     </div>
@@ -149,7 +149,7 @@
                 </div>
             @empty
                 <p class="text-gray-600 text-center w-full">
-                    No results found.
+                    Rezultatų nerasta.
                 </p>
             @endforelse
 
