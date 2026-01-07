@@ -110,7 +110,7 @@ if ($emailChanged) {
 
     return redirect()->route('login')->with(
         'status',
-        'We sent a verification link to your new email address. Please verify it to continue.'
+        'Išsiuntėme patvirtinimo nuorodą į jūsų naują el. pašto adresą. Patvirtinkite jį, kad galėtumėte tęsti.'
     );
 }
     return back()->with('status', 'profile-updated');
@@ -154,7 +154,7 @@ if ($emailChanged) {
 
          return redirect()->route('login')->with(
         'status',
-        'Your password was changed successfully. Please log in again.'
+        'Jūsų slaptažodis sėkmingai pakeistas. Prašome prisijungti iš naujo'
     );
     }
 
@@ -163,7 +163,7 @@ if ($emailChanged) {
         $user = User::where('pending_email_token', $token)->first();
 
         if (!$user) {
-            abort(404, 'Invalid verification link.');
+            abort(404, 'Neteisinga patvirtinimo nuoroda.');
         }
 
         // Update actual email
@@ -175,6 +175,6 @@ if ($emailChanged) {
 
         $user->save();
 
-        return redirect()->route('profile.edit')->with('status', 'Your email has been updated and verified.');
+        return redirect()->route('profile.edit')->with('status', 'Jūsų el. pašto adresas buvo atnaujintas ir patvirtintas.');
     }
 }
