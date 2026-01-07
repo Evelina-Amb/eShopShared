@@ -1,10 +1,10 @@
 <x-app-layout>
     <div class="container mx-auto px-4 mt-10">
 
-        <h1 class="text-3xl font-bold mb-6">My Listings</h1>
+        <h1 class="text-3xl font-bold mb-6">Mano skelbimai</h1>
 
         @if($listings->isEmpty())
-            <p class="text-gray-600">You haven't posted any listings yet.</p>
+            <p class="text-gray-600">Jūs dar nesate paskelbę jokių skelbimų.</p>
         @endif
 
         <div
@@ -40,7 +40,7 @@
                         <div class="mt-2 text-sm">
                             <template x-if="item.tipas === 'preke'">
                                 <div>
-                                    <strong>Stock:</strong>
+                                    <strong>Kiekis:</strong>
                                     <span
                                         :class="item.kiekis == 0 ? 'text-red-600 font-bold' : ''"
                                         x-text="item.kiekis"
@@ -55,14 +55,14 @@
                                 :href="'/listing/' + item.id + '/edit'"
                                 class="text-blue-600 font-semibold hover:underline"
                             >
-                                Edit
+                                Redaguoti
                             </a>
 
                             <button
                                 @click="deleteListing(item.id)"
                                 class="text-red-600 font-semibold hover:underline"
                             >
-                                Delete
+                                Ištrinti
                             </button>
                         </div>
 
@@ -87,7 +87,7 @@
                 },
 
                 deleteListing(id) {
-                    if (!confirm('Are you sure you want to delete this listing?')) return;
+                    if (!confirm('Ar tikrai norite ištrinti šį skelbimą?')) return;
 
                     const token = this.getCSRFToken();
 
