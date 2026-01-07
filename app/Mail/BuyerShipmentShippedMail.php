@@ -21,7 +21,7 @@ class BuyerShipmentShippedMail extends Mailable
     public function build()
     {
         return $this
-            ->subject('Your order #' . $this->shipment->order_id . ' has been shipped')
+            ->subject('Tavo u=sakymas #' . $this->shipment->order_id . ' buvo išsiųstas')
             ->markdown('emails.buyer.shipment-shipped');
     }
 }
