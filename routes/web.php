@@ -19,6 +19,48 @@ use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
 use App\Http\Controllers\Admin\ShipmentModerationController;
 
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+
+Route::middleware(['web'])->group(function () {
+
+  
+    Route::get('/_debug/me', function () {
+        abort_unless(app()->environment('local'), 403);
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return 'Not logged in';
+        }
+
+        return [
+            'id'   => $user->id,
+            'email'=> $user->el_pastas,
+            'role' => $user->role,
+        ];
+    });
+
+
+    Route::get('/_debug/make-seller', function () {
+        abort_unless(app()->environment('local'), 403);
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return 'Not logged in';
+        }
+
+        $user->role = 'seller';
+        $user->save();
+
+        return 'User #' . $user->id . ' is now SELLER';
+    });
+
+});
+
+
+
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
