@@ -93,9 +93,9 @@
   <select
     name="package_size"
     class="w-full border p-2 rounded"
-    :required="type === 'preke'"
-    :disabled="type !== 'preke'">
-       
+    x-bind:required="type === 'preke'"
+    x-bind:disabled="type !== 'preke'"
+>   
         <option value="">Select size</option>
         <option value="XS">XS – Envelope</option>
         <option value="S">S – Small box</option>
