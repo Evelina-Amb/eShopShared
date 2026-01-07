@@ -4,7 +4,7 @@
 
         <!-- First Name -->
         <div>
-            <x-input-label for="vardas" :value="__('First name')" class="text-gray-900" />
+            <x-input-label for="vardas" :value="__('Vardas')" class="text-gray-900" />
             <x-text-input
                 id="vardas"
                 class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -20,7 +20,7 @@
 
         <!-- Last Name -->
         <div class="mt-4">
-            <x-input-label for="pavarde" :value="__('Last Name')" class="text-gray-900" />
+            <x-input-label for="pavarde" :value="__('Pavardė')" class="text-gray-900" />
             <x-text-input
                 id="pavarde"
                 class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -35,7 +35,7 @@
 
         <!-- Email Address -->
         <div class="mt-4">
-            <x-input-label for="el_pastas" :value="__('Email')" class="text-gray-900" />
+            <x-input-label for="el_pastas" :value="__('El. paštas')" class="text-gray-900" />
             <x-text-input
                 id="el_pastas"
                 class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -50,7 +50,7 @@
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="slaptazodis" :value="__('Password')" class="text-gray-900" />
+            <x-input-label for="slaptazodis" :value="__('Slaptažodis')" class="text-gray-900" />
             <x-text-input
                 id="slaptazodis"
                 class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -64,7 +64,7 @@
 
         <!-- Confirm Password -->
         <div class="mt-4">
-            <x-input-label for="slaptazodis_confirmation" :value="__('Confirm Password')" class="text-gray-900" />
+            <x-input-label for="slaptazodis_confirmation" :value="__('Pakartokite slaptažodį')" class="text-gray-900" />
             <x-text-input
                 id="slaptazodis_confirmation"
                 class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -81,11 +81,11 @@
                 href="{{ route('login') }}"
                 class="underline text-sm text-gray-900 hover:text-blue-600"
             >
-                {{ __('Already registered?') }}
+                {{ __('Jau turite paskyrą?') }}
             </a>
 
             <x-primary-button class="bg-blue-600 hover:bg-blue-500">
-                {{ __('Register') }}
+                {{ __('Registruotis') }}
             </x-primary-button>
         </div>
     </form>
