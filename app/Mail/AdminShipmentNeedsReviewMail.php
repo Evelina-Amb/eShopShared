@@ -21,7 +21,7 @@ class AdminShipmentNeedsReviewMail extends Mailable
     public function build()
     {
         return $this
-            ->subject('Shipment needs review — Order #' . $this->shipment->order_id)
+            ->subject('Siunta laukia peržiūros — Užsakymas #' . $this->shipment->order_id)
             ->markdown('emails.admin.shipment-needs-review');
     }
 }
