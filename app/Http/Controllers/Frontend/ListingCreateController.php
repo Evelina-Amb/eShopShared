@@ -27,17 +27,6 @@ class ListingCreateController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'pavadinimas'   => 'required|string|max:255',
-            'aprasymas'     => 'required|string',
-            'kaina'         => 'required|numeric|min:0',
-            'tipas'         => 'required|in:preke,paslauga',
-            'category_id'   => 'required|exists:category,id',
-            'photos.*'      => 'nullable|image|max:4096',
-            'kiekis'        => 'required|integer|min:1',
-            'is_renewable'  => 'nullable|boolean',
-            'package_size' => 'required_if:tipas,preke|in:XS,S,M,L',
-        ]);
 
         $data['user_id']      = auth()->id();
         $data['statusas']     = 'aktyvus';
@@ -85,22 +74,10 @@ class ListingCreateController extends Controller
             abort(403);
         }
 
-        $data = $request->validate([
-            'pavadinimas'   => 'required|string|max:255',
-            'aprasymas'     => 'required|string',
-            'kaina'         => 'required|numeric|min:0',
-            'tipas'         => 'required|in:preke,paslauga',
-            'category_id'   => 'required|exists:category,id',
-            'kiekis'        => 'required|integer|min:1',
-            'is_renewable'  => 'nullable|boolean',
-            'photos.*'      => 'nullable|image|max:4096',
-            'package_size' => 'required_if:tipas,preke|in:XS,S,M,L',
-        ]);
-
+        $data = $request->validated();
         $data['is_renewable'] = $request->has('is_renewable') ? 1 : 0;
 
-        // Update listing
-        $listing->update($data);
+         $this->listingService->update($listing->id, $data);
 
         // Add new photos
         if ($request->hasFile('photos')) {
