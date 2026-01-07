@@ -31,7 +31,7 @@
     type="button"
     @click.prevent="Alpine.store('favorites').toggle({{ $item->id }})"
     class="absolute top-2 right-2 z-30 w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center overflow-hidden"
-    aria-label="Toggle favorite"
+    aria-label="Pažymėti kaip mėgstamą"
 >
     <span
         x-show="Alpine.store('favorites').has({{ $item->id }})"
@@ -71,7 +71,7 @@
                             href="{{ route('listing.single', $item->id) }}"
                             class="text-blue-600 font-semibold text-sm sm:text-base"
                         >
-                            More →
+                           Daugiau →
                         </a>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
             </div>
         @empty
             <p class="text-gray-600 text-center col-span-full">
-                No listings found
+                Skelbimų nerasta
             </p>
         @endforelse
 
