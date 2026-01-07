@@ -21,7 +21,7 @@ class BuyerOrderPlacedMail extends Mailable
     public function build()
     {
         return $this
-            ->subject('Your order #' . $this->order->id . ' has been placed')
+            ->subject('Jūsų užsakymas #' . $this->order->id . ' buvo pateiktas')
             ->markdown('emails.buyer.order-placed');
     }
 }
