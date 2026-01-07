@@ -1,13 +1,13 @@
 @component('mail::message')
-# New Sale Received !
+# Naujas pardavimas !
 
-Hello {{ $seller->vardas }},
+Sveiki, {{ $seller->vardas }},
 
-You have a new sale in **Order #{{ $order->id }}**.
+Turite naują pardavimą užsakyme **Nr. {{ $order->id }}**.
 
 ---
 
-## Items to ship
+## Prekės kurias turite išsiųsti
 
 @foreach($items as $it)
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
@@ -33,20 +33,20 @@ You have a new sale in **Order #{{ $order->id }}**.
 
 ---
 
-## Shipping address
+## Pristatymo adresas
 {{ $shipping['address_line'] }}  
 {{ $shipping['city'] }}, {{ $shipping['country'] }} {{ $shipping['postal_code'] }}
 
 ---
 
-## Shipment deadline  **{{ $shipping['deadline'] }}**
+## Išsiuntimo terminas  **{{ $shipping['deadline'] }}**
 
 ---
 
 @component('mail::button', ['url' => $shipping['shipments_url']])
-Manage Shipment
+Tvarkyti siuntą
 @endcomponent
 
-Thank you,  
+Ačiū,
 {{ config('app.name') }}
 @endcomponent
