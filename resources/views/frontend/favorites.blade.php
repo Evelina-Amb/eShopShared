@@ -25,7 +25,7 @@
         class="container mx-auto px-4 mt-10"
     >
 
-        <h1 class="text-3xl font-bold mb-6">Mano mėgstamiausi</h1>
+        <h1 class="text-3xl font-bold mb-6">Išsaugoti</h1>
 
         <template x-if="loading">
             <p class="text-gray-500">Kraunami mėgstamiausi…</p>
