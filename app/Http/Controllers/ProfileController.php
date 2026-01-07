@@ -76,7 +76,12 @@ class ProfileController extends Controller
                             ? $validated['business_email']
                             : null,
     'el_pastas'      => $emailChanged ? $user->el_pastas : $validated['el_pastas'],
-    'role'           => $request->has('role') ? 'seller' : 'buyer',
+    
+    if ($request->has('role')) {
+    $user->role = 'seller';
+    $user->save();
+}
+    
 ]);
 
     // Address
