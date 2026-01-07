@@ -62,7 +62,7 @@ $data = $request->validate([
 
         return redirect()
             ->route('listing.single', $listing->id)
-            ->with('success', 'Listing created successfully!');
+            ->with('success', 'Skelbimas sėkmingai sukurtas!');
     }
 
     public function edit(Listing $listing)
@@ -73,7 +73,7 @@ $data = $request->validate([
 
         // Prevent editing non-renewable sold-out items
         if ($listing->is_hidden && $listing->is_renewable == 0) {
-            abort(403, 'This sold-out item cannot be edited.');
+            abort(403, 'Šis išparduotas skelbimas negali būti redaguojamas.');
         }
 
         $categories = Category::all();
@@ -116,7 +116,7 @@ $data = $request->validate([
 
         return redirect()
             ->route('listing.single', $listing->id)
-            ->with('success', 'Listing updated successfully!');
+            ->with('success', 'Skelbimas sėkmingai atnaujintas!');
     }
 
    public function deletePhoto(Listing $listing, ListingPhoto $photo)
@@ -130,13 +130,13 @@ $data = $request->validate([
     }
 
     if ($listing->photos()->count() <= 1) {
-        return back()->with('error', 'A listing must have at least one photo.');
+        return back()->with('error', 'Skelbimas privalo turėti bent vieną nuotrauką.');
     }
 
     Storage::disk('public')->delete($photo->failo_url);
     $photo->delete();
 
-    return back()->with('success', 'Photo deleted successfully.');
+    return back()->with('success', 'Nuotrauka sėkmingai ištrinta.');
 }
 
 }
