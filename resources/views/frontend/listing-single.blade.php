@@ -102,12 +102,14 @@ input[type=number] {
                 </div>
 
                 {{-- AVAILABLE --}}
+               @if($listing->tipas === 'preke')
                 <div class="text-gray-700 mb-4">
                     <strong>Available:</strong>
                     <span class="{{ $listing->kiekis == 0 ? 'text-red-600 font-bold' : '' }}">
-                        {{ $listing->kiekis }}
-                    </span>
+                    {{ $listing->kiekis }}
+                        </span>
                 </div>
+            @endif
 
                 {{-- RENEWABLE BADGE --}}
                 @if($listing->is_renewable)
