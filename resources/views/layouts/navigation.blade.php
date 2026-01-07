@@ -60,7 +60,10 @@
         </a>
     @endif
 @endauth                  
-                    
+     {{-- DEBUG --}}
+<span class="text-xs text-red-600">
+    ROLE: {{ auth()->user()->role ?? 'none' }}
+</span>               
 
                 </div>
             </div>
