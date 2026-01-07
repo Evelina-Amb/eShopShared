@@ -3,7 +3,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <div class="max-w-5xl mx-auto mt-10">
-        <h1 class="text-3xl font-bold mb-6 ml-2 sm:ml-0">Checkout</h1>
+        <h1 class="text-3xl font-bold mb-6 ml-2 sm:ml-0">Atsiskaitymas</h1>
 
         <div class="grid md:grid-cols-2 gap-6">
 
@@ -11,14 +11,14 @@
             <div class="bg-white p-6 rounded shadow">
                 <form id="checkout-form">
 
-                  <h2 class="font-semibold mb-3">Shipping address</h2>
+                  <h2 class="font-semibold mb-3">Pristatymo adresas</h2>
 
 <div class="space-y-4">
 
     {{-- Address --}}
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">
-            Address
+            Adresas
         </label>
         <input
             type="text"
@@ -40,7 +40,7 @@
     {{-- City --}}
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">
-            City
+            Miestas
         </label>
         <input
             type="text"
@@ -54,7 +54,7 @@
     {{-- Country --}}
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">
-            Country
+            Šalis
         </label>
         <input
             type="text"
@@ -68,7 +68,7 @@
     {{-- Postal code --}}
     <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">
-            Postal code
+            Pašto kodas
         </label>
         <input
             id="postal_code"
@@ -79,19 +79,19 @@
     </div>
 
 </div><br>                  
-                    <h2 class="font-semibold mb-2">Shipping method</h2>
+                    <h2 class="font-semibold mb-2">Pristatymo būdas</h2>
 
                     <select id="shipping-carrier" class="w-full border p-2 rounded mb-4">
-                        <option value="">Chose a shipping method</option>
-                        <option value="omniva">Omniva (parcel locker)</option>
-                        <option value="venipak">Venipak (courier)</option>
+                        <option value="">Pasirinkite pristatymo būdą</option>
+                        <option value="omniva">Omniva (paštomatas)</option>
+                        <option value="venipak">Venipak (kurjeris)</option>
                     </select>
 
                     <p class="text-sm text-gray-600 mb-4">
-                        Each seller ships separately.
+                        Kiekvienas pardavėjas siunčia atskirai.
                     </p>
 
-                    <h2 class="font-semibold mb-2">Payment</h2>
+                    <h2 class="font-semibold mb-2">Mokėjimas</h2>
 
                     <div id="payment-element" class="border p-4 rounded mb-4"></div>
 
@@ -100,14 +100,14 @@
                     </div>
                     <button id="pay-button"
                             class="bg-green-600 text-white w-full py-3 rounded font-semibold">
-                        Pay
+                        Mokėti
                     </button>
                 </form>
             </div>
 
             {{-- RIGHT: ORDER SUMMARY --}}
             <div class="bg-white p-6 rounded shadow">
-                <h2 class="text-xl font-semibold mb-4">Order summary</h2>
+                <h2 class="text-xl font-semibold mb-4">Užsakymo suvestinė</h2>
 
                 @foreach($cartItems as $item)
                     <div class="mb-3">
@@ -118,7 +118,7 @@
                             </span>
                         </div>
                         <div class="text-sm text-gray-500">
-                            Seller: {{ $item->listing->user->vardas}}
+                            Pardavėjas: {{ $item->listing->user->vardas}}
                         </div>
                     </div>
                 @endforeach
@@ -126,25 +126,25 @@
                 <hr class="my-3">
 
                 <div class="flex justify-between text-sm">
-                    <span>Items total</span>
+                    <span>Prekių suma</span>
                     <span id="items-total">—</span>
                 </div>
 
                 <div id="small-order-row"
                      class="flex justify-between text-sm text-orange-600 hidden">
-                    <span>Small order fee</span>
+                    <span>Mažo užsakymo mokestis</span>
                     <span id="small-order-fee">—</span>
                 </div>
 
                 <div class="flex justify-between text-sm">
-                    <span>Shipping</span>
+                    <span>Pristatymas</span>
                     <span id="shipping-total">—</span>
                 </div>
 
                 <hr class="my-3">
 
                 <div class="flex justify-between font-semibold text-lg">
-                    <span>Total</span>
+                    <span>Iš viso</span>
                     <span id="order-total">—</span>
                 </div>
             </div>
