@@ -4,7 +4,7 @@
 
     <!-- Category -->
     <select name="category_id" class="border rounded px-3 py-2">
-        <option value="">Category</option>
+        <option value="">Kategorija</option>
         @foreach(\App\Models\Category::all() as $cat)
             <option value="{{ $cat->id }}" @selected(request('category_id') == $cat->id)>
                 {{ $cat->pavadinimas }}
@@ -14,9 +14,9 @@
 
     <!-- Type -->
     <select name="tipas" class="border rounded px-3 py-2">
-        <option value="">Type</option>
-        <option value="preke" @selected(request('tipas') == 'preke')>Product</option>
-        <option value="paslauga" @selected(request('tipas') == 'paslauga')>Service</option>
+        <option value="">Tipas</option>
+        <option value="preke" @selected(request('tipas') == 'preke')>Prekė</option>
+        <option value="paslauga" @selected(request('tipas') == 'paslauga')>Paslauga</option>
     </select>
 
     <!-- Min Price -->
@@ -24,7 +24,7 @@
         type="number" 
         name="min_price" 
         class="border rounded px-3 py-2"
-        placeholder="Min price"
+        placeholder="Min. kaina"
         value="{{ request('min_price') }}"
         min="0"
     >
@@ -34,14 +34,14 @@
         type="number" 
         name="max_price" 
         class="border rounded px-3 py-2"
-        placeholder="Max price"
+        placeholder="Maks. kaina"
         value="{{ request('max_price') }}"
         min="0"
     >
 
     <!-- City  -->
     <select name="city_id" class="border rounded px-3 py-2">
-        <option value="">City</option>
+        <option value="">Miestas</option>
         @foreach(\App\Models\City::orderBy('pavadinimas')->get() as $city)
             <option value="{{ $city->id }}" @selected(request('city_id') == $city->id)>
                 {{ $city->pavadinimas }}
@@ -51,7 +51,7 @@
 
     <!-- Submit -->
     <button class="bg-blue-600 text-white px-4 py-2 rounded col-span-full w-32">
-        Apply
+        Taikyti
     </button>
 
 </form>
