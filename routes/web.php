@@ -22,9 +22,6 @@ use App\Http\Controllers\Admin\ShipmentModerationController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
-Route::middleware(['web'])->group(function () {
-
-  
     Route::get('/_debug/me', function () {
         abort_unless(app()->environment('local'), 403);
 
@@ -57,7 +54,6 @@ Route::middleware(['web'])->group(function () {
         return 'User #' . $user->id . ' is now SELLER';
     });
 
-});
 
 
 
