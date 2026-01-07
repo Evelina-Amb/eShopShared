@@ -1,7 +1,7 @@
-<p>Hello,</p>
+<p>Sveiki,</p>
 
-<p>Click the link below to verify your new email address:</p>
+<p>Spustelėkite žemiau esančią nuorodą, kad patvirtintumėte savo naują el. pašto adresą:</p>
 
 <p><a href="{{ $url }}">{{ $url }}</a></p>
 
-<p>If you didn’t request this, please ignore this email.</p>
+<p>Jei šio veiksmo neprašėte, ignoruokite šį el. laišką.</p>
