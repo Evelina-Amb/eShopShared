@@ -7,7 +7,7 @@
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="el_pastas" :value="__('Email')" class="text-gray-900" />
+            <x-input-label for="el_pastas" :value="__('El. paštas')" class="text-gray-900" />
             <x-text-input
                 id="el_pastas"
                 class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -21,7 +21,7 @@
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" class="text-gray-900" />
+            <x-input-label for="password" :value="__('Slaptažodis')" class="text-gray-900" />
             <x-text-input
                 id="password"
                 class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -43,7 +43,7 @@
                     name="remember"
                 >
                 <span class="ms-2 text-sm text-gray-900">
-                    {{ __('Remember me') }}
+                    {{ __('Prisiminti mane') }}
                 </span>
             </label>
         </div>
@@ -55,7 +55,7 @@
                 href="{{ route('register') }}"
                 class="underline text-sm text-gray-900 hover:text-blue-600"
             >
-                {{ __('Create an account') }}
+                {{ __('Sukurti paskyrą') }}
             </a>
 
             <div class="flex items-center gap-4">
@@ -66,12 +66,12 @@
                         href="{{ route('password.request') }}"
                         class="underline text-sm text-gray-900 hover:text-blue-600"
                     >
-                        {{ __('Forgot your password?') }}
+                        {{ __('Pamiršote slaptažodį?') }}
                     </a>
                 @endif
 
                 <x-primary-button class="bg-blue-600 hover:bg-blue-500">
-                    {{ __('Log in') }}
+                    {{ __('Prisijungti') }}
                 </x-primary-button>
 
             </div>
