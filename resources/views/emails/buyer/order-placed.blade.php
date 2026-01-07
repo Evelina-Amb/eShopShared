@@ -1,17 +1,17 @@
 @component('mail::message')
-# Your order has been placed !
+# Jūsų užsakymas pateiktas!
 
-Hi {{ $order->user->vardas }},
+Sveiki, {{ $order->user->vardas }},
 
-Thank you for your purchase!  
-Your order **#{{ $order->id }}** has been successfully placed.
+Ačiū už jūsų pirkinį!  
+Jūsų užsakymas **#{{ $order->id }}** sėkmingai pateiktas.
 
 ---
 
-## Items in your order
+## Užsakymo prekės
 
 @component('mail::table')
-|  | Item | Total |
+|  | Prekė  | Suma |
 |:--|:-----|------:|
 @foreach($order->orderItem as $item)
 | 
@@ -26,11 +26,11 @@ Your order **#{{ $order->id }}** has been successfully placed.
 
 ---
 
-## Order summary
+## Užsakymo suvestinė
 
 <table width="100%" cellpadding="4" cellspacing="0">
 <tr>
-    <td>Items total</td>
+    <td>Prekių suma</td>
     <td align="right">
         €{{ number_format($order->bendra_suma, 2) }}
     </td>
@@ -38,7 +38,7 @@ Your order **#{{ $order->id }}** has been successfully placed.
 
 @if($order->small_order_fee_cents > 0)
 <tr>
-    <td>Small order fee</td>
+    <td>Mažo užsakymo mokestis</td>
     <td align="right">
         €{{ number_format($order->small_order_fee_cents / 100, 2) }}
     </td>
@@ -47,7 +47,7 @@ Your order **#{{ $order->id }}** has been successfully placed.
 
 @if($order->shipping_total_cents > 0)
 <tr>
-    <td>Shipping</td>
+    <td>Pristatymas</td>
     <td align="right">
         €{{ number_format($order->shipping_total_cents / 100, 2) }}
     </td>
@@ -59,7 +59,7 @@ Your order **#{{ $order->id }}** has been successfully placed.
 </tr>
 
 <tr>
-    <td><strong>Total paid</strong></td>
+    <td><strong>Iš viso sumokėta</strong></td>
     <td align="right">
         <strong>
             €{{ number_format($order->amount_charged_cents / 100, 2) }}
@@ -70,7 +70,7 @@ Your order **#{{ $order->id }}** has been successfully placed.
 
 ---
 
-## Shipping address
+## Pristatymo adresas
 @if($order->address && $order->address->city)
 {{ $order->address->gatve ?? '' }}  
 {{ $order->address->city->pavadinimas }},
@@ -79,8 +79,8 @@ Your order **#{{ $order->id }}** has been successfully placed.
 
 ---
 
-You’ll receive another email when your items are shipped.
+ Kai prekės bus išsiųstos, gausite dar vieną el. laišką.
 
-Thank you for shopping with us,  
+Ačiū, kad apsiperkate pas mus,
 {{ config('app.name') }}
 @endcomponent
