@@ -1,4 +1,4 @@
-<section class="space-y-6">
+<section class="space-y-6 bg-white text-gray-900 dark:bg-white dark:text-gray-900">
     <header>
         <h2 class="text-lg font-medium text-gray-900">
             {{ __('Ištrinti paskyrą') }}
@@ -12,12 +12,19 @@
     <x-danger-button
         x-data=""
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
+        class="dark:bg-red-600 dark:hover:bg-red-700"
     >
         {{ __('Ištrinti paskyrą') }}
     </x-danger-button>
 
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+    <x-modal
+        name="confirm-user-deletion"
+        :show="$errors->userDeletion->isNotEmpty()"
+        focusable
+    >
+        <form method="post"
+              action="{{ route('profile.destroy') }}"
+              class="p-6 bg-white text-gray-900 dark:bg-white dark:text-gray-900">
             @csrf
             @method('delete')
 
@@ -36,7 +43,7 @@
                     id="password"
                     name="password"
                     type="password"
-                    class="mt-1 block w-3/4"
+                    class="mt-1 block w-3/4 bg-white text-gray-900"
                     placeholder="{{ __('Slaptažodis') }}"
                 />
 
@@ -44,11 +51,14 @@
             </div>
 
             <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
+                <x-secondary-button
+                    x-on:click="$dispatch('close')"
+                    class="dark:bg-gray-200 dark:text-gray-900"
+                >
                     {{ __('Atšaukti') }}
                 </x-secondary-button>
 
-                <x-danger-button class="ms-3">
+                <x-danger-button class="ms-3 dark:bg-red-600 dark:hover:bg-red-700">
                     {{ __('Ištrinti paskyrą') }}
                 </x-danger-button>
             </div>
