@@ -88,6 +88,7 @@
                 </select>
             </div>
 
+            <div x-show="type === 'preke'" x-transition>
               {{-- SIZE --}}
             <div class="mb-4">
     <label class="font-semibold">Package size</label>
@@ -139,7 +140,7 @@
                     @checked($listing->is_renewable == 1)>
                 <label>Is this product renewable (can be restocked)?</label>
             </div>
-
+</div>
             {{-- NEW PHOTO UPLOAD + PREVIEW --}}
             <div class="mb-6">
                 <label class="font-semibold">Add New Photos</label>
