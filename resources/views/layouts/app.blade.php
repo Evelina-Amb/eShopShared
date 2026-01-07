@@ -50,5 +50,13 @@
             {{ $slot }}
         </main>
     </div>
+
+        @auth
+            <script>
+                setInterval(() => {
+                fetch('/session/ping', { credentials: 'same-origin' });
+                }, 60000);
+            </script>
+    @endauth       
 </body>
 </html>
