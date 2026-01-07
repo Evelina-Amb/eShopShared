@@ -19,6 +19,56 @@ use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
 use App\Http\Controllers\Admin\ShipmentModerationController;
 
+use Illuminate\Support\Facades\Route;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/_debug/me', function () {
+        $u = auth()->user();
+
+        return response()->json([
+            'id' => $u->id,
+            'vardas' => $u->vardas,
+            'el_pastas' => $u->el_pastas,
+            'role' => $u->role,
+            'address_id' => $u->address_id,
+            'has_address' => (bool) $u->address_id,
+            'stripe_account_id' => $u->stripe_account_id ?? null,
+            'stripe_onboarded' => (bool) ($u->stripe_onboarded ?? false),
+            'created_at' => $u->created_at,
+            'updated_at' => $u->updated_at,
+        ]);
+    })->name('debug.me');
+
+    Route::post('/_debug/me/make-seller', function () {
+        $u = auth()->user();
+
+        $u->update([
+            'role' => 'seller',
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'id' => $u->id,
+            'role' => $u->role,
+        ]);
+    })->name('debug.makeSeller');
+
+    Route::post('/_debug/me/make-buyer', function () {
+        $u = auth()->user();
+
+        $u->update([
+            'role' => 'buyer',
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'id' => $u->id,
+            'role' => $u->role,
+        ]);
+    })->name('debug.makeBuyer');
+});
+
+
 Route::get('/session/ping', function () {
     return response()->noContent();
 })->middleware('auth');
