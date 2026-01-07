@@ -37,7 +37,7 @@ class SellerOrderController extends Controller
         }
 
         if ($shipment->status !== 'pending') {
-            return back()->with('error', 'Shipment already submitted.');
+            return back()->with('error', 'Siunta jau pateikta.');
         }
 
         $data = $request->validate([
@@ -62,6 +62,6 @@ if ($admins->isNotEmpty()) {
     );
 }
 
-        return back()->with('success', 'Shipment submitted for admin review.');
+        return back()->with('success', 'Siunta pateikta administratoriaus peržiūrai.');
     }
 }
