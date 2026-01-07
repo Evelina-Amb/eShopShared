@@ -51,13 +51,13 @@
             </div>
 
             <div class="mt-6 flex justify-end">
-                <x-secondary-button
-                    x-on:click="$dispatch('close')"
-                    class="dark:bg-blue-500 dark:text-gray-900"
+               <button
+                type="button"
+                x-on:click="$dispatch('close')"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                 >
-                    {{ __('Atšaukti') }}
-                </x-secondary-button>
-
+                {{ __('Atšaukti') }}
+                </button>
                 <x-danger-button class="ms-3 dark:bg-red-600 dark:hover:bg-red-700">
                     {{ __('Ištrinti paskyrą') }}
                 </x-danger-button>
