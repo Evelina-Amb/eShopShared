@@ -3,7 +3,7 @@
     <div class="max-w-4xl mx-auto mt-10 bg-white shadow p-6 rounded"
          x-data="{ type: '{{ old('tipas', $listing->tipas) }}' }">
 
-        <h1 class="text-2xl font-bold mb-6">Edit Listing</h1>
+        <h1 class="text-2xl font-bold mb-6">Redaguoti skelbimą</h1>
 
         @if(session('success'))
             <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
@@ -33,7 +33,7 @@
 
             {{-- TITLE --}}
             <div class="mb-4">
-                <label class="font-semibold">Title</label>
+                <label class="font-semibold">Pavadinimas</label>
                 <input 
                     type="text" 
                     name="pavadinimas"
@@ -44,7 +44,7 @@
 
             {{-- DESCRIPTION --}}
             <div class="mb-4">
-                <label class="font-semibold">Description</label>
+                <label class="font-semibold">Aprašymas</label>
                 <textarea 
                     name="aprasymas" 
                     rows="5"
@@ -54,7 +54,7 @@
 
             {{-- PRICE --}}
             <div class="mb-4">
-                <label class="font-semibold">Price (€)</label>
+                <label class="font-semibold">Kaina (€)</label>
                 <input 
                     type="number" 
                     min="0"
@@ -67,16 +67,16 @@
 
             {{-- TYPE --}}
             <div class="mb-4">
-                <label class="font-semibold block">Type</label>
+                <label class="font-semibold block">Tipas</label>
                 <select name="tipas" x-model="type" class="w-full border rounded px-3 py-2" required>
-                    <option value="preke" @selected($listing->tipas === 'preke')>Product</option>
-                    <option value="paslauga" @selected($listing->tipas === 'paslauga')>Service</option>
+                    <option value="preke" @selected($listing->tipas === 'preke')>Prekė</option>
+                    <option value="paslauga" @selected($listing->tipas === 'paslauga')>Paslauga</option>
                 </select>
             </div>
 
             {{-- CATEGORY --}}
             <div class="mb-4">
-                <label class="font-semibold">Category</label>
+                <label class="font-semibold">Kategorija</label>
                 <select name="category_id" class="w-full border rounded px-3 py-2" required>
                     @foreach($categories as $cat)
                         <option 
@@ -91,36 +91,36 @@
             <div x-show="type === 'preke'" x-transition>
               {{-- SIZE --}}
             <div class="mb-4">
-    <label class="font-semibold">Package size</label>
+    <label class="font-semibold">Pakuotės dydis</label>
     <select
         name="package_size"
         class="w-full border p-2 rounded"
         x-bind:required="type === 'preke'"
         x-bind:disabled="type !== 'preke'">
         
-        <option value="">Select size</option>
+        <option value="">Pasirinkite dydį</option>
 
         <option value="XS" @selected(old('package_size', $listing->package_size) === 'XS')>
-            XS – Envelope
+            XS – Vokas
         </option>
 
         <option value="S" @selected(old('package_size', $listing->package_size) === 'S')>
-            S – Small box
+            S – Maža dėžė
         </option>
 
         <option value="M" @selected(old('package_size', $listing->package_size) === 'M')>
-            M – Medium box
+            M – Vidutinė dėžė
         </option>
 
         <option value="L" @selected(old('package_size', $listing->package_size) === 'L')>
-            L – Large box
+            L – Didelė dėžė
         </option>
     </select>
 </div>
 
             {{-- QUANTITY --}}
             <div class="mb-4">
-                <label class="font-semibold">Available Quantity</label>
+                <label class="font-semibold">Galimas kiekis</label>
                 <input 
                     type="number" 
                     min="1"
@@ -138,12 +138,12 @@
                     name="is_renewable"
                     value="1"
                     @checked($listing->is_renewable == 1)>
-                <label>Is this product renewable (can be restocked)?</label>
+                <label>Ar ši prekė atnaujinama (galima papildyti)??</label>
             </div>
 </div>
             {{-- NEW PHOTO UPLOAD + PREVIEW --}}
             <div class="mb-6">
-                <label class="font-semibold">Add New Photos</label>
+                <label class="font-semibold">Pridėti naujas nuotraukas</label>
 
                 <input 
                     type="file" 
@@ -152,7 +152,7 @@
                     multiple 
                     class="w-full border rounded px-3 py-2">
 
-                <p class="text-gray-500 text-sm">Selected images will appear below.</p>
+                <p class="text-gray-500 text-sm">Pasirinktos nuotraukos bus rodomos žemiau.</p>
 
                 <div id="previewContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4"></div>
             </div>
@@ -161,21 +161,21 @@
             <button 
                 class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-800"
                 type="submit">
-                Save Changes
+                 Išsaugoti pakeitimus
             </button>
 <a 
         href="{{ route('my.listings') }}"
         class="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400">
-        Cancel
+        Atšaukti
     </a>
         </form>
 
         {{-- EXISTING PHOTOS (OUTSIDE FORM) --}}
         <div class="mt-10">
-            <label class="font-semibold text-lg">Existing Photos</label>
+            <label class="font-semibold text-lg">Esamos nuotraukos</label>
 
             @if($listing->photos->isEmpty())
-    <p class="text-gray-500 mt-2">No photos uploaded yet.</p>
+    <p class="text-gray-500 mt-2">Nuotraukų dar nėra.</p>
 @else
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
         @foreach($listing->photos as $photo)
@@ -198,7 +198,7 @@
     @disabled($listing->photos->count() <= 1)
     class="bg-red-600 text-white text-sm px-3 py-1 rounded shadow hover:bg-red-700 
            disabled:bg-gray-400 disabled:cursor-not-allowed">
-    Delete
+    Ištrinti
 </button>
 
                 </form>
