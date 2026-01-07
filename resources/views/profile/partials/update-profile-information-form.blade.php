@@ -1,3 +1,8 @@
+<style>
+    label {
+        color: #111827;
+    }
+</style>
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900">
