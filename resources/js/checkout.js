@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     ?.getAttribute("content");
 
   if (!stripeKey || !csrf) {
-    errorBox.textContent = "Stripe configuration error.";
+    errorBox.textContent = "Stripe konfigūracijos klaida.";
     errorBox.classList.remove("hidden");
     return;
   }
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data?.error || "Failed to preview shipping");
+      throw new Error(data?.error || "Nepavyko peržiūrėti pristatymo kainos");
     }
 
     document.getElementById("shipping-total").textContent =
@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const intentData = await intentRes.json();
 
       if (!intentRes.ok || !intentData.client_secret || !intentData.order_id) {
-        throw new Error(intentData?.error || "Failed to initialize payment");
+        throw new Error(intentData?.error || "Nepavyko inicijuoti mokėjimo, nes nevisa informacija užpildyta");
       }
 
       orderId = intentData.order_id;
@@ -125,13 +125,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     errorBox.classList.add("hidden");
 
     if (!orderId || !elements) {
-      errorBox.textContent = "Please choose shipping first.";
+      errorBox.textContent = "Prašome pirmiausia pasirinkti pristatymą.";
       errorBox.classList.remove("hidden");
       return;
     }
 
     payButton.disabled = true;
-    payButton.textContent = "Processing…";
+    payButton.textContent = "Apdorojama…";
 
     try {
       const shipRes = await fetch("/checkout/shipping", {
@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const shipData = await shipRes.json();
 
       if (!shipRes.ok) {
-        throw new Error(shipData?.error || "Failed to finalize shipping");
+        throw new Error(shipData?.error || "Nepavyko patvirtinti pristatymo");
       }
 
       document.getElementById("shipping-total").textContent =
@@ -171,10 +171,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (error) throw error;
 
     } catch (err) {
-      errorBox.textContent = err.message || "Payment failed.";
+      errorBox.textContent = err.message || "Mokėjimas nepavyko.";
       errorBox.classList.remove("hidden");
       payButton.disabled = false;
-      payButton.textContent = "Pay again";
+      payButton.textContent = "Mokėti dar kartą";
     }
   });
 });
