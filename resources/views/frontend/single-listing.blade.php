@@ -1,6 +1,6 @@
 {{-- REVIEWS --}}
 <div class="mt-10 border-t pt-6">
-    <h3 class="font-semibold text-gray-800 mb-4">Reviews</h3>
+    <h3 class="font-semibold text-gray-800 mb-4">Atsiliepimai</h3>
 
     {{-- Existing reviews --}}
     @foreach($listing->review as $review)
@@ -24,7 +24,7 @@
     @auth
         @if(auth()->id() !== $listing->user_id)
             <div class="mt-6">
-                <h4 class="text-lg font-semibold mb-2">Leave a review</h4>
+                <h4 class="text-lg font-semibold mb-2">Palikti atsiliepimą</h4>
 
                 @if($errors->has('review'))
                     <div class="text-red-600 mb-2">{{ $errors->first('review') }}</div>
@@ -38,7 +38,7 @@
                     @csrf
 
                     <label class="block mb-2">
-                        Rating:
+                        Įvertinimas:
                         <select name="ivertinimas" class="border px-2 py-1 rounded">
                             <option value="1">⭐ 1</option>
                             <option value="2">⭐ 2</option>
@@ -49,10 +49,10 @@
                     </label>
 
                     <textarea name="komentaras" rows="3" class="w-full border rounded p-2"
-                        placeholder="Write a review..."></textarea>
+                        placeholder="Parašykite atsiliepimą..."></textarea>
 
                     <button class="mt-3 bg-blue-600 text-white px-4 py-2 rounded">
-                        Submit Review
+                       Pateikti atsiliepimą
                     </button>
                 </form>
             </div>
