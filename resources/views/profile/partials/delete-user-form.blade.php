@@ -53,7 +53,7 @@
             <div class="mt-6 flex justify-end">
                 <x-secondary-button
                     x-on:click="$dispatch('close')"
-                    class="dark:bg-gray-200 dark:text-gray-900"
+                    class="dark:bg-blue-500 dark:text-gray-900"
                 >
                     {{ __('Atšaukti') }}
                 </x-secondary-button>
