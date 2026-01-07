@@ -19,39 +19,6 @@ use App\Http\Controllers\Frontend\SellerOrderController;
 use App\Http\Controllers\Frontend\BuyerOrderController;
 use App\Http\Controllers\Admin\ShipmentModerationController;
 
-
-
-use Illuminate\Support\Facades\Auth;
-
-Route::middleware(['auth'])->group(function () {
-
-    // 🔍 See my user + role
-    Route::get('/_debug/me', function () {
-        $user = Auth::user();
-
-        return response()->json([
-            'id'   => $user->id,
-            'email'=> $user->el_pastas,
-            'role' => $user->role,
-        ]);
-    });
-
-    // 🔧 Force seller role
-    Route::get('/_debug/make-seller', function () {
-        $user = Auth::user();
-
-        $user->role = 'seller';
-        $user->save();
-
-        return "User {$user->id} is now SELLER";
-    });
-
-});
-
-
-
-
-
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
