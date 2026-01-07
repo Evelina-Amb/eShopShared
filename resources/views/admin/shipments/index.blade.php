@@ -1,6 +1,6 @@
 <x-app-layout>
 <div class="max-w-6xl mx-auto mt-6 sm:mt-10 px-3 sm:px-0">
-    <h1 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Shipment moderation</h1>
+    <h1 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Siuntų moderavimas</h1>
 
     @if(session('success'))
         <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
@@ -12,13 +12,13 @@
         <table class="w-full text-sm">
             <thead class="bg-gray-50 border-b hidden sm:table-header-group">
                 <tr>
-                    <th class="p-3 text-left">Order</th>
-                    <th class="p-3 text-left">Seller</th>
-                    <th class="p-3 text-left">Buyer</th>
-                    <th class="p-3 text-left">Carrier</th>
-                    <th class="p-3 text-left">Proof</th>
-                    <th class="p-3 text-left">Tracking</th>
-                    <th class="p-3 text-left">Actions</th>
+                    <th class="p-3 text-left">Užsakymas</th>
+                    <th class="p-3 text-left">Pardavėjas</th>
+                    <th class="p-3 text-left">Pirkėjas</th>
+                    <th class="p-3 text-left">Vežėjas</th>
+                    <th class="p-3 text-left">Įrodymas</th>
+                    <th class="p-3 text-left">Siuntos sekimas</th>
+                    <th class="p-3 text-left">Veiksmai</th>
                 </tr>
             </thead>
 
@@ -26,34 +26,34 @@
             @forelse($shipments as $s)
                 <tr class="border-b block sm:table-row">
                     <td class="p-3 block sm:table-cell">
-                        <span class="font-semibold sm:hidden">Order: </span>
+                        <span class="font-semibold sm:hidden">Užsakymas: </span>
                         #{{ $s->order_id }}
                     </td>
 
                     <td class="p-3 block sm:table-cell">
-                        <span class="font-semibold sm:hidden">Seller: </span>
+                        <span class="font-semibold sm:hidden">Pardavėjas: </span>
                         {{ $s->seller->name }}
                     </td>
 
                     <td class="p-3 block sm:table-cell">
-                        <span class="font-semibold sm:hidden">Buyer: </span>
+                        <span class="font-semibold sm:hidden">Pirkėjas: </span>
                         {{ $s->order->user->name }}
                     </td>
 
                     <td class="p-3 block sm:table-cell">
-                        <span class="font-semibold sm:hidden">Carrier: </span>
+                        <span class="font-semibold sm:hidden">Vežėjas: </span>
                         {{ strtoupper($s->carrier) }} ({{ $s->package_size }})
                         <br>
                         €{{ number_format($s->price_cents / 100, 2) }}
                     </td>
 
                     <td class="p-3 block sm:table-cell">
-                        <span class="font-semibold sm:hidden">Proof: </span>
+                        <span class="font-semibold sm:hidden">Įrodymas: </span>
                         @if($s->proof_path)
                             <a href="{{ asset('storage/'.$s->proof_path) }}"
                                target="_blank"
                                class="text-blue-600 underline">
-                                View proof
+                                Peržiūrėti įrodymą
                             </a>
                         @else
                             —
@@ -61,7 +61,7 @@
                     </td>
 
                     <td class="p-3 block sm:table-cell">
-                        <span class="font-semibold sm:hidden">Tracking: </span>
+                        <span class="font-semibold sm:hidden">Siuntos sekimas: </span>
                         {{ $s->tracking_number ?? '—' }}
                     </td>
 
@@ -70,14 +70,14 @@
                             <form method="POST" action="{{ route('admin.shipments.approve', $s) }}">
                                 @csrf
                                 <button class="bg-green-600 text-white px-3 py-1 rounded w-full sm:w-auto">
-                                    Approve
+                                    Patvirtinti
                                 </button>
                             </form>
 
                             <form method="POST" action="{{ route('admin.shipments.reject', $s) }}">
                                 @csrf
                                 <button class="bg-red-600 text-white px-3 py-1 rounded w-full sm:w-auto">
-                                    Reject
+                                    Atmesti
                                 </button>
                             </form>
                         </div>
@@ -86,7 +86,7 @@
             @empty
                 <tr>
                     <td colspan="7" class="p-4 text-center text-gray-500">
-                        No shipments waiting for review.
+                        Nėra siuntų, laukiančių peržiūros.
                     </td>
                 </tr>
             @endforelse
