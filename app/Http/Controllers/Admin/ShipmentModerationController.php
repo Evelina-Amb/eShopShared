@@ -32,14 +32,14 @@ class ShipmentModerationController extends Controller
     public function approve(OrderShipment $shipment)
     {
         if ($shipment->status !== 'needs_review') {
-            return back()->with('error', 'Invalid shipment state.');
+            return back()->with('error', 'Neteisinga siuntos būsena.');
         }
 
         $shipment->update(['status' => 'approved']);
 
         ReimburseShippingJob::dispatch($shipment->id);
 
-        return back()->with('success', 'Shipment approved and reimbursement dispatched.');
+        return back()->with('success', 'Siunta patvirtinta, o kompensavimas išsiųstas.');
     }
 
     /**
@@ -55,6 +55,6 @@ class ShipmentModerationController extends Controller
             'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Shipment rejected. Seller must resubmit.');
+        return back()->with('success', 'Siunta atmesta. Pardavėjas turi pateikti ją iš naujo.');
     }
 }
