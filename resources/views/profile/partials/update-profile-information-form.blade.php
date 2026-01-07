@@ -300,7 +300,7 @@
                         target="_blank"
                         class="inline-block mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
                     >
-                        View Stripe earnings
+                        View Stripe earnings 
                     </a>
                 @endif
             @endif
