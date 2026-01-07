@@ -27,6 +27,19 @@ class ListingCreateController extends Controller
 
     public function store(Request $request)
     {
+$data = $request->validate([
+    'pavadinimas'   => 'required|string|max:255',
+    'aprasymas'     => 'required|string',
+    'kaina'         => 'required|numeric|min:0',
+    'tipas'         => 'required|in:preke,paslauga',
+    'category_id'   => 'required|exists:category,id',
+    'photos.*'      => 'nullable|image|max:4096',
+
+    // conditional
+    'package_size'  => 'required_if:tipas,preke|in:XS,S,M,L',
+    'kiekis'        => 'required_if:tipas,preke|integer|min:1',
+    'is_renewable'  => 'nullable|boolean',
+]);
 
         $data['user_id']      = auth()->id();
         $data['statusas']     = 'aktyvus';
