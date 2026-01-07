@@ -97,14 +97,14 @@ input[type=number] {
                 <div class="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">
                     {{ number_format($listing->kaina, 2, ',', '.') }} €
                     <span class="text-gray-500 text-sm">
-                        @if($listing->tipas === 'preke') / vnt @else / Service @endif
+                        @if($listing->tipas === 'preke') / vnt @else / paslauga @endif
                     </span>
                 </div>
 
                 {{-- AVAILABLE --}}
                @if($listing->tipas === 'preke')
                 <div class="text-gray-700 mb-4">
-                    <strong>Available:</strong>
+                    <strong>Prieinama: </strong>
                     <span class="{{ $listing->kiekis == 0 ? 'text-red-600 font-bold' : '' }}">
                     {{ $listing->kiekis }}
                         </span>
@@ -115,7 +115,7 @@ input[type=number] {
                 @if($listing->is_renewable)
                     <div class="mb-4">
                         <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded text-sm">
-                            Renewable product – seller restocks this item
+                            Atsinaujinanti prekė – pardavėjas papildo atsargas
                         </span>
                     </div>
                 @endif
@@ -126,18 +126,18 @@ input[type=number] {
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4">
                         <a href="{{ route('listing.edit', $listing->id) }}"
                            class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center w-full sm:w-40">
-                            Edit listing
+                            Redaguoti skelbimą
                         </a>
 
                         <form method="POST"
                               action="{{ route('listing.destroy', $listing->id) }}"
-                              onsubmit="return confirm('Are you sure you want to delete this listing? This action cannot be undone.');">
+                              onsubmit="return confirm('Ar tikrai norite ištrinti šį skelbimą? Šio veiksmo atšaukti negalėsite.');">
                             @csrf
                             @method('DELETE')
 
                             <button type="submit"
                                 class="px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700 transition text-center w-full sm:w-40">
-                                Delete listing
+                                Ištrinti skelbimą
                             </button>
                         </form>
                     </div>
@@ -145,7 +145,7 @@ input[type=number] {
                 @elseif($listing->tipas === 'paslauga')
 
                     <div class="mt-4 text-gray-700 font-semibold">
-                        This is a service listing. Contact the seller to arrange details.
+                        Tai paslaugos skelbimas. Susisiekite su pardavėju dėl detalių.
                     </div>
 
                 @else
@@ -180,31 +180,31 @@ input[type=number] {
 
                         <button type="submit"
                             class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition w-full sm:w-auto">
-                            Add to cart
+                           Pridėti į krepšelį
                         </button>
                     </form>
                 @endif
 
                 {{-- SELLER INFO --}}
                 <div class="mt-8 sm:mt-10 border-t pt-6">
-                    <h3 class="font-semibold text-gray-800 mb-2">Seller</h3>
+                    <h3 class="font-semibold text-gray-800 mb-2">Pardavėjas</h3>
                     <div class="bg-gray-50 p-4 rounded border text-sm">
                         <div class="text-gray-900 font-semibold text-base sm:text-lg">
                             {{ $listing->user->vardas }} {{ $listing->user->pavarde }}
                         </div>
                         @if($listing->user->business_email)
                             <div class="text-gray-600 mt-1">
-                                Email: {{ $listing->user->business_email }}
+                               El. paštas: {{ $listing->user->business_email }}
                             </div>
                         @endif
                         @if($listing->user->telefonas)
                             <div class="text-gray-700 mt-1">
-                                Tel: {{ $listing->user->telefonas }}
+                                Tel.: {{ $listing->user->telefonas }}
                             </div>
                         @endif
                         @if($listing->user->address?->city)
                             <div class="text-gray-700 mt-1">
-                                City: {{ $listing->user->address->city->pavadinimas }}
+                                Miestas: {{ $listing->user->address->city->pavadinimas }}
                             </div>
                         @endif
                     </div>
@@ -217,7 +217,7 @@ input[type=number] {
 {{-- OTHER PRODUCTS --}}
 @if($similar->count() > 0)
 <section class="mt-14 sm:mt-20">
-    <h2 class="text-xl sm:text-2xl font-bold mb-6">Other products from this seller</h2>
+    <h2 class="text-xl sm:text-2xl font-bold mb-6">Kiti šio pardavėjo produktai</h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         @foreach($similar as $s)
@@ -269,7 +269,7 @@ input[type=number] {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start">
 
         <div>
-            <h3 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Reviews</h3>
+            <h3 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Atsiliepimai</h3>
 
             @if($totalReviews > 0)
                 <div class="mb-6">
@@ -280,7 +280,7 @@ input[type=number] {
                         <div>
                             <strong>{{ $avgRating }}</strong> / 5
                             <span class="text-gray-500 text-sm">
-                                ({{ $totalReviews }} reviews)
+                                ({{ $totalReviews }} atsiliepimai)
                             </span>
                         </div>
                     </div>
@@ -291,10 +291,10 @@ input[type=number] {
                             onchange="this.form.submit()"
                             class="border rounded px-3 py-2 w-full"
                         >
-                            <option value="newest">Newest</option>
-                            <option value="oldest">Oldest</option>
-                            <option value="highest">Highest</option>
-                            <option value="lowest">Lowest</option>
+                            <option value="newest">Naujausi</option>
+                            <option value="oldest">Seniausi</option>
+                            <option value="highest">Geriausi</option>
+                            <option value="lowest">Blogiausi</option>
                         </select>
                     </form>
                 </div>
@@ -315,7 +315,7 @@ input[type=number] {
                         </p>
                     </div>
                 @empty
-                    <p class="text-gray-500 italic">No reviews yet.</p>
+                    <p class="text-gray-500 italic">Atsiliepimų dar nėra.</p>
                 @endforelse
             </div>
         </div>
@@ -323,7 +323,7 @@ input[type=number] {
         {{-- RIGHT: REVIEW FORM --}}
         @if(!$isOwner && $reviewsAllowed)
             <div>
-                <h4 class="font-semibold mb-2">Leave a review</h4>
+                <h4 class="font-semibold mb-2">Palikti atsiliepimą</h4>
 
                 <form method="POST" action="{{ route('review.store', $listing->id) }}"
                       class="space-y-3">
@@ -342,13 +342,13 @@ input[type=number] {
                         name="komentaras"
                         rows="4"
                         class="w-full border rounded p-3"
-                        placeholder="Write a review..."
+                        placeholder="Parašykite atsiliepimą..."
                     ></textarea>
 
                     <button
                         class="bg-blue-600 text-white px-4 py-2 rounded w-full"
                     >
-                        Submit Review
+                       Pateikti atsiliepimą
                     </button>
                 </form>
             </div>
