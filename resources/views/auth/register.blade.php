@@ -2,56 +2,89 @@
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Name -->
+        <!-- First Name -->
         <div>
-            <x-input-label for="vardas" :value="__('First name')" />
-            <x-text-input id="vardas" class="block mt-1 w-full" type="text" name="vardas" :value="old('vardas')" required autofocus autocomplete="vardas" />
+            <x-input-label for="vardas" :value="__('First name')" class="text-gray-900" />
+            <x-text-input
+                id="vardas"
+                class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                type="text"
+                name="vardas"
+                :value="old('vardas')"
+                required
+                autofocus
+                autocomplete="given-name"
+            />
             <x-input-error :messages="$errors->get('vardas')" class="mt-2" />
         </div>
 
         <!-- Last Name -->
-<div class="mt-4">
-    <x-input-label for="pavarde" :value="__('Last Name')" />
-    <x-text-input id="pavarde" class="block mt-1 w-full"
-                  type="text" name="pavarde"
-                  :value="old('pavarde')" required />
-    <x-input-error :messages="$errors->get('pavarde')" class="mt-2" />
-</div>
+        <div class="mt-4">
+            <x-input-label for="pavarde" :value="__('Last Name')" class="text-gray-900" />
+            <x-text-input
+                id="pavarde"
+                class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                type="text"
+                name="pavarde"
+                :value="old('pavarde')"
+                required
+                autocomplete="family-name"
+            />
+            <x-input-error :messages="$errors->get('pavarde')" class="mt-2" />
+        </div>
 
         <!-- Email Address -->
         <div class="mt-4">
-            <x-input-label for="el_pastas" :value="__('Email')" />
-            <x-text-input id="el_pastas" class="block mt-1 w-full" type="email" name="el_pastas" :value="old('el_pastas')" required autocomplete="username" />
+            <x-input-label for="el_pastas" :value="__('Email')" class="text-gray-900" />
+            <x-text-input
+                id="el_pastas"
+                class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                type="email"
+                name="el_pastas"
+                :value="old('el_pastas')"
+                required
+                autocomplete="username"
+            />
             <x-input-error :messages="$errors->get('el_pastas')" class="mt-2" />
         </div>
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="slaptazodis" :value="__('Password')" />
-            <x-text-input id="slaptazodis" class="block mt-1 w-full"
-                            type="password"
-                            name="slaptazodis"
-                            required autocomplete="new-slaptazodis" />
-
+            <x-input-label for="slaptazodis" :value="__('Password')" class="text-gray-900" />
+            <x-text-input
+                id="slaptazodis"
+                class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                type="password"
+                name="slaptazodis"
+                required
+                autocomplete="new-password"
+            />
             <x-input-error :messages="$errors->get('slaptazodis')" class="mt-2" />
         </div>
 
         <!-- Confirm Password -->
         <div class="mt-4">
-            <x-input-label for="slaptazodis_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="slaptazodis_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="slaptazodis_confirmation" required autocomplete="new-password" />
-
+            <x-input-label for="slaptazodis_confirmation" :value="__('Confirm Password')" class="text-gray-900" />
+            <x-text-input
+                id="slaptazodis_confirmation"
+                class="block mt-1 w-full bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                type="password"
+                name="slaptazodis_confirmation"
+                required
+                autocomplete="new-password"
+            />
             <x-input-error :messages="$errors->get('slaptazodis_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
+        <div class="flex items-center justify-between mt-6">
+            <a
+                href="{{ route('login') }}"
+                class="underline text-sm text-gray-900 hover:text-blue-600"
+            >
                 {{ __('Already registered?') }}
             </a>
 
-            <x-primary-button class="ms-4">
+            <x-primary-button class="bg-blue-600 hover:bg-blue-500">
                 {{ __('Register') }}
             </x-primary-button>
         </div>
